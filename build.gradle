@@ -5,87 +5,127 @@ plugins {
 group = 'org.tablichka'
 version = '0.1'
 
-def tabSubprojects = ["entity-ai"]
-
-repositories {
-    mavenCentral()
-    maven {
-        name = 'papermc-repo'
-        url = 'https://papermc.io/repo/repository/maven-public/'
-    }
-    maven {
-        name = 'sonatype'
-        url = 'https://oss.sonatype.org/content/groups/public/'
-    }
-    maven {
-        name = 'spigot-repo'
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    maven {
-        name = 'lumine-repo'
-        url = 'https://mvn.lumine.io/repository/maven-public/'
+subprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'papermc-repo'
+            url = 'https://papermc.io/repo/repository/maven-public/'
+        }
+        maven {
+            name = 'sonatype'
+            url = 'https://oss.sonatype.org/content/groups/public/'
+        }
+        maven {
+            name = 'spigot-repo'
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven {
+            name = 'lumine-repo'
+            url = 'https://mvn.lumine.io/repository/maven-public/'
+        }
     }
 }
 
-dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
-    compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
+// Добавьте сюда строку чтобы сконфигурировать подпроект, а чтобы зарегистрировать напишите его в settings.gradle
+def tabSubprojects = ["EntityAI"]
+
+// Деплой на сервер в .server/ (c компилированием)
+tasks.register("deploy-plugin", Copy) {
+    it.dependsOn(":Launcher:jar")
+    it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    it.from("$rootDir/Launcher/build/libs")
+    it.into("$rootDir/.server/plugins")
 }
 
+// Билд, деплой, запуск сервера.
+tasks.register("test-plugin", JavaExec) {
+    it.dependsOn(":deploy-plugin")
+    it.workingDir = file("$rootDir/.server")
+    it.classpath = files("$rootDir/.server/launcher-airplane.jar")
+    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar","-Xmx512M", "-Xms512M")
+    it.args("nogui")
+    it.main("io.papermc.paperclip.Paperclip")
+}
+
+// регистрирование подпроектов
 tabSubprojects.forEach( pr ->
-    project(":${pr}") {
+project(":$pr") {
+    apply plugin: 'java-library'
 
-        sourceSets {
-            main {
-                java.srcDirs = ["$rootDir/${pr}/main/java"]
-                resources.srcDirs = ["$rootDir/${pr}/main/resources"]
-            }
-
-            test {
-                java.srcDirs = ["$rootDir/${pr}/test/java"]
-                resources.srcDirs = ["$rootDir/${pr}/test/resources"]
-            }
+    sourceSets {
+        main {
+            java.srcDirs = ["$projectDir/main/java"]
+            resources.srcDirs = ["$projectDir/main/resources"]
         }
 
-        def targetJavaVersion = 16
-        java {
-            def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-            sourceCompatibility = javaVersion
-            targetCompatibility = javaVersion
-            if (JavaVersion.current() < javaVersion) {
-                toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-            }
+        test {
+            java.srcDirs = ["$projectDir/test/java"]
+            resources.srcDirs = ["$projectDir/test/resources"]
         }
-
-        tasks.withType(JavaCompile).configureEach {
-            if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-                options.release = targetJavaVersion
-            }
-        }
-
-        processResources {
-            def props = [version: version]
-            inputs.properties props
-            filteringCharset 'UTF-8'
-            filesMatching('plugin.yml') {
-                expand props
-            }
-        }
-        /*
-        tasks.register("deploy-${pr}", Copy) {
-            it.dependsOn(rootProject.tasks.getByName(":jar"))
-            it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-            it.from("$projectDir/build/libs")
-            it.into("$projectDir/.server/plugins")
-        }
-
-        tasks.register("deployAndRun-${pr}", JavaExec) {
-            it.dependsOn(":${pr}:deploy-${pr}")
-            it.workingDir = file("$projectDir/.server")
-            it.jvmArgs("-Xmx512M -Xms512M")
-            it.args("nogui")
-            it.main("io.papermc.paperclip.Paperclip")
-        }
-         */
     }
-)
+
+    dependencies {
+        compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
+    }
+})
+
+// сам джарник плагина в который пихаются подмодули.
+project(":Launcher") {
+    apply plugin: 'java-library'
+
+    sourceSets {
+        main {
+            java.srcDirs = ["$projectDir/main/java"]
+            resources.srcDirs = ["$projectDir/main/resources"]
+        }
+
+        test {
+            java.srcDirs = ["$projectDir/test/java"]
+            resources.srcDirs = ["$projectDir/test/resources"]
+        }
+    }
+
+    dependencies {
+        tabSubprojects.forEach(s -> {
+            implementation project(":$s")
+        })
+
+        compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+    }
+
+    // Штучки от бумаги, не трогать!
+    def targetJavaVersion = 16
+    java {
+        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        if (JavaVersion.current() < javaVersion) {
+            toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+            options.release = targetJavaVersion
+        }
+    }
+
+    processResources {
+        def props = [version: version]
+        inputs.properties props
+        filteringCharset 'UTF-8'
+        filesMatching('plugin.yml') {
+            expand props
+        }
+    }
+}

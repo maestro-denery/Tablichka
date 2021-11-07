@@ -1,5 +1,7 @@
 rootProject.name = 'Tablichka'
 
-include ':entity-ai'
+include ':Launcher'
+include ':EntityAI'
 
-project(":entity-ai").projectDir = file("entity-ai")
+project(":Launcher").projectDir = file("Launcher")
+project(":EntityAI").projectDir = file("EntityAI")

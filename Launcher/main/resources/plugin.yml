@@ -1,0 +1,5 @@
+name: Tablichka
+version: '${version}'
+main: io.denery.Launcher
+api-version: 1.17
+authors: [ Denery ]

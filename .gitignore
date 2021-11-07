@@ -117,5 +117,9 @@ run/
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-#Server to test.
+# Server to test.
 .server/
+!.server/launcher-airplane.jar
+.server/plugins/Launcher.jar
+!.server/plugins/
+!.server/eula.txt
