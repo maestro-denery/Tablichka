@@ -1,0 +1,5 @@
+rootProject.name = 'io.denery'
+
+include ':entity-ai'
+
+project(":entity-ai").projectDir = file("entity-ai")

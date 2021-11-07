@@ -1,0 +1,5 @@
+name: Io.denery
+version: '${version}'
+main: io.denery.denery
+api-version: 1.17
+authors: [ Denery ]
