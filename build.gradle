@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'TablichkaLocal'
+group = 'org.tablichka'
 version = '0.1'
 
 def tabSubprojects = ["entity-ai"]
@@ -17,10 +17,19 @@ repositories {
         name = 'sonatype'
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
+    maven {
+        name = 'spigot-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'lumine-repo'
+        url = 'https://mvn.lumine.io/repository/maven-public/'
+    }
 }
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+    compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
 }
 
 tabSubprojects.forEach( pr ->
@@ -62,5 +71,21 @@ tabSubprojects.forEach( pr ->
                 expand props
             }
         }
+        /*
+        tasks.register("deploy-${pr}", Copy) {
+            it.dependsOn(rootProject.tasks.getByName(":jar"))
+            it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            it.from("$projectDir/build/libs")
+            it.into("$projectDir/.server/plugins")
+        }
+
+        tasks.register("deployAndRun-${pr}", JavaExec) {
+            it.dependsOn(":${pr}:deploy-${pr}")
+            it.workingDir = file("$projectDir/.server")
+            it.jvmArgs("-Xmx512M -Xms512M")
+            it.args("nogui")
+            it.main("io.papermc.paperclip.Paperclip")
+        }
+         */
     }
 )

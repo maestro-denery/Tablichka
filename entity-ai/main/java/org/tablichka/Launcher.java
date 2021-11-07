@@ -1,8 +1,8 @@
-package io.denery;
+package org.tablichka;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class denery extends JavaPlugin {
+public final class Launcher extends JavaPlugin {
 
     @Override
     public void onEnable() {
