@@ -119,6 +119,7 @@ run/
 
 # Server to test.
 .server/cache/
+.server/crash-reports/
 .server/logs/
 .server/world/
 .server/world_nether/

@@ -30,21 +30,14 @@ subprojects {
 // Добавьте сюда строку чтобы сконфигурировать подпроект, а чтобы зарегистрировать напишите его в settings.gradle
 def tabSubprojects = ["EntityAI"]
 
-// Деплой на сервер в .server/ (c компилированием)
-tasks.register("deploy-plugin", Copy) {
-    it.dependsOn(":Launcher:jar")
-    it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    it.from("$rootDir/Launcher/build/libs")
-    it.into("$rootDir/.server/plugins")
-}
-
-// Билд, деплой, запуск сервера.
+// Билд, деплой в .server/plugins/, запуск сервера. (Ядро Airplane)
 tasks.register("test-plugin", JavaExec) {
-    it.dependsOn(":deploy-plugin")
+    it.dependsOn(":Launcher:jar")
     it.workingDir = file("$rootDir/.server")
     it.classpath = files("$rootDir/.server/launcher-airplane.jar")
     it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar","-Xmx512M", "-Xms512M")
-    it.args("nogui")
+    // Раскомментируйте чтобы отключить серверный GUI.
+    //it.args("nogui")
     it.main("io.papermc.paperclip.Paperclip")
 }
 
@@ -97,10 +90,12 @@ project(":Launcher") {
     }
 
     jar {
+        archiveBaseName.set("Tablichka")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from {
             configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
+        destinationDir = file("$rootDir/.server/plugins")
     }
 
     // Штучки от бумаги, не трогать!
