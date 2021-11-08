@@ -118,8 +118,14 @@ run/
 !gradle-wrapper.jar
 
 # Server to test.
-.server/
+.server/cache/
+.server/logs/
+.server/world/
+.server/world_nether/
+.server/world_the_end/
+.server/**/*.yml
+!.server/plugins/bStats/config.yml
+.server/**/*.json
+.server/**/*.sh
+.server/plugins/*.jar
 !.server/launcher-airplane.jar
-.server/plugins/Launcher.jar
-!.server/plugins/
-!.server/eula.txt
