@@ -136,3 +136,4 @@ run/
 !.server/plugins/*.jar
 .server/plugins/Tablichka.jar
 !.server/launcher-airplane.jar
+!.sources/*
