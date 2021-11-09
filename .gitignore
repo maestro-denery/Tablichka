@@ -125,8 +125,14 @@ run/
 .server/world_nether/
 .server/world_the_end/
 .server/**/*.yml
-!.server/plugins/bStats/config.yml
 .server/**/*.json
 .server/**/*.sh
-.server/plugins/*.jar
+!.server/plugins/bStats/config.yml
+!.server/plugins/ModelEngine/*
+!.server/plugins/PluginMetrics/*
+!.server/plugins/ModelEngine/**/*.yml
+!.server/plugins/ModelEngine/**/*.json
+.server/plugins/ModelEngine/cache/
+!.server/plugins/*.jar
+.server/plugins/Tablichka.jar
 !.server/launcher-airplane.jar

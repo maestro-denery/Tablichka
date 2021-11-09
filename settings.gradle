@@ -1,7 +1,11 @@
 rootProject.name = 'Tablichka'
 
 include ':Launcher'
-include ':EntityAI'
+include ':Entities'
+
+// библиотечки, могут использовать nms и разные извращения, главное чтобы было понятно и удобно использовать.
+include ':Libraries'
+include ':Libraries:EntityRegistry'
 
 project(":Launcher").projectDir = file("Launcher")
-project(":EntityAI").projectDir = file("EntityAI")
+project(":Entities").projectDir = file("Entities")

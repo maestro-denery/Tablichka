@@ -28,22 +28,23 @@ subprojects {
 }
 
 // Добавьте сюда строку чтобы сконфигурировать подпроект, а чтобы зарегистрировать напишите его в settings.gradle
-def tabSubprojects = ["EntityAI"]
+def tabSubprojects = ["Entities"]
+
+def libraries = ["EntityRegistry"]
 
 // Билд, деплой в .server/plugins/, запуск сервера. (Ядро Airplane)
 tasks.register("test-plugin", JavaExec) {
     it.dependsOn(":Launcher:jar")
     it.workingDir = file("$rootDir/.server")
     it.classpath = files("$rootDir/.server/launcher-airplane.jar")
-    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar","-Xmx512M", "-Xms512M")
+    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar","-Xmx1024M", "-Xms1024M")
     // Раскомментируйте чтобы отключить серверный GUI.
     //it.args("nogui")
     it.main("io.papermc.paperclip.Paperclip")
 }
 
 // регистрирование подпроектов
-tabSubprojects.forEach( pr ->
-project(":$pr") {
+tabSubprojects.forEach( pr -> project(":$pr") {
     apply plugin: 'java-library'
 
     sourceSets {
@@ -60,7 +61,36 @@ project(":$pr") {
 
     dependencies {
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
-        compileOnly 'io.lumine.xikage:MythicMobs:4.9.1'
+    }
+})
+
+// Регистрация проектовых библиотек
+libraries.forEach(lib -> project(":Libraries:$lib") {
+    apply plugin: 'java-library'
+
+    sourceSets {
+        main {
+            java.srcDirs = ["$projectDir/main/java"]
+            resources.srcDirs = ["$projectDir/main/resources"]
+        }
+
+        test {
+            java.srcDirs = ["$projectDir/test/java"]
+            resources.srcDirs = ["$projectDir/test/resources"]
+        }
+    }
+
+    dependencies {
+        compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        switch (lib) {
+            case "EntityRegistry": {
+                // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
+                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                compileOnly 'com.ticxo.modelengine:api:R2.2.0'
+                return
+            }
+            default: return
+        }
     }
 })
 
@@ -90,6 +120,12 @@ project(":Launcher") {
     }
 
     jar {
+        libraries.forEach( pr ->
+                dependsOn(rootProject.project(":Libraries:$pr").jar)
+        )
+        tabSubprojects.forEach( pr ->
+                dependsOn(rootProject.project(":$pr").jar)
+        )
         archiveBaseName.set("Tablichka")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from {
