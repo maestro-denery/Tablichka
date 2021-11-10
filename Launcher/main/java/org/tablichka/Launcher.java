@@ -10,11 +10,11 @@ public final class Launcher extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger.info("Starting Tablet...");
+        logger.info("Starting Tablichka...");
     }
 
     @Override
     public void onDisable() {
-        logger.info("Shutting Down Tablet...");
+        logger.info("Shutting Down Tablichka...");
     }
 }
