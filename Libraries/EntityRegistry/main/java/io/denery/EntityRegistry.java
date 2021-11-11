@@ -3,9 +3,7 @@ package io.denery;
 import io.denery.entity.CustomizableEntityType;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Class where you register custom Entities with Model in ModelEngine.
@@ -16,8 +14,8 @@ public final class EntityRegistry {
 
     private static EntityRegistry instance = null;
 
-    public static EntityBuilder newRegistry() {
-        return getInstance().new EntityBuilder();
+    public static EntityApplier newRegistry() {
+        return getInstance().new EntityApplier();
     }
 
     public static EntityRegistry getInstance() {
@@ -34,15 +32,15 @@ public final class EntityRegistry {
         return types;
     }
 
-    public class EntityBuilder {
-        private EntityBuilder() {}
+    public class EntityApplier {
+        private EntityApplier() {}
 
-        public EntityBuilder register(CustomizableEntityType type) {
-            localreg.put(type.getName(), type);
+        public EntityApplier register(CustomizableEntityType type) {
+            localreg.put(type.name(), type);
             return this;
         }
 
-        public EntityRegistry build() {
+        public EntityRegistry apply() {
             types = localreg;
             return EntityRegistry.this;
         }

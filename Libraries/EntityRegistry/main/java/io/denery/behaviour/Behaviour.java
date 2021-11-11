@@ -1,10 +1,11 @@
 package io.denery.behaviour;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
 
-import java.util.*;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 

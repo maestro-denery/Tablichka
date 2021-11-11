@@ -17,15 +17,15 @@ public abstract class CustomizableEntity {
     private final ModeledEntity modeledEntity;
     private final CustomizableEntityType type;
     private Behaviour behaviour;
-    public CustomizableEntity(String registeredName, LivingEntity origin, Behaviour behaviour) {
-        this.origin = origin;
-        this.originMob = (Mob) origin;
+    public CustomizableEntity(String registeredName) {
         this.type = EntityRegistry.getInstance().getRegisteredEntities().get(registeredName);
-        this.behaviour = behaviour;
+        this.origin = type.origin();
+        this.originMob = (Mob) origin;
+        this.behaviour = type.behaviour();
 
-        Optional<ActiveModel> activeModel =  Optional.ofNullable(ModelEngineAPI.api.getModelManager().createActiveModel(registeredName));
-        if (activeModel.isEmpty()) throw new RuntimeException("Couldn't load model name: " + registeredName);
-        model = activeModel.get();
+        Optional<ActiveModel> am =  Optional.ofNullable(ModelEngineAPI.api.getModelManager().createActiveModel(registeredName));
+        if (am.isEmpty()) throw new RuntimeException("Couldn't load model: " + registeredName);
+        model = am.get();
 
         Optional<ModeledEntity> me = Optional.ofNullable(ModelEngineAPI.api.getModelManager().createModeledEntity(origin));
         if (me.isEmpty()) throw new RuntimeException("Couldn't create modeled entity: " + origin);
@@ -34,7 +34,6 @@ public abstract class CustomizableEntity {
         modeledEntity.addActiveModel(model);
         modeledEntity.detectPlayers();
         modeledEntity.setInvisible(true);
-
     }
 
     public LivingEntity getOrigin() {

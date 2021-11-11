@@ -2,10 +2,18 @@ rootProject.name = 'Tablichka'
 
 include ':Launcher'
 include ':Entities'
+include ':Discs'
 
 // библиотечки, могут использовать nms и разные извращения, главное чтобы было понятно и удобно использовать.
 include ':Libraries'
 include ':Libraries:EntityRegistry'
+include ':Libraries:DiscRegistry'
+include ':Libraries:Misc'
 
 project(":Launcher").projectDir = file("Launcher")
 project(":Entities").projectDir = file("Entities")
+project(":Discs").projectDir = file("Discs")
+
+project(":Libraries:EntityRegistry").projectDir = file("Libraries/EntityRegistry")
+project(":Libraries:DiscRegistry").projectDir = file("Libraries/DiscRegistry")
+project(":Libraries:Misc").projectDir = file("Libraries/Misc")

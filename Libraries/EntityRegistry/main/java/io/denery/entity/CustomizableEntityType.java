@@ -1,7 +1,8 @@
 package io.denery.entity;
 
-public record CustomizableEntityType(String name) {
-    public String getName() {
-        return name;
-    }
+import io.denery.behaviour.Behaviour;
+import org.bukkit.entity.LivingEntity;
+
+public record CustomizableEntityType(String name, LivingEntity origin, Behaviour behaviour) {
+
 }

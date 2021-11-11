@@ -3,3 +3,12 @@ version: '${version}'
 main: org.tablichka.Launcher
 api-version: 1.17
 authors: [ Denery ]
+
+commands:
+  ERSpawn:
+    description: Spawn entity if its ID is registered in EntityRegistryLib.
+    usage: /<command>
+permissions:
+  "Tablichka.commands.erspawn":
+    description: A player may use the spawnmodel command
+    default: op

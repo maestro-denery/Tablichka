@@ -32,9 +32,9 @@ subprojects {
 }
 
 // Добавьте сюда строку чтобы сконфигурировать подпроект, а чтобы зарегистрировать напишите его в settings.gradle
-def tabSubprojects = ["Entities"]
+def tabSubprojects = ["Entities", "Discs"]
 
-def libraries = ["EntityRegistry"]
+def libraries = ["Misc", "EntityRegistry", "DiscRegistry"]
 
 // Билд, деплой в .server/plugins/, запуск сервера. (Ядро Airplane)
 tasks.register("test-plugin", JavaExec) {
@@ -64,7 +64,19 @@ tabSubprojects.forEach( pr -> project(":$pr") {
     }
 
     dependencies {
+        compileOnly project(':Libraries:Misc')
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        switch (pr) {
+            case "Entities": {
+                compileOnly project(":Libraries:EntityRegistry")
+                return
+            }
+            case "Discs": {
+                compileOnly project(":Libraries:DiscRegistry")
+                return
+            }
+            default: return
+        }
     }
 })
 
@@ -91,11 +103,16 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (lib) {
             case "EntityRegistry": {
+                compileOnly project(':Libraries:Misc')
                 // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
                 return
+            }
+            case "DiscRegistry": {
+                compileOnly project(':Libraries:Misc')
+                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
             }
             default: return
         }
@@ -123,6 +140,9 @@ project(":Launcher") {
     }
 
     dependencies {
+        libraries.forEach( s -> {
+            implementation project(":Libraries:$s")
+        })
         tabSubprojects.forEach(s -> {
             implementation project(":$s")
         })
@@ -132,10 +152,10 @@ project(":Launcher") {
 
     jar {
         libraries.forEach( pr ->
-                dependsOn(rootProject.project(":Libraries:$pr").jar)
+                dependsOn(rootProject.project(":Libraries:$pr").tasks.jar)
         )
         tabSubprojects.forEach( pr ->
-                dependsOn(rootProject.project(":$pr").jar)
+                dependsOn(rootProject.project(":$pr").tasks.jar)
         )
         archiveBaseName.set("Tablichka")
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -143,6 +163,7 @@ project(":Launcher") {
             configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
         destinationDir = file("$rootDir/.server/plugins")
+        destinationDir = file("$rootDir/build/libs")
     }
 
     // Штучки от бумаги, не трогать!
