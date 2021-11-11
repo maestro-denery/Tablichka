@@ -41,7 +41,7 @@ tasks.register("test-plugin", JavaExec) {
     it.dependsOn(":Launcher:jar")
     it.workingDir = file("$rootDir/.server")
     it.classpath = files("$rootDir/.server/launcher-airplane.jar")
-    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar","-Xmx1024M", "-Xms1024M")
+    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar", "-Xmx1G", "-Xms1G")
     // Раскомментируйте чтобы отключить серверный GUI.
     //it.args("nogui")
     it.main("io.papermc.paperclip.Paperclip")

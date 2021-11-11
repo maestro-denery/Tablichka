@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.tablichka.architecture.Bootstrap;
 import org.tablichka.entities.commands.EntitiesCommands;
 
+import java.util.Objects;
+
 public class EntitiesBootstrap extends Bootstrap {
     public static final Logger logger = LoggerFactory.getLogger("Tablichka-Entities");
     //private Behaviour behaviour = new Behaviour()
@@ -29,7 +31,7 @@ public class EntitiesBootstrap extends Bootstrap {
 
     @Override
     protected void loadCommands() {
-        plugin.getCommand("ERSpawn").setExecutor(EntitiesCommands.getInstance());
+        Objects.requireNonNull(plugin.getCommand("ERSpawn")).setExecutor(EntitiesCommands.getInstance());
     }
 
     public static class Events implements Listener {

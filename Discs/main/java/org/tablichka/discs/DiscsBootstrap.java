@@ -12,7 +12,7 @@ import org.tablichka.architecture.Bootstrap;
 import static com.danikvitek.discregistry.DiscRegistry.log;
 
 public class DiscsBootstrap extends Bootstrap {
-    private DiscRegistry discRegistry = new DiscRegistry(plugin);
+    private final DiscRegistry discRegistry = new DiscRegistry(plugin);
     public DiscsBootstrap(JavaPlugin plugin) {
         super(plugin);
     }
@@ -22,12 +22,6 @@ public class DiscsBootstrap extends Bootstrap {
 
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveDefaultConfig();
-
-//        dbManager = new DatabaseManager(
-//                getConfig().getString("database.url"),
-//                getConfig().getString("database.user"),
-//                getConfig().getString("database.password")
-//        );
 
         try {
             discRegistry.setReflector(new Reflector_1_8());

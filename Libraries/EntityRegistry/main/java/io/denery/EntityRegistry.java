@@ -1,6 +1,7 @@
 package io.denery;
 
 import io.denery.entity.CustomizableEntityType;
+import org.tablichka.architecture.Applier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,22 +27,22 @@ public final class EntityRegistry {
     }
 
     private Map<String, CustomizableEntityType> types = new HashMap<>();
-    private Map<String, CustomizableEntityType> localreg = new HashMap<>();
+    private final Map<String, CustomizableEntityType> localReg = new HashMap<>();
 
     public Map<String, CustomizableEntityType> getRegisteredEntities() {
         return types;
     }
 
-    public class EntityApplier {
+    public class EntityApplier implements Applier<EntityRegistry> {
         private EntityApplier() {}
 
         public EntityApplier register(CustomizableEntityType type) {
-            localreg.put(type.name(), type);
+            localReg.put(type.name(), type);
             return this;
         }
 
         public EntityRegistry apply() {
-            types = localreg;
+            types = localReg;
             return EntityRegistry.this;
         }
     }
