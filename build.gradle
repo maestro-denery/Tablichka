@@ -113,6 +113,7 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
             case "DiscRegistry": {
                 compileOnly project(':Libraries:Misc')
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                return
             }
             default: return
         }
@@ -163,7 +164,6 @@ project(":Launcher") {
             configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
         destinationDir = file("$rootDir/.server/plugins")
-        destinationDir = file("$rootDir/build/libs")
     }
 
     // Штучки от бумаги, не трогать!

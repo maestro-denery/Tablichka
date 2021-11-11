@@ -41,6 +41,7 @@ public final class EntityRegistry {
             return this;
         }
 
+        @Override
         public EntityRegistry apply() {
             types = localReg;
             return EntityRegistry.this;
