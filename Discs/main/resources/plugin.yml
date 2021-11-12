@@ -1,0 +1,6 @@
+name: Discs
+version: '${version}'
+main: org.tablichka.discs.DiscsLauncher
+api-version: 1.17
+authors: [ Danik_Vitek ]
+description: Register custom music discs

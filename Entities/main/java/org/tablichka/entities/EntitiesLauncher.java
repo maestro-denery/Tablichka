@@ -7,31 +7,35 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tablichka.architecture.Bootstrap;
+import org.tablichka.architecture.Launcher;
 import org.tablichka.entities.commands.EntitiesCommands;
 
 import java.util.Objects;
 
-public class EntitiesBootstrap extends Bootstrap {
+public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public static final Logger logger = LoggerFactory.getLogger("Tablichka-Entities");
-    //private Behaviour behaviour = new Behaviour()
-    public EntitiesBootstrap(JavaPlugin plugin) {
-        super(plugin);
-    }
 
-    @Override
-    public void bootstrap() {
-        logger.info("Loading Entities Module.");
-    }
 
     @Override
     public void loadEvents() {
-        plugin.getServer().getPluginManager().registerEvents(new Events(), plugin);
+        getServer().getPluginManager().registerEvents(new Events(), this);
     }
 
     @Override
-    protected void loadCommands() {
-        Objects.requireNonNull(plugin.getCommand("ERSpawn")).setExecutor(EntitiesCommands.getInstance());
+    public void loadCommands() {
+        Objects.requireNonNull(getCommand("ERSpawn")).setExecutor(EntitiesCommands.getInstance());
+    }
+
+    @Override
+    public void onEnable() {
+        logger.info("Loading Entities Module.");
+        loadEvents();
+        loadCommands();
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
     }
 
     public static class Events implements Listener {

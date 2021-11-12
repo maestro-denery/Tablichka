@@ -7,21 +7,19 @@ import com.danikvitek.discregistry.utils.nms.Reflector_1_8;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.tablichka.architecture.Bootstrap;
+import org.tablichka.architecture.Launcher;
 
 import static com.danikvitek.discregistry.DiscRegistry.log;
 
-public class DiscsBootstrap extends Bootstrap {
-    private final DiscRegistry discRegistry = new DiscRegistry(plugin);
-    public DiscsBootstrap(JavaPlugin plugin) {
-        super(plugin);
-    }
+public class DiscsLauncher extends JavaPlugin implements Launcher {
+    private final DiscRegistry discRegistry = new DiscRegistry(this);
 
     @Override
-    public void bootstrap() {
-
-        plugin.getConfig().options().copyDefaults(true);
-        plugin.saveDefaultConfig();
+    public void onEnable() {
+        loadEvents();
+        loadCommands();
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
 
         try {
             discRegistry.setReflector(new Reflector_1_8());
@@ -32,7 +30,7 @@ public class DiscsBootstrap extends Bootstrap {
             } catch (ClassNotFoundException | NoClassDefFoundError e2) {
                 log(e2.getMessage());
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Не удалось загрузить плагин для этой версии (" + Bukkit.getVersion() + ")");
-                Bukkit.getPluginManager().disablePlugin(plugin);
+                Bukkit.getPluginManager().disablePlugin(this);
             }
         }
 
@@ -41,14 +39,18 @@ public class DiscsBootstrap extends Bootstrap {
         log("Loading completed");
     }
 
-
     @Override
-    protected void loadEvents() {
-        Bukkit.getPluginManager().registerEvents(new DiscManager(discRegistry), plugin);
+    public void onDisable() {
+        log("Disabling plugin.");
     }
 
     @Override
-    protected void loadCommands() {
+    public void loadEvents() {
+        Bukkit.getPluginManager().registerEvents(new DiscManager(discRegistry), this);
+    }
+
+    @Override
+    public void loadCommands() {
 
     }
 }

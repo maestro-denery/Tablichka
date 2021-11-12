@@ -1,6 +1,5 @@
 rootProject.name = 'Tablichka'
 
-include ':Launcher'
 include ':Entities'
 include ':Discs'
 
@@ -10,7 +9,6 @@ include ':Libraries:EntityRegistry'
 include ':Libraries:DiscRegistry'
 include ':Libraries:Misc'
 
-project(":Launcher").projectDir = file("Launcher")
 project(":Entities").projectDir = file("Entities")
 project(":Discs").projectDir = file("Discs")
 

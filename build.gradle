@@ -38,7 +38,7 @@ def libraries = ["Misc", "EntityRegistry", "DiscRegistry"]
 
 // Билд, деплой в .server/plugins/, запуск сервера. (Ядро Airplane)
 tasks.register("test-plugin", JavaExec) {
-    it.dependsOn(":Launcher:jar")
+    it.dependsOn(":jar")
     it.workingDir = file("$rootDir/.server")
     it.classpath = files("$rootDir/.server/launcher-airplane.jar")
     it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar", "-Xmx1G", "-Xms1G")
@@ -64,19 +64,27 @@ tabSubprojects.forEach( pr -> project(":$pr") {
     }
 
     dependencies {
-        compileOnly project(':Libraries:Misc')
+        implementation project(':Libraries:Misc')
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (pr) {
             case "Entities": {
-                compileOnly project(":Libraries:EntityRegistry")
+                implementation project(":Libraries:EntityRegistry")
                 return
             }
             case "Discs": {
-                compileOnly project(":Libraries:DiscRegistry")
+                implementation project(":Libraries:DiscRegistry")
                 return
             }
             default: return
         }
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it) }
+        }
+        destinationDir = file("$rootDir/.server/plugins")
     }
 })
 
@@ -124,71 +132,34 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
     }
 })
 
-// сам джарник плагина в который пихаются подмодули.
-project(":Launcher") {
-    apply plugin: 'java-library'
+jar {
+    tabSubprojects.forEach( pr -> {
+        dependsOn(rootProject.project(":$pr").tasks.jar)
+    })
+}
 
-    sourceSets {
-        main {
-            java.srcDirs = ["$projectDir/main/java"]
-            resources.srcDirs = ["$projectDir/main/resources"]
-        }
-
-        test {
-            java.srcDirs = ["$projectDir/test/java"]
-            resources.srcDirs = ["$projectDir/test/resources"]
-        }
+// Штучки от бумаги, не трогать!
+def targetJavaVersion = 16
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
+}
 
-    dependencies {
-        libraries.forEach( s -> {
-            implementation project(":Libraries:$s")
-        })
-        tabSubprojects.forEach(s -> {
-            implementation project(":$s")
-        })
-
-        compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
     }
+}
 
-    jar {
-        libraries.forEach( pr ->
-                dependsOn(rootProject.project(":Libraries:$pr").tasks.jar)
-        )
-        tabSubprojects.forEach( pr ->
-                dependsOn(rootProject.project(":$pr").tasks.jar)
-        )
-        archiveBaseName.set("Tablichka")
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from {
-            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-        }
-        destinationDir = file("$rootDir/.server/plugins")
-    }
-
-    // Штучки от бумаги, не трогать!
-    def targetJavaVersion = 16
-    java {
-        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
-        if (JavaVersion.current() < javaVersion) {
-            toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-        }
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-            options.release = targetJavaVersion
-        }
-    }
-
-    processResources {
-        def props = [version: version]
-        inputs.properties props
-        filteringCharset 'UTF-8'
-        filesMatching('plugin.yml') {
-            expand props
-        }
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
     }
 }
