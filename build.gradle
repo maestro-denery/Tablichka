@@ -110,6 +110,10 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
         testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (lib) {
+            case "Misc": {
+                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                return
+            }
             case "EntityRegistry": {
                 compileOnly project(':Libraries:Misc')
                 // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
@@ -124,6 +128,13 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 return
             }
             default: return
+        }
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it) }
         }
     }
 
