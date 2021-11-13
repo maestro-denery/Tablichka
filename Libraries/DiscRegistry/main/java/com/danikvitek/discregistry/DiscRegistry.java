@@ -1,6 +1,6 @@
 package com.danikvitek.discregistry;
 
-import com.danikvitek.discregistry.utils.nms.Reflector;
+import org.tablichka.utils.nms.Reflector;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.tablichka.architecture.Applier;
