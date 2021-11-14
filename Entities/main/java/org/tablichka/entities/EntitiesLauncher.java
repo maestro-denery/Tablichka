@@ -2,7 +2,6 @@ package org.tablichka.entities;
 
 import io.denery.entityregistry.EntityTypeRegistry;
 import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
-import io.denery.entityregistry.entity.CustomizableEntity;
 import io.denery.entityregistry.entity.CustomizableEntityTypeBuilder;
 import io.denery.entityregistry.spawn.CustomizableSpawn;
 import org.bukkit.entity.EntityType;
@@ -14,10 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tablichka.architecture.Launcher;
 import org.tablichka.entities.commands.EntitiesCommands;
-import org.tablichka.entities.mobs.beahviours.GreatHungerBehaviour;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public static final Logger logger = LoggerFactory.getLogger("Tablichka-Entities");
@@ -27,7 +24,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
             .setOriginType(EntityType.RABBIT)
             .build();
 
-    private CustomizableSpawn.CustomizableSpawnBuilder spawnbuilder;
+    private CustomizableSpawn.CustomizableSpawnBuilder spawnBuilder;
 
     @Override
     public void loadEvents() {
@@ -48,7 +45,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
                 .register(greatHunger)
                 .apply();
 
-        spawnbuilder = CustomizableSpawn.newBuilder()
+        spawnBuilder = CustomizableSpawn.newBuilder()
                 .setMaxPerChunk(40)
                 .setEntities(registry.getRegisteredEntitiesList());
 
@@ -61,7 +58,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
         super.onDisable();
     }
 
-    public class Events implements Listener {
+    public static class Events implements Listener {
 
         @EventHandler
         public void onMoveTest(PlayerMoveEvent e) {

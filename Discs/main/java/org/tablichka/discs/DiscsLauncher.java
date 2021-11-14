@@ -16,19 +16,20 @@ public class DiscsLauncher extends JavaPlugin implements Launcher {
 
     @Override
     public void onEnable() {
-        loadEvents();
-        loadCommands();
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
+
+        loadEvents();
+        loadCommands();
 
         try {
             discRegistry.setReflector(new Reflector_1_8());
         } catch (ClassNotFoundException | NoClassDefFoundError e1) {
             try {
-                log(e1.getMessage());
+                log("Version is greater than 1.16.5");
                 discRegistry.setReflector(new Reflector_1_17());
             } catch (ClassNotFoundException | NoClassDefFoundError e2) {
-                log(e2.getMessage());
+                e2.printStackTrace();
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Не удалось загрузить плагин для этой версии (" + Bukkit.getVersion() + ")");
                 Bukkit.getPluginManager().disablePlugin(this);
             }

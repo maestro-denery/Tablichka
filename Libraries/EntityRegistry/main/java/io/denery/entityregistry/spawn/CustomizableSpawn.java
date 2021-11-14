@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
         // TODO: Performance and bug fixes, work asynchronously.
         Random random = new Random();
         if (types.size() < 1) {
-            logger.info("Size of types: " + types.size());
+            logger.info("Size of types: 0");
         }
         int randindex = random.nextInt(Math.abs(types.size()));
         AbstractCustomizableEntityType type = types.get(randindex);
@@ -93,7 +94,7 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
 
     private boolean randomizedBoolean(int randomness) {
         Random random = new Random();
-        return random.ints(0, randomness).findFirst().getAsInt() == 0;
+        return random.ints(0, randomness).findFirst().orElseThrow() == 0;
     }
 
     private LivingEntity completeAsyncSpawn(CompletableFuture<LivingEntity> asyncLivingEntity) {
@@ -108,90 +109,96 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
 
     private LivingEntity doSpawnFromZeroLevel(AbstractCustomizableEntityType type, Location location, int range) {
         Random random = new Random();
-        final int xcord = location.getBlockX() + random.ints(-1 * range, range).findFirst().getAsInt();
-        final int zcord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().getAsInt();
-        Block choosenBlock = null;
+        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        Block chosenBlock = null;
         CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
-            Block tmpChoosenBlock = null;
+            Block tmpChosenBlock = null;
             int ycord = 1;
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xcord, ycord, zcord));
+            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord));
                  !block.isSolid(); ycord++) {
-                tmpChoosenBlock = block;
+                tmpChosenBlock = block;
                 if (ycord > 254) break;
             }
-            return tmpChoosenBlock;
+            return tmpChosenBlock;
         });
         try {
-            choosenBlock = asyncBlockIter.get();
+            chosenBlock = asyncBlockIter.get();
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Cannot invoke block iterating asynchronously!");
         }
-
-        if (choosenBlock != null &&
-                !new Location(location.getWorld(), xcord, choosenBlock.getY() - 1, zcord).getBlock().isLiquid() &&
-                checkMaxLightLevel(location.getWorld(), choosenBlock.getLocation()) &&
-                checkMaxPerChunk(location.getWorld(), choosenBlock.getLocation())) {
-            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xcord, choosenBlock.getY(), zcord), type.getOriginType().get().getEntityClass());
+        if (chosenBlock != null &&
+                !new Location(
+                        location.getWorld(), xCord, chosenBlock.getY() - 1, zCord).getBlock().isLiquid() &&
+                        checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
+                        checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
+                )) {
+            Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
+            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY(), zCord), entityClass.orElseThrow());
         }
         return null;
     }
 
     private LivingEntity doSpawnAbovePlayerLevel(AbstractCustomizableEntityType type, Location location, int range) {
         Random random = new Random();
-        final int xcord = location.getBlockX() + random.ints(-1 * range, range).findFirst().getAsInt();
-        final int zcord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().getAsInt();
-        Block choosenBlock = null;
+        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        Block chosenBlock = null;
         CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
-            Block tmpChoosenBlock = null;
+            Block tmpChosenBlock = null;
             int ycord = location.getBlockY();
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xcord, ycord, zcord));
-                 block.isSolid(); ycord++) {
-                tmpChoosenBlock = block;
+            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord)); block.isSolid(); ycord++) {
+                tmpChosenBlock = block;
                 if (ycord > 254) break;
                 if (ycord < 1) break;
             }
-            return tmpChoosenBlock;
+            return tmpChosenBlock;
         });
         try {
-            choosenBlock = asyncBlockIter.get();
+            chosenBlock = asyncBlockIter.get();
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Cannot invoke block iterating asynchronously!");
         }
-        if (choosenBlock != null ||
-                !new Location(location.getWorld(), xcord, choosenBlock.getY() + 1, zcord).getBlock().isLiquid() &&
-                        checkMaxLightLevel(location.getWorld(), choosenBlock.getLocation()) &&
-                        checkMaxPerChunk(location.getWorld(), choosenBlock.getLocation())) {
-            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xcord, choosenBlock.getY() + 1, zcord), type.getOriginType().get().getEntityClass());
+        if (chosenBlock != null &&
+                !new Location(
+                        location.getWorld(), xCord, chosenBlock.getY() + 1, zCord).getBlock().isLiquid() &&
+                        checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
+                        checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
+                )) {
+            Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
+            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY() + 1, zCord), entityClass.orElseThrow());
         }
         return null;
     }
 
     private LivingEntity doSpawnUnderPlayerLevel(AbstractCustomizableEntityType type, Location location, int range) {
         Random random = new Random();
-        final int xcord = location.getBlockX() + random.ints(-1 * range, range).findFirst().getAsInt();
-        final int zcord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().getAsInt();
-        Block choosenBlock = null;
+        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        Block chosenBlock = null;
         CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
-            Block tmpChoosenBlock = null;
+            Block tmpChosenBlock = null;
             int ycord = location.getBlockY();
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xcord, ycord, zcord));
-                 block.isSolid(); ycord--) {
-                tmpChoosenBlock = block;
+            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord)); block.isSolid(); ycord--) {
+                tmpChosenBlock = block;
                 if (ycord > 254) break;
                 if (ycord < 1) break;
             }
-            return tmpChoosenBlock;
+            return tmpChosenBlock;
         });
         try {
-            choosenBlock = asyncBlockIter.get();
+            chosenBlock = asyncBlockIter.get();
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Cannot invoke block iterating asynchronously!");
         }
-        if (choosenBlock != null ||
-                !new Location(location.getWorld(), xcord, choosenBlock.getY() + 1, zcord).getBlock().isLiquid() &&
-                        checkMaxLightLevel(location.getWorld(), choosenBlock.getLocation()) &&
-                        checkMaxPerChunk(location.getWorld(), choosenBlock.getLocation())) {
-            location.getWorld().spawn(new Location(location.getWorld(), xcord, choosenBlock.getY() + 1, zcord), type.getOriginType().get().getEntityClass());
+        if (chosenBlock != null &&
+                !new Location(
+                        location.getWorld(), xCord, chosenBlock.getY() + 1, zCord).getBlock().isLiquid() &&
+                        checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
+                        checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
+                )) {
+            Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
+            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY() + 1, zCord), entityClass.orElseThrow());
         }
         return null;
     }

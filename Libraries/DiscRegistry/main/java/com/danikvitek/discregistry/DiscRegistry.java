@@ -29,7 +29,7 @@ public final class DiscRegistry {
         this.reflector = reflector;
     }
 
-    public class DiscApplier implements Applier<DiscRegistry> {
+    public static class DiscApplier implements Applier<DiscRegistry> {
 
         @Override
         public DiscRegistry apply() {
