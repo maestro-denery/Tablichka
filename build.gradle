@@ -68,6 +68,8 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (pr) {
             case "Entities": {
+                compileOnly 'com.ticxo.modelengine:api:R2.2.0'
+                implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 implementation project(":Libraries:EntityRegistry")
                 return
             }
@@ -110,12 +112,19 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
         testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (lib) {
+            case "Misc": {
+                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                return
+            }
             case "EntityRegistry": {
                 compileOnly project(':Libraries:Misc')
                 // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                compileOnly group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12' // реактивность для удобства кодинга ИИ.
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
+                testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+                testImplementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 return
             }
             case "DiscRegistry": {
@@ -124,6 +133,13 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 return
             }
             default: return
+        }
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it) }
         }
     }
 

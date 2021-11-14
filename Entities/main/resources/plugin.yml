@@ -1,11 +1,11 @@
 name: Entities
-version: '${version}'
+version: '$A1.0'
 main: org.tablichka.entities.EntitiesLauncher
 api-version: 1.17
 authors: [ Denery ]
 
 commands:
-  ERSpawn:
+  erspawn:
     description: Spawn entity if its ID is registered in EntityRegistryLib.
     usage: /<command>
 permissions:
