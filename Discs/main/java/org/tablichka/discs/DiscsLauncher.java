@@ -2,8 +2,8 @@ package org.tablichka.discs;
 
 import com.danikvitek.discregistry.DiscManager;
 import com.danikvitek.discregistry.DiscRegistry;
-import com.danikvitek.discregistry.utils.nms.Reflector_1_17;
-import com.danikvitek.discregistry.utils.nms.Reflector_1_8;
+import org.tablichka.utils.nms.Reflector_1_17;
+import org.tablichka.utils.nms.Reflector_1_8;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
