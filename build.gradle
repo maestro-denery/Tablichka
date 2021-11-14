@@ -28,11 +28,17 @@ subprojects {
             name = 'lumine-repo'
             url = 'https://mvn.lumine.io/repository/maven-public/'
         }
+        maven {
+            url 'https://jitpack.io'
+        }
+        maven {
+            url "https://repo.dmulloy2.net/repository/public/"
+        }
     }
 }
 
 // Добавьте сюда строку чтобы сконфигурировать подпроект, а чтобы зарегистрировать напишите его в settings.gradle
-def tabSubprojects = ["Entities", "Discs"]
+def tabSubprojects = ["Entities", "Discs", "WayStones"]
 
 def libraries = ["Misc", "EntityRegistry", "DiscRegistry"]
 
@@ -65,14 +71,27 @@ tabSubprojects.forEach( pr -> project(":$pr") {
 
     dependencies {
         implementation project(':Libraries:Misc')
+        implementation 'org.jetbrains:annotations:22.0.0'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (pr) {
             case "Entities": {
+                compileOnly 'com.ticxo.modelengine:api:R2.2.0'
+                implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 implementation project(":Libraries:EntityRegistry")
                 return
             }
             case "Discs": {
                 implementation project(":Libraries:DiscRegistry")
+                return
+            }
+            case "WayStones": {
+                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                compileOnly 'com.github.LoneDev6:api-itemsadder:2.4.21'
+                compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
+                implementation('mysql:mysql-connector-java:8.0.25') {
+                    exclude module: 'protobuf-java'
+                }
+                implementation 'net.wesjd:anvilgui:1.5.3-SNAPSHOT'
                 return
             }
             default: return
@@ -118,8 +137,11 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 compileOnly project(':Libraries:Misc')
                 // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
+                compileOnly group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12' // реактивность для удобства кодинга ИИ.
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
+                testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+                testImplementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 return
             }
             case "DiscRegistry": {

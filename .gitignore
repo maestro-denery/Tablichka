@@ -134,6 +134,7 @@ run/
 !.server/plugins/ModelEngine/**/*.json
 .server/plugins/ModelEngine/cache/
 !.server/plugins/*.jar
+.server/plugins/WayStones.jar
 .server/plugins/Discs.jar
 .server/plugins/Entities.jar
 !.server/launcher-airplane.jar

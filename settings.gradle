@@ -2,6 +2,7 @@ rootProject.name = 'Tablichka'
 
 include ':Entities'
 include ':Discs'
+include ':WayStones'
 
 // библиотечки, могут использовать nms и разные извращения, главное чтобы было понятно и удобно использовать.
 include ':Libraries'
@@ -11,6 +12,7 @@ include ':Libraries:Misc'
 
 project(":Entities").projectDir = file("Entities")
 project(":Discs").projectDir = file("Discs")
+project(":WayStones").projectDir = file("WayStones")
 
 project(":Libraries:EntityRegistry").projectDir = file("Libraries/EntityRegistry")
 project(":Libraries:DiscRegistry").projectDir = file("Libraries/DiscRegistry")
