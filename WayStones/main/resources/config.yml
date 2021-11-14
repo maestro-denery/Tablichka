@@ -1,0 +1,10 @@
+database:
+  host: ""
+  port: 0
+  name: "Waystones"
+  login: root
+  password: ""
+
+world_names: # uuid-name paris
+  "4196906d-d29a-4f3f-be41-154d6a682b91": "Обычный мир"
+  "53902f55-5458-40de-a4f3-a6e3efa8b247": "Незер"
