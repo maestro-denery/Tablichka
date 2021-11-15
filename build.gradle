@@ -48,8 +48,8 @@ tasks.register("test-plugin", JavaExec) {
     it.workingDir = file("$rootDir/.server")
     it.classpath = files("$rootDir/.server/launcher-airplane.jar")
     it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar", "-Xmx1G", "-Xms1G")
-    // Раскомментируйте чтобы отключить серверный GUI.
-    //it.args("nogui")
+    // Закомментируйте чтобы включить GUI сервера.
+    it.args("nogui")
     it.main("io.papermc.paperclip.Paperclip")
 }
 
@@ -72,12 +72,17 @@ tabSubprojects.forEach( pr -> project(":$pr") {
     dependencies {
         implementation project(':Libraries:Misc')
         implementation 'org.jetbrains:annotations:22.0.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+        testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (pr) {
             case "Entities": {
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 implementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 implementation project(":Libraries:EntityRegistry")
+                // Tests
+                testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
                 return
             }
             case "Discs": {
@@ -105,6 +110,10 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         }
         destinationDir = file("$rootDir/.server/plugins")
     }
+
+    test {
+        useJUnitPlatform()
+    }
 })
 
 // Регистрация проектовых библиотек
@@ -124,6 +133,7 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
     }
 
     dependencies {
+        implementation 'org.jetbrains:annotations:22.0.0'
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
         testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
@@ -140,6 +150,8 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 compileOnly group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12' // реактивность для удобства кодинга ИИ.
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
+
+                // Tests
                 testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
                 testImplementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
                 return
@@ -169,6 +181,12 @@ jar {
     tabSubprojects.forEach( pr -> {
         dependsOn(rootProject.project(":$pr").tasks.jar)
     })
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 // Штучки от бумаги, не трогать!

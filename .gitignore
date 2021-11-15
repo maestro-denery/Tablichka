@@ -117,25 +117,22 @@ run/
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-# Server to test.
-.server/cache/
-.server/crash-reports/
-.server/logs/
-.server/world/
-.server/world_nether/
-.server/world_the_end/
-.server/**/*.yml
-.server/**/*.json
-.server/**/*.sh
-!.server/plugins/bStats/config.yml
-!.server/plugins/ModelEngine/*
-!.server/plugins/PluginMetrics/*
-!.server/plugins/ModelEngine/**/*.yml
-!.server/plugins/ModelEngine/**/*.json
-.server/plugins/ModelEngine/cache/
-!.server/plugins/*.jar
-.server/plugins/WayStones.jar
-.server/plugins/Discs.jar
-.server/plugins/Entities.jar
+# Local Server for testing.
+.server/*
 !.server/launcher-airplane.jar
+!.server/eula.txt
+!.server/server.properties
+
+!.server/plugins/
+.server/plugins/*
+!.server/plugins/item-nbt-api-plugin-2.8.0.jar
+!.server/plugins/ItemsAdder.jar
+!.server/plugins/LoneLibs.jar
+!.server/plugins/Model-Engine-r2.2.0.jar
+!.server/plugins/ProtocolLib.jar
+
+!.server/plugins/ModelEngine/
+.server/plugins/ModelEngine/*
+!.server/plugins/ModelEngine/blueprints/
+
 !.sources/*

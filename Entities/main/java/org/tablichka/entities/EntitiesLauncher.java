@@ -2,6 +2,7 @@ package org.tablichka.entities;
 
 import io.denery.entityregistry.EntityTypeRegistry;
 import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
+import io.denery.entityregistry.entity.CustomizableEntity;
 import io.denery.entityregistry.entity.CustomizableEntityTypeBuilder;
 import io.denery.entityregistry.spawn.CustomizableSpawn;
 import org.bukkit.entity.EntityType;
@@ -13,8 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tablichka.architecture.Launcher;
 import org.tablichka.entities.commands.EntitiesCommands;
+import org.tablichka.entities.mobs.beahviours.GreatHungerBehaviour;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public static final Logger logger = LoggerFactory.getLogger("Tablichka-Entities");
@@ -39,7 +44,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     @Override
     public void onEnable() {
         logger.info("Loading Entities Module.");
-        logger.info("Version dev-1.0.016");
+        logger.info("Version dev-1.0.017");
 
         EntityTypeRegistry registry = EntityTypeRegistry.newRegistry()
                 .register(greatHunger)
@@ -58,22 +63,24 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
         super.onDisable();
     }
 
-    public static class Events implements Listener {
-
+    public class Events implements Listener {
+/*
         @EventHandler
         public void onMoveTest(PlayerMoveEvent e) {
-            /*
-            Optional<CustomizableEntity<?>> optionalCEntity = spawnbuilder.build()
+            Flux<Optional<CustomizableEntity<?>>> entities = spawnBuilder.build()
                     .apply(getServer(), e.getPlayer().getLocation());
 
-            if (optionalCEntity.isPresent()) {
-                CustomizableEntity<?> entity = optionalCEntity.get();
-                entity.setBehaviour(new GreatHungerBehaviour(e.getPlayer()));
-                entity.modelEntity();
-                entity.applyBehaviour(1, 1, entity.getOriginEntity().get());
-            }
-             */
+            entities.parallel().runOn(Schedulers.boundedElastic()).subscribe(optionalCustomizableEntity -> {
+                if (optionalCustomizableEntity.isPresent()) {
+                    CustomizableEntity<?> entity = optionalCustomizableEntity.get();
+                    entity.setBehaviour(new GreatHungerBehaviour(e.getPlayer()));
+                    entity.modelEntity();
+                    entity.applyBehaviour(1, 1, entity.getOriginEntity().get());
+                }
+            });
         }
+
+ */
     }
 
 }

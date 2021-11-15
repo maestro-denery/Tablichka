@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,16 +21,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
 /**
- * Class where you can customize spawning of your CustomizableEntities.
+ * Class where you can customize spawning of your CustomizableEntityTypes.
  */
-public class CustomizableSpawn implements BiFunction<Server, Location, Optional<CustomizableEntity<?>>> {
+public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Optional<CustomizableEntity<?>>>> {
     private CustomizableSpawn() {}
     private static final Logger logger = LoggerFactory.getLogger("EntityRegistryLib");
 
     /**
-     * greater == less chance of spawning.
+     * means delay between 2 spawn actions, in milliseconds, by default is 100.
      */
-    public int chance = 1;
+    public int delay = 100;
     public int maxPerChunk = 20;
     public int maxLightLevel = 15;
     private List<AbstractCustomizableEntityType> types;
@@ -37,7 +38,7 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
 
     /**
      * (pls don't look at this code if you don't wanna break your psychic)
-     * Spawning Mechanism for Customizable Entities.
+     * Spawning reactive Mechanism for Customizable Entities.
      *
      * @param server server where spawn is happening.
      * @param location location nearby which you need to spawn a mob.
@@ -46,36 +47,36 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
      * so you MUST add your custom null handler, otherwise you'll have NullPointerExceptions thrown.
      */
     @Override
-    public Optional<CustomizableEntity<?>> apply(Server server, Location location) {
-        // TODO: Performance and bug fixes, work asynchronously.
-        Random random = new Random();
-        if (types.size() < 1) {
-            logger.info("Size of types: 0");
-        }
-        int randindex = random.nextInt(Math.abs(types.size()));
-        AbstractCustomizableEntityType type = types.get(randindex);
-        if (type.getOriginType().isEmpty()) throw new NullPointerException("CustomizableEntityType's origin type is null!");
-        int range = server.getViewDistance() * 2 * 16;
-        LivingEntity spawnedEntity;
-        // Random spawn option;
-        if (randomizedBoolean(chance)) {
-            // Randomly Asynchronously Spawn entity on the first air block from height 1.
-            //spawnedEntity = doSpawnFromZeroLevel(type, location, range);
-            spawnedEntity = doSpawnUnderPlayerLevel(type, location, range);
-        } else {
-            spawnedEntity = doSpawnAbovePlayerLevel(type, location, range);
-            /*
-            if (random.nextBoolean()) {
-                // Randomly Asynchronously Spawn entity on the first solid block under players Y coord.
-                spawnedEntity = doSpawnUnderPlayerLevel(type, location, range);
-            } else {
-                // Randomly Asynchronously Spawn entity on the first solid block above players Y coord.
-                spawnedEntity = doSpawnAbovePlayerLevel(type, location, range);
+    public Flux<Optional<CustomizableEntity<?>>> apply(Server server, Location location) {
+        return Flux.create(sink -> {
+            if (types.size() < 1) {
+                logger.error("There is no entity types registered! please, register it!");
             }
+            Random random = new Random();
+            int randindex = random.nextInt(Math.abs(types.size()));
+            AbstractCustomizableEntityType type = types.get(randindex);
+            if (type.getOriginType().isEmpty()) throw new NullPointerException("CustomizableEntityType's origin type is null! Please set it!");
+            int range = server.getViewDistance() * 2 * 16;
 
-             */
-        }
-        return Optional.of(CustomizableEntityBuilder.newBuilder().applyType(type).applyOriginEntity(spawnedEntity).build());
+            // I guess everything in these methods needs to be called in async,
+            // because async methods must be thread safe and all the work in this sequence goes parallel.
+
+            try {
+                // Spawn entity on the first not solid block from height 1.
+                sink.next(Optional.of(CustomizableEntityBuilder.newBuilder()
+                        .applyType(type)
+                        .applyOriginEntity(doSpawnFromZeroLevel(type, location, range))
+                        .build()));
+
+                // Spawn entity under location's Y coordinate
+                sink.next(Optional.of(CustomizableEntityBuilder.newBuilder()
+                        .applyType(type)
+                        .applyOriginEntity(doAtHighestBlockInLocation(type, location, range))
+                        .build()));
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private boolean checkMaxLightLevel(World world, Location location) {
@@ -92,115 +93,61 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
         return valueOfEntitiesInChunk < maxPerChunk;
     }
 
-    private boolean randomizedBoolean(int randomness) {
+    private LivingEntity doSpawnFromZeroLevel(AbstractCustomizableEntityType type, Location location, int range) throws ExecutionException, InterruptedException {
+        LivingEntity entity = null;
         Random random = new Random();
-        return random.ints(0, randomness).findFirst().orElseThrow() == 0;
-    }
-
-    private LivingEntity completeAsyncSpawn(CompletableFuture<LivingEntity> asyncLivingEntity) {
-        try {
-            return asyncLivingEntity.get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace(System.err);
-            logger.error("Cannot compete asynchronous spawning operation!");
-            throw new RuntimeException("Something went wrong in asynchronous spawning entity!", e);
-        }
-    }
-
-    private LivingEntity doSpawnFromZeroLevel(AbstractCustomizableEntityType type, Location location, int range) {
-        Random random = new Random();
-        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
-        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int xCord = location.getWorld().getChunkAtAsync(location).get().getX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int zCord = location.getWorld().getChunkAtAsync(location).get().getX() + random.ints(-1 * range, range).findFirst().orElseThrow();
         Block chosenBlock = null;
-        CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
+
+        CompletableFuture<Block> asyncBlockIteration = CompletableFuture.supplyAsync(() -> {
             Block tmpChosenBlock = null;
             int ycord = 1;
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord));
-                 !block.isSolid(); ycord++) {
-                tmpChosenBlock = block;
-                if (ycord > 254) break;
+            try {
+                for (Block block = location.getWorld().getChunkAtAsync(location).get().getBlock(xCord, ycord, zCord);
+                     !block.isSolid() && !block.isLiquid(); ycord++) {
+                    tmpChosenBlock = block;
+                    if (ycord > 254) break;
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
             return tmpChosenBlock;
         });
         try {
-            chosenBlock = asyncBlockIter.get();
+            chosenBlock = asyncBlockIteration.get();
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Cannot invoke block iterating asynchronously!");
         }
         if (chosenBlock != null &&
                 !new Location(
-                        location.getWorld(), xCord, chosenBlock.getY() - 1, zCord).getBlock().isLiquid() &&
+                        location.getWorld(), xCord, chosenBlock.getY() - 1, zCord
+                ).getBlock().isLiquid() &&
                         checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
                         checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
                 )) {
             Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
-            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY(), zCord), entityClass.orElseThrow());
+            entity = (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY(), zCord), entityClass.orElseThrow());
         }
-        return null;
+        return entity;
     }
 
-    private LivingEntity doSpawnAbovePlayerLevel(AbstractCustomizableEntityType type, Location location, int range) {
+    private LivingEntity doAtHighestBlockInLocation(AbstractCustomizableEntityType type, Location location, int range) throws ExecutionException, InterruptedException {
+        LivingEntity entity = null;
         Random random = new Random();
-        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
-        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
-        Block chosenBlock = null;
-        CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
-            Block tmpChosenBlock = null;
-            int ycord = location.getBlockY();
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord)); block.isSolid(); ycord++) {
-                tmpChosenBlock = block;
-                if (ycord > 254) break;
-                if (ycord < 1) break;
-            }
-            return tmpChosenBlock;
-        });
-        try {
-            chosenBlock = asyncBlockIter.get();
-        } catch (ExecutionException | InterruptedException e) {
-            logger.error("Cannot invoke block iterating asynchronously!");
-        }
-        if (chosenBlock != null &&
-                !new Location(
-                        location.getWorld(), xCord, chosenBlock.getY() + 1, zCord).getBlock().isLiquid() &&
-                        checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
-                        checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
+        final int xCord = location.getWorld().getChunkAtAsync(location).get().getX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        final int zCord = location.getWorld().getChunkAtAsync(location).get().getX() + random.ints(-1 * range, range).findFirst().orElseThrow();
+        Block chosenBlock = location.getWorld().getHighestBlockAt(xCord, zCord);
+        if (new Location(
+                location.getWorld(), xCord, chosenBlock.getY() - 1, zCord
+        ).getBlock().isLiquid() &&
+                checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
+                checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
                 )) {
             Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
-            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY() + 1, zCord), entityClass.orElseThrow());
+            entity = (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY(), zCord), entityClass.orElseThrow());
         }
-        return null;
-    }
-
-    private LivingEntity doSpawnUnderPlayerLevel(AbstractCustomizableEntityType type, Location location, int range) {
-        Random random = new Random();
-        final int xCord = location.getBlockX() + random.ints(-1 * range, range).findFirst().orElseThrow();
-        final int zCord = location.getBlockZ() + random.ints(-1 * range, range).findFirst().orElseThrow();
-        Block chosenBlock = null;
-        CompletableFuture<Block> asyncBlockIter = CompletableFuture.supplyAsync(() -> {
-            Block tmpChosenBlock = null;
-            int ycord = location.getBlockY();
-            for (Block block = location.getWorld().getBlockAt(new Location(location.getWorld(), xCord, ycord, zCord)); block.isSolid(); ycord--) {
-                tmpChosenBlock = block;
-                if (ycord > 254) break;
-                if (ycord < 1) break;
-            }
-            return tmpChosenBlock;
-        });
-        try {
-            chosenBlock = asyncBlockIter.get();
-        } catch (ExecutionException | InterruptedException e) {
-            logger.error("Cannot invoke block iterating asynchronously!");
-        }
-        if (chosenBlock != null &&
-                !new Location(
-                        location.getWorld(), xCord, chosenBlock.getY() + 1, zCord).getBlock().isLiquid() &&
-                        checkMaxLightLevel(location.getWorld(), chosenBlock.getLocation()) &&
-                        checkMaxPerChunk(location.getWorld(), chosenBlock.getLocation()
-                )) {
-            Optional<Class<? extends Entity>> entityClass = Optional.ofNullable(type.getOriginType().orElseThrow().getEntityClass());
-            return (LivingEntity) location.getWorld().spawn(new Location(location.getWorld(), xCord, chosenBlock.getY() + 1, zCord), entityClass.orElseThrow());
-        }
-        return null;
+        return entity;
     }
 
     public static CustomizableSpawnBuilder newBuilder() {
@@ -215,8 +162,8 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Optional<
             return this;
         }
 
-        public CustomizableSpawnBuilder setChance(int chance) {
-            CustomizableSpawn.this.chance = chance;
+        public CustomizableSpawnBuilder setDelay(int delay) {
+            CustomizableSpawn.this.delay = delay;
             return this;
         }
 
