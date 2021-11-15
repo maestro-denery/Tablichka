@@ -290,7 +290,7 @@ public class WaystoneManager implements Listener {
     }
 
     private static void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
-        List<ItemStack> knownWaystones = getKnownWaystones(player);
+        List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
         setWaystonesIcons(waystoneMenu, knownWaystones, thisWaystone);
         setControlButtons(player, waystoneMenu, thisWaystone);
     }

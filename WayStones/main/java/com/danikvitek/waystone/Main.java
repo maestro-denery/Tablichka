@@ -42,6 +42,7 @@ public final class Main extends JavaPlugin implements Listener {
         }
 
         Bukkit.getPluginManager().registerEvents(this, this);
+        log("Loading completed");
     }
 
     public static void log(String message) {
@@ -50,10 +51,12 @@ public final class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onIALoad(ItemsAdderLoadDataEvent event) {
+        log("ItemsAdderLoadDataEvent fired");
         if (!isWaystonesListenerRegistered) {
             Bukkit.getPluginManager().registerEvents(new WaystoneManager(this), this);
             Bukkit.getPluginManager().registerEvents(MenuHandler.getListeners(), this);
             isWaystonesListenerRegistered = true;
+            log("WayStones event listeners registered");
         }
     }
 }
