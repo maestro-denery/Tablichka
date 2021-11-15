@@ -34,8 +34,7 @@ public class SourceDestinationPair {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SourceDestinationPair)) return false;
-        SourceDestinationPair that = (SourceDestinationPair) o;
+        if (!(o instanceof SourceDestinationPair that)) return false;
         return getSource().equals(that.getSource()) && getDestination().equals(that.getDestination());
     }
 

@@ -44,8 +44,7 @@ public class Waystone {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Waystone)) return false;
-        Waystone waystone = (Waystone) o;
+        if (!(o instanceof Waystone waystone)) return false;
         return getX() == waystone.getX() && getY() == waystone.getY() && getZ() == waystone.getZ() && Objects.equals(getWorld(), waystone.getWorld());
     }
 

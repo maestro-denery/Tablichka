@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WaystoneManager implements Listener {
+    Plugin plugin;
+
+    WaystoneManager(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @NotNull
     public static final String topHalfID = "ingredients:platinum_block";
     @NotNull
@@ -283,7 +290,7 @@ public class WaystoneManager implements Listener {
     }
 
     private static void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
-        List<ItemStack> knownWaystones = getKnownWaystones(player);
+        List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
         setWaystonesIcons(waystoneMenu, knownWaystones, thisWaystone);
         setControlButtons(player, waystoneMenu, thisWaystone);
     }
@@ -394,7 +401,7 @@ public class WaystoneManager implements Listener {
                                                     ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
                                                     ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
                                                     ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
-                                                    ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + Utils.getWorldName(w.getWorld())
+                                                    ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
                                             )
                                             .addNBT("waystone_data", waystoneData)
                                             .build();

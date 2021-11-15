@@ -1,4 +1,4 @@
-name: Waystone
+name: WayStones
 version: '${project.version}'
 main: com.danikvitek.waystone.Main
 api-version: 1.17
