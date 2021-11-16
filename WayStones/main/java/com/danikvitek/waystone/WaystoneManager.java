@@ -36,31 +36,28 @@ public class WaystoneManager implements Listener {
         this.plugin = plugin;
     }
 
-    @NotNull
-    public static final String topHalfID = "ingredients:platinum_block";
-    @NotNull
-    public static final String bottomHalfId = "ingredients:cobalt_block";
-    @NotNull
-    public static final String waystoneGiuId = "hub_furniture:jukebox_main";
+    @NotNull public static final String TOP_HALF_ID = "ingredients:platinum_block";
+    @NotNull public static final String BOTTOM_HALF_ID = "ingredients:cobalt_block";
+    @NotNull public static final String WAYSTONE_GIU_ID = "hub_furniture:jukebox_main";
 
     private static final Map<Player, Integer> playerPages = new HashMap<>();
-    private static final Map<Player, SourceDestinationPair> playerSourceDestinationPairs = new HashMap<>();
+    private static final Map<Player, SourceDestinationPlayer> playerSourceDestinationPairs = new HashMap<>();
 
     @EventHandler
     public void onWaystoneInteract(CustomBlockInteractEvent event) {
         if (!event.getPlayer().isSneaking()) {
-            if (Objects.equals(event.getNamespacedID(), topHalfID)) {
+            if (Objects.equals(event.getNamespacedID(), TOP_HALF_ID)) {
                 CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(bottomHalfId)) {
+                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
                     int x = event.getBlockClicked().getX(),
                             y = event.getBlockClicked().getY() - 1,
                             z = event.getBlockClicked().getZ();
                     UUID world = event.getBlockClicked().getWorld().getUID();
                     interactWithWaystone(event.getPlayer(), x, y, z, world);
                 }
-            } else if (Objects.equals(event.getNamespacedID(), bottomHalfId)) {
+            } else if (Objects.equals(event.getNamespacedID(), BOTTOM_HALF_ID)) {
                 CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(topHalfID)) {
+                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
                     int x = event.getBlockClicked().getX(),
                             y = event.getBlockClicked().getY(),
                             z = event.getBlockClicked().getZ();
@@ -75,18 +72,18 @@ public class WaystoneManager implements Listener {
     public void onWaystoneBreak(BlockBreakEvent event) {
         CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
         if (customBlock != null) {
-            if (Objects.equals(customBlock.getNamespacedID(), topHalfID)) {
+            if (Objects.equals(customBlock.getNamespacedID(), TOP_HALF_ID)) {
                 CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(bottomHalfId)) {
+                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
                     int x = event.getBlock().getX(),
                             y = event.getBlock().getY() - 1,
                             z = event.getBlock().getZ();
                     UUID world = event.getBlock().getWorld().getUID();
                     breakWaystone(x, y, z, world);
                 }
-            } else if (Objects.equals(customBlock.getNamespacedID(), bottomHalfId)) {
+            } else if (Objects.equals(customBlock.getNamespacedID(), BOTTOM_HALF_ID)) {
                 CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(topHalfID)) {
+                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
                     int x = event.getBlock().getX(),
                             y = event.getBlock().getY(),
                             z = event.getBlock().getZ();
@@ -278,7 +275,7 @@ public class WaystoneManager implements Listener {
                         null,
                         18,
                         "Обелиск " + waystoneName,
-                        new FontImageWrapper(waystoneGiuId)
+                        new FontImageWrapper(WAYSTONE_GIU_ID)
                 );
                 Menu waystoneMenu = new Menu(gui);
                 playerPages.put(player, 0);
@@ -353,9 +350,10 @@ public class WaystoneManager implements Listener {
                                 dstTag.getString("name"),
                                 Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
                         );
-                        playerSourceDestinationPairs.put(
+                        SourceDestinationPlayer.registerNewPair(
                                 (Player) event.getWhoClicked(),
-                                new SourceDestinationPair(thisWaystone, destination)
+                                thisWaystone,
+                                destination
                         );
                     }
                 }
@@ -394,17 +392,18 @@ public class WaystoneManager implements Listener {
                                     waystoneData.setInt("z", w.getZ());
                                     waystoneData.setString("name", w.getName());
                                     waystoneData.setByteArray("world", Converter.uuidToBytes(Objects.requireNonNull(w.getWorld()).getUID()));
-                                    return new ItemBuilder(Material.PAPER)
-                                            .setName(w.getName())
-                                            .setLore(
-                                                    "",
-                                                    ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
-                                                    ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
-                                                    ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
-                                                    ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
-                                            )
-                                            .addNBT("waystone_data", waystoneData)
-                                            .build();
+                                    return new NBTManager(
+                                            new ItemBuilder(Material.PAPER)
+                                                    .setName(w.getName())
+                                                    .setLore(
+                                                            "",
+                                                            ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
+                                                            ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
+                                                            ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
+                                                            ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
+                                                    )
+                                                    .build()
+                                    ).addTag("waystone_data", waystoneData).build();
                                 })
                                 .collect(Collectors.toList());
                     } catch (SQLException throwables) {

@@ -28,16 +28,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder addNBT(String name, NBTBase tag) {
-        net.minecraft.world.item.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(this.itemStack);
-        NBTTagCompound compound = nmsItemStack.hasTag() ? nmsItemStack.getTag() : new NBTTagCompound();
-        assert compound != null;
-        compound.set(name, tag);
-        nmsItemStack.setTag(compound);
-        this.itemStack = CraftItemStack.asBukkitCopy(nmsItemStack);
-        return this;
-    }
-
     public ItemStack build() {
         this.itemStack.setItemMeta(this.itemMeta);
         return this.itemStack;

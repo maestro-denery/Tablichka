@@ -7,6 +7,7 @@ import com.danikvitek.waystone.utils.gui.*;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,7 +41,6 @@ public final class Main extends JavaPlugin implements Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         Bukkit.getPluginManager().registerEvents(this, this);
         log("Loading completed");
     }
