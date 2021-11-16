@@ -9,41 +9,66 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-public class SourceDestinationPlayer implements Listener {
+public class SourceDestinationPair implements Listener {
+    private static Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
+
     private static final String screenEffectColor = "#101010";
     private static final long screenEffectFadeIn = 20L;
     private static final long screenEffectStay = 20L;
     private static final long screenEffectFadeOut = 20L;
     private static final boolean screenEffectFreeze = true;
 
+    public static boolean hasSelection(Player player) {
+        return activeSDPs.containsKey(player);
+    }
+
     public static void registerNewPair(@NotNull Player player, @NotNull Waystone source, @NotNull Waystone destination) {
+        SourceDestinationPair sourceDestinationPair = new SourceDestinationPair(source, destination, player);
+        if (hasSelection(player)) {
+            activeSDPs.get(player).stopTeleportation();
+        }
+        activeSDPs.put(player, sourceDestinationPair);
         Bukkit.getPluginManager().registerEvents(
-                new SourceDestinationPlayer(source, destination, player),
+                sourceDestinationPair,
                 Main.getPlugin(Main.class)
         );
     }
 
+    private static SourceDestinationPair getByPlayer(Player player) {
+        return activeSDPs.get(player);
+    }
+
+    private static void clearByPlayer(Player player) {
+        activeSDPs.remove(player);
+    }
+
+    public static void stopAndClearByPlayer(Player player) {
+        getByPlayer(player).stopTeleportation();
+        clearByPlayer(player);
+    }
+
     @NotNull private Waystone source;
     @NotNull private Waystone destination;
-    @NotNull private final Player player;
     @NotNull private final BukkitTask drawFieldTask;
 
-    public SourceDestinationPlayer(@NotNull Waystone source, @NotNull Waystone destination, @NotNull Player player) {
+    private SourceDestinationPair(@NotNull Waystone source, @NotNull Waystone destination, @NotNull Player player) {
         this.source = source;
         this.destination = destination;
-        this.player = player;
         this.drawFieldTask = new BukkitRunnable() {
             @Override
             public void run() {
-                for (double z = -90D; z < 90D; z+=9D) {
-                    double yIncrement = 350D/8100D * z * z + 10D; // Math.abs(359D / 90D * z) + 1D;
+                for (double z = -90D; z < 90D; z+=5D) {
+                    double yIncrement = 355D/8100D * z * z + 5D; // Math.abs(359D / 90D * z) + 1D;
                     for (double y = 0D; y <= 360D; y += yIncrement) {
                         player.spawnParticle(
                                 Particle.REDSTONE,
@@ -59,15 +84,15 @@ public class SourceDestinationPlayer implements Listener {
                 }
             }
         }.runTaskTimerAsynchronously(Main.getPlugin(Main.class), 0L, 10L);
+        activeSDPs.put(player, this);
     }
 
     @EventHandler
     public void onCrossingBorderLine(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        if (player.equals(this.player)) {
+        if (this.equals(activeSDPs.get(player))) {
             if (!player.getWorld().equals(this.source.getWorld())) {
-                HandlerList.unregisterAll(this);
-                this.stopDrawFieldTask();
+                stopTeleportation();
             } else if (this.toSourceLocation().distance(player.getLocation()) > 5) {
                 Bukkit.dispatchCommand(
                         Bukkit.getConsoleSender(),
@@ -80,20 +105,23 @@ public class SourceDestinationPlayer implements Listener {
                                 screenEffectFreeze ? "freeze" : "nofreeze",
                                 player.getName()
                         ));
-                SourceDestinationPlayer thisPair = this;
                 Location offset = player.getLocation().subtract(this.toSourceLocation());
                 Location destinationLocation = this.toDestinationLocation().add(offset.toVector());
                 destinationLocation.setDirection(player.getLocation().getDirection());
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        player.teleport(destinationLocation);
-                        HandlerList.unregisterAll(thisPair);
-                        thisPair.stopDrawFieldTask();
+                        player.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        stopTeleportation();
                     }
                 }.runTaskLater(Main.getPlugin(Main.class), screenEffectFadeIn);
             }
         }
+    }
+
+    public void stopTeleportation() {
+        HandlerList.unregisterAll(this);
+        this.stopDrawFieldTask();
     }
 
     public @NotNull Waystone getSource() {
@@ -138,7 +166,7 @@ public class SourceDestinationPlayer implements Listener {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SourceDestinationPlayer that)) return false;
+        if (!(o instanceof SourceDestinationPair that)) return false;
         return getSource().equals(that.getSource()) && getDestination().equals(that.getDestination());
     }
 

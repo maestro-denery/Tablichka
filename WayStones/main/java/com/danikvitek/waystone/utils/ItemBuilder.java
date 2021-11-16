@@ -1,16 +1,14 @@
 package com.danikvitek.waystone.utils;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ItemBuilder {
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
     private final ItemMeta itemMeta;
 
     public ItemBuilder(Material material) {
@@ -18,8 +16,18 @@ public class ItemBuilder {
         this.itemMeta = this.itemStack.getItemMeta();
     }
 
+    public ItemBuilder(ItemStack itemStack) {
+        this.itemStack = itemStack;
+        this.itemMeta = this.itemStack.getItemMeta();
+    }
+
     public ItemBuilder setName(String name) {
         this.itemMeta.setDisplayName(name);
+        return this;
+    }
+
+    public ItemBuilder setLore(List<String> lore) {
+        this.itemMeta.setLore(lore);
         return this;
     }
 

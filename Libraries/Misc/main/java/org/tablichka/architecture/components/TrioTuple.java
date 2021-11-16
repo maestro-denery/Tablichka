@@ -2,13 +2,15 @@ package org.tablichka.architecture.components;
 
 import java.util.Objects;
 
-public class BiTuple<A, B> {
+public class TrioTuple<A, B, C> {
     private A first;
     private B second;
+    private C third;
 
-    public BiTuple(A first, B second) {
+    public TrioTuple(A first, B second, C third) {
         this.first = first;
         this.second = second;
+        this.third = third;
     }
 
     public A getFirst() {
@@ -19,6 +21,10 @@ public class BiTuple<A, B> {
         return second;
     }
 
+    public C getThird() {
+        return third;
+    }
+
     public void setFirst(A first) {
         this.first = first;
     }
@@ -27,15 +33,19 @@ public class BiTuple<A, B> {
         this.second = second;
     }
 
+    public void setThird(C third) {
+        this.third = third;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BiTuple<?, ?> biTuple)) return false;
-        return Objects.equals(getFirst(), biTuple.getFirst()) && Objects.equals(getSecond(), biTuple.getSecond());
+        if (!(o instanceof TrioTuple<?, ?, ?> trioTuple)) return false;
+        return Objects.equals(getFirst(), trioTuple.getFirst()) && Objects.equals(getSecond(), trioTuple.getSecond()) && Objects.equals(getThird(), trioTuple.getThird());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getFirst(), getSecond());
+        return Objects.hash(getFirst(), getSecond(), getThird());
     }
 }
