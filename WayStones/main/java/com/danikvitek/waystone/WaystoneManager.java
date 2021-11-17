@@ -370,6 +370,7 @@ public class WaystoneManager implements Listener {
         drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
     }
 
+    @SuppressWarnings("deprecation")
     private static void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         waystoneMenu.setButton(BUTTON_SLOT_APPLY_CANCEL, new Button(
                 selected.containsKey(player)
@@ -407,7 +408,6 @@ public class WaystoneManager implements Listener {
                         );
                     }
                 }
-                selected.remove(player);
                 MenuHandler.closeMenu(player);
             }
         });

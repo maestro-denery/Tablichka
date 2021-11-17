@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class SourceDestinationPair implements Listener {
-    private static Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
+    private static final Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
 
     private static final String screenEffectColor = "#101010";
     private static final long screenEffectFadeIn = 20L;
@@ -34,9 +34,7 @@ public class SourceDestinationPair implements Listener {
 
     public static void registerNewPair(@NotNull Player player, @NotNull Waystone source, @NotNull Waystone destination) {
         SourceDestinationPair sourceDestinationPair = new SourceDestinationPair(source, destination, player);
-        if (hasSelection(player)) {
-            activeSDPs.get(player).stopTeleportation();
-        }
+        if (hasSelection(player)) stopAndClearByPlayer(player);
         activeSDPs.put(player, sourceDestinationPair);
         Bukkit.getPluginManager().registerEvents(
                 sourceDestinationPair,
@@ -48,13 +46,9 @@ public class SourceDestinationPair implements Listener {
         return activeSDPs.get(player);
     }
 
-    private static void clearByPlayer(Player player) {
-        activeSDPs.remove(player);
-    }
-
     public static void stopAndClearByPlayer(Player player) {
         getByPlayer(player).stopTeleportation();
-        clearByPlayer(player);
+        activeSDPs.remove(player);
     }
 
     @NotNull private Waystone source;
@@ -84,7 +78,6 @@ public class SourceDestinationPair implements Listener {
                 }
             }
         }.runTaskTimerAsynchronously(Main.getPlugin(Main.class), 0L, 10L);
-        activeSDPs.put(player, this);
     }
 
     @EventHandler
@@ -93,6 +86,7 @@ public class SourceDestinationPair implements Listener {
         if (this.equals(activeSDPs.get(player))) {
             if (!player.getWorld().equals(this.source.getWorld())) {
                 stopTeleportation();
+                activeSDPs.remove(player);
             } else if (this.toSourceLocation().distance(player.getLocation()) > 5) {
                 Bukkit.dispatchCommand(
                         Bukkit.getConsoleSender(),
@@ -113,6 +107,7 @@ public class SourceDestinationPair implements Listener {
                     public void run() {
                         player.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                         stopTeleportation();
+                        activeSDPs.remove(player);
                     }
                 }.runTaskLater(Main.getPlugin(Main.class), screenEffectFadeIn);
             }
