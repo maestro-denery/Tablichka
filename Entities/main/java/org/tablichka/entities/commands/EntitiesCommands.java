@@ -76,7 +76,7 @@ public class EntitiesCommands implements TabExecutor {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String string, @NotNull String[] args) {
         return StringUtils.copyPartialInnerMatches(
-                args[1],
+                args[0],
                 switch (command.getName()) {
                     case "erspawn" -> EntityTypeRegistry.getInstance().getRegisteredEntities().keySet().stream().toList();
 

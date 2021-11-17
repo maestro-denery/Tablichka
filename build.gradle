@@ -53,6 +53,16 @@ tasks.register("test-plugin", JavaExec) {
     it.main("io.papermc.paperclip.Paperclip")
 }
 
+// Чистый запуск сервера без ребилда всех плагинов.
+tasks.register("test-plugin-no-rebuild", JavaExec) {
+    it.workingDir = file("$rootDir/.server")
+    it.classpath = files("$rootDir/.server/launcher-airplane.jar")
+    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar", "-Xmx1G", "-Xms1G")
+    // Закомментируйте чтобы включить GUI сервера.
+    it.args("nogui")
+    it.main("io.papermc.paperclip.Paperclip")
+}
+
 // регистрирование подпроектов
 tabSubprojects.forEach( pr -> project(":$pr") {
     apply plugin: 'java-library'
@@ -106,9 +116,13 @@ tabSubprojects.forEach( pr -> project(":$pr") {
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from {
-            configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it) }
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
         destinationDir = file("$rootDir/.server/plugins")
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
     }
 
     test {
@@ -167,9 +181,10 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from {
-            configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it) }
-        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
     }
 
     test {
@@ -178,15 +193,12 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
 })
 
 jar {
+    libraries.forEach( lib -> {
+        dependsOn(rootProject.project(":Libraries:$lib").tasks.jar)
+    })
     tabSubprojects.forEach( pr -> {
         dependsOn(rootProject.project(":$pr").tasks.jar)
     })
-}
-
-compileJava.options.encoding = 'UTF-8'
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
 }
 
 // Штучки от бумаги, не трогать!
