@@ -22,6 +22,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -375,8 +376,9 @@ public class WaystoneManager implements Listener {
         waystoneMenu.setButton(BUTTON_SLOT_APPLY_CANCEL, new Button(
                 selected.containsKey(player)
                 ? ((Supplier<ItemStack>) () -> {
-                    List<String> lore = new ArrayList<>(Objects.requireNonNull(knownWaystones.get(selected.get(player)).getItemMeta().getLore()));
-                    lore.add(1, ChatColor.GOLD + "Пункт назначения:");
+                    ItemMeta selectedMeta = knownWaystones.get(selected.get(player)).getItemMeta();
+                    List<String> lore = new ArrayList<>(Objects.requireNonNull(selectedMeta.getLore()));
+                    lore.add(1, ChatColor.GOLD + "Пункт назначения: " + ChatColor.YELLOW + ChatColor.stripColor(selectedMeta.getDisplayName()));
                     return new ItemBuilder(CustomStack.getInstance(GUI_ICON_APPLY_ID).getItemStack())
                             .setName(ChatColor.GREEN + "Подтвердить")
                             .setLore(lore)

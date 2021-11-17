@@ -15,9 +15,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class SourceDestinationPair implements Listener {
     private static final Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
@@ -27,6 +26,26 @@ public class SourceDestinationPair implements Listener {
     private static final long screenEffectStay = 20L;
     private static final long screenEffectFadeOut = 20L;
     private static final boolean screenEffectFreeze = true;
+    private static final List<Vector[]> particleOffset;
+
+    static {
+        particleOffset = new ArrayList<>();
+        double multiplier = 5D;
+        for (double i = 0; i <= Math.PI; i += Math.PI / 20) {
+            double radius = Math.sin(i) * multiplier;
+            double y = Math.cos(i) * multiplier;
+            int n_circle = i != 0 && i < Math.PI ? 20 : 1;
+            Vector[] circle = new Vector[n_circle];
+            int j = 0;
+            for (double degree = 0D; degree < 360D; degree += 360D / n_circle) {
+                double radians = Math.toRadians(degree);
+                double x = Math.cos(radians) * radius;
+                double z = Math.sin(radians) * radius;
+                circle[j++] = new Vector(x, y, z);
+            }
+            particleOffset.add(circle);
+        }
+    }
 
     public static boolean hasSelection(Player player) {
         return activeSDPs.containsKey(player);
@@ -58,26 +77,22 @@ public class SourceDestinationPair implements Listener {
     private SourceDestinationPair(@NotNull Waystone source, @NotNull Waystone destination, @NotNull Player player) {
         this.source = source;
         this.destination = destination;
+        Location sourceLocation = toSourceLocation();
         this.drawFieldTask = new BukkitRunnable() {
             @Override
             public void run() {
-                for (double z = -90D; z < 90D; z+=5D) {
-                    double yIncrement = 355D/8100D * z * z + 5D; // Math.abs(359D / 90D * z) + 1D;
-                    for (double y = 0D; y <= 360D; y += yIncrement) {
-                        player.spawnParticle(
-                                Particle.REDSTONE,
-                                toSourceLocation().add(
-                                        new Vector(1, 0, 0)
-                                                .rotateAroundZ(z) // vertically
-                                                .rotateAroundY(y) // horizontally
-                                                .multiply(5)),
-                                1,
-                                new Particle.DustOptions(Color.SILVER, 0.5f)
-                        );
-                    }
+                for (Vector[] circle : particleOffset) {
+                    Stream.of(circle).forEach(
+                            v -> player.spawnParticle(
+                                    Particle.REDSTONE,
+                                    sourceLocation.clone().add(v),
+                                    1,
+                                    new Particle.DustOptions(Color.PURPLE, 0.5f)
+                            )
+                    );
                 }
             }
-        }.runTaskTimerAsynchronously(Main.getPlugin(Main.class), 0L, 10L);
+        }.runTaskTimerAsynchronously(Main.getPlugin(Main.class), 0L, 5L);
     }
 
     @EventHandler
