@@ -1,5 +1,6 @@
 package org.tablichka.entities;
 
+import com.ticxo.modelengine.api.event.ModelEngineInitializeEvent;
 import io.denery.entityregistry.EntityTypeRegistry;
 import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
 import io.denery.entityregistry.entity.CustomizableEntity;
@@ -26,10 +27,12 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     AbstractCustomizableEntityType greatHunger = CustomizableEntityTypeBuilder.newBuilder()
             .setID("mobc")
-            .setOriginType(EntityType.RABBIT)
+            .setOriginType(EntityType.OCELOT)
             .build();
 
-    private CustomizableSpawn.CustomizableSpawnBuilder spawnBuilder;
+    private final EntityTypeRegistry registry = EntityTypeRegistry.newRegistry()
+            .register(greatHunger)
+            .apply();
 
     @Override
     public void loadEvents() {
@@ -44,15 +47,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     @Override
     public void onEnable() {
         logger.info("Loading Entities Module.");
-        logger.info("Version dev-1.0.017");
-
-        EntityTypeRegistry registry = EntityTypeRegistry.newRegistry()
-                .register(greatHunger)
-                .apply();
-
-        spawnBuilder = CustomizableSpawn.newBuilder()
-                .setMaxPerChunk(40)
-                .setEntities(registry.getRegisteredEntitiesList());
+        logger.info("Version dev-1.0.019");
 
         loadEvents();
         loadCommands();
@@ -64,13 +59,23 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     }
 
     public class Events implements Listener {
-/*
+
+    private CustomizableSpawn.CustomizableSpawnBuilder spawnBuilder;
+
+        @EventHandler
+        public void onModelEngineGeneratorStart(ModelEngineInitializeEvent e) {
+            spawnBuilder = CustomizableSpawn.newBuilder()
+                .setMaxPerChunk(40)
+                .setEntities(registry.getRegisteredEntitiesList());
+        }
+        /*
         @EventHandler
         public void onMoveTest(PlayerMoveEvent e) {
             Flux<Optional<CustomizableEntity<?>>> entities = spawnBuilder.build()
                     .apply(getServer(), e.getPlayer().getLocation());
 
-            entities.parallel().runOn(Schedulers.boundedElastic()).subscribe(optionalCustomizableEntity -> {
+            // A Place where a reactive sequence becomes parallel in all system's threads, making spawn really scalable.
+            entities.subscribe(optionalCustomizableEntity -> {
                 if (optionalCustomizableEntity.isPresent()) {
                     CustomizableEntity<?> entity = optionalCustomizableEntity.get();
                     entity.setBehaviour(new GreatHungerBehaviour(e.getPlayer()));
@@ -80,7 +85,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
             });
         }
 
- */
+         */
     }
 
 }

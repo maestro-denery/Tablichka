@@ -53,6 +53,16 @@ tasks.register("test-plugin", JavaExec) {
     it.main("io.papermc.paperclip.Paperclip")
 }
 
+// Чистый запуск сервера без ребилда всех плагинов.
+tasks.register("test-plugin-no-rebuild", JavaExec) {
+    it.workingDir = file("$rootDir/.server")
+    it.classpath = files("$rootDir/.server/launcher-airplane.jar")
+    it.jvmArgs("-javaagent:$rootDir/.server/launcher-airplane.jar", "-Xmx1G", "-Xms1G")
+    // Закомментируйте чтобы включить GUI сервера.
+    it.args("nogui")
+    it.main("io.papermc.paperclip.Paperclip")
+}
+
 // регистрирование подпроектов
 tabSubprojects.forEach( pr -> project(":$pr") {
     apply plugin: 'java-library'
