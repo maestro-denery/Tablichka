@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class DatabaseManager {
+    private static boolean createDatabase = false;
     private static String db_host;
     private static int db_port;
     private static String db_name;
@@ -45,11 +46,14 @@ public class DatabaseManager {
         DatabaseManager.db_password = db_password;
     }
 
+    static MysqlConnectionPoolDataSource mcpDataSource;
+
     public static void connectToDB() {
-        MysqlConnectionPoolDataSource mcpDataSource = new MysqlConnectionPoolDataSource();
+        mcpDataSource = new MysqlConnectionPoolDataSource();
         mcpDataSource.setServerName(db_host);
         mcpDataSource.setPort(db_port);
-        mcpDataSource.setDatabaseName(db_name);
+        if (!createDatabase)
+            mcpDataSource.setDatabaseName(db_name);
         mcpDataSource.setUser(db_user);
         mcpDataSource.setPassword(db_password);
         dataSource = mcpDataSource;
@@ -136,32 +140,46 @@ public class DatabaseManager {
     }
 
     public static void createTables() throws IOException {
+        if (createDatabase) {
+            makeExecuteUpdate(
+                    "create schema if not exists `" + db_name + "`;",
+                    null
+            );
+            mcpDataSource.setDatabaseName(db_name);
+            dataSource = mcpDataSource;
+        }
         makeExecuteUpdate(
-                "create table if not exists `waystones`\n" +
-                        "(\n" +
-                        "    id     bigint      not null auto_increment,\n" +
-                        "    x      integer     not null,\n" +
-                        "    y      integer     not null,\n" +
-                        "    z      integer     not null,\n" +
-                        "    world  binary(16)  not null,\n" +
-                        "    name   varchar(50) not null,\n" +
-                        "    constraint waystone_pk primary key (id),\n" +
-                        "    constraint waystone_uq1 unique (x, y, z, world),\n" +
-                        "    constraint waystone_uq2 unique (y, z, world, x),\n" +
-                        "    constraint waystone_uq3 unique (z, world, x, y),\n" +
-                        "    constraint waystone_uq4 unique (world, x, y, z)\n" +
-                        ");\n",
+                String.format("""
+                        create table if not exists `%s`.`waystones`(
+                            id     bigint      not null auto_increment,
+                            x      integer     not null,
+                            y      integer     not null,
+                            z      integer     not null,
+                            world  binary(16)  not null,
+                            name   varchar(50) not null,
+                            constraint waystone_pk primary key (id),
+                            constraint waystone_uq1 unique (x, y, z, world),
+                            constraint waystone_uq2 unique (y, z, world, x),
+                            constraint waystone_uq3 unique (z, world, x, y),
+                            constraint waystone_uq4 unique (world, x, y, z)
+                        );
+                        """, db_name),
                 null
         );
         makeExecuteUpdate(
-                "create table if not exists `player's waystones`\n" +
-                        "(\n" +
-                        "    player      binary(16) not null,\n" +
-                        "    waystone_id bigint     not null,\n" +
-                        "    constraint player_waystone_pk primary key (player, waystone_id),\n" +
-                        "    constraint waystone_fk foreign key (waystone_id) references `waystones` (id) on delete cascade on update cascade\n" +
-                        ");",
+                String.format("""
+                        create table if not exists `%s`.`player's waystones`(
+                            player      binary(16) not null,
+                            waystone_id bigint     not null,
+                            constraint player_waystone_pk primary key (player, waystone_id),
+                            constraint waystone_fk foreign key (waystone_id) references `waystones` (id) on delete cascade on update cascade
+                        );
+                        """, db_name),
                 null
         );
+    }
+
+    public static void setCreateDatabase(boolean createDatabase) {
+        DatabaseManager.createDatabase = createDatabase;
     }
 }

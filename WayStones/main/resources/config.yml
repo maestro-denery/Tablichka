@@ -1,6 +1,7 @@
 database:
-  host: ""
-  port: 0
+  create-database: true
+  host: localhost
+  port: 3306
   name: "Waystones"
   login: root
   password: ""

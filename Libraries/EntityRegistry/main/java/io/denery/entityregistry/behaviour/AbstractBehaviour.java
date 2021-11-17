@@ -39,7 +39,7 @@ public abstract class AbstractBehaviour implements Consumer<BiTuple<Integer, Liv
      */
     @Override
     public void accept(BiTuple<Integer, LivingEntity> origin) {
-        actions.take(origin.first).subscribe(s -> s.accept(origin.second));
+        actions.take(origin.getFirst()).subscribe(s -> s.accept(origin.getSecond()));
     }
 
     public static Pathfinder getPathFinder(LivingEntity entity) {

@@ -4,6 +4,7 @@ import com.danikvitek.waystone.utils.*;
 import com.danikvitek.waystone.utils.gui.Menu;
 import com.danikvitek.waystone.utils.gui.MenuHandler;
 import dev.lone.itemsadder.api.CustomBlock;
+import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.CustomBlockInteractEvent;
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import dev.lone.itemsadder.api.FontImages.TexturedInventoryWrapper;
@@ -15,9 +16,11 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
@@ -27,6 +30,7 @@ import org.tablichka.utils.Converter;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class WaystoneManager implements Listener {
@@ -39,9 +43,16 @@ public class WaystoneManager implements Listener {
     @NotNull public static final String TOP_HALF_ID = "ingredients:platinum_block";
     @NotNull public static final String BOTTOM_HALF_ID = "ingredients:cobalt_block";
     @NotNull public static final String WAYSTONE_GIU_ID = "hub_furniture:jukebox_main";
+    @NotNull public static final String GUI_ICON_BACK_ID = "mcguis:icon_back";
+    @NotNull public static final String GUI_ICON_NEXT_ID = "mcguis:icon_next";
+    @NotNull public static final String GUI_ICON_APPLY_ID = "mcguis:icon_apply";
+    @NotNull public static final String GUI_ICON_CANCEL_ID = "mcguis:icon_cancel";
+    public static final int BUTTON_SLOT_BACK = 9;
+    public static final int BUTTON_SLOT_NEXT = 17;
+    public static final int BUTTON_SLOT_APPLY_CANCEL = 13;
 
     private static final Map<Player, Integer> playerPages = new HashMap<>();
-    private static final Map<Player, SourceDestinationPlayer> playerSourceDestinationPairs = new HashMap<>();
+    private static final Map<Player, SourceDestinationPair> playerSourceDestinationPairs = new HashMap<>();
 
     @EventHandler
     public void onWaystoneInteract(CustomBlockInteractEvent event) {
@@ -129,8 +140,10 @@ public class WaystoneManager implements Listener {
                     "delete from `waystones` where id = '" + waystoneId + "';",
                     null);
             if (players != null && waystoneName != null)
-                for (Player p : players)
-                    p.sendMessage(String.format(ChatColor.RED + "Обелиск %s разрушен", waystoneName));
+                for (Player p : players) {
+                    p.sendMessage(String.format(ChatColor.RED + "Обелиск \"%s\" разрушен", waystoneName));
+                    SourceDestinationPair.stopAndClearByPlayer(p);
+                }
         }
     }
 
@@ -288,12 +301,12 @@ public class WaystoneManager implements Listener {
 
     private static void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
         List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
-        setWaystonesIcons(waystoneMenu, knownWaystones, thisWaystone);
-        setControlButtons(player, waystoneMenu, thisWaystone);
+        setWaystonesIcons(player, waystoneMenu, knownWaystones, thisWaystone);
+        setControlButtons(player, waystoneMenu, knownWaystones, thisWaystone);
     }
 
-    private static void setControlButtons(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
-        waystoneMenu.setButton(9, new Button(Material.PAPER) { // todo: put left arrow button
+    private static void setControlButtons(@NotNull Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+        waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) { // todo: put left arrow button
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -304,12 +317,13 @@ public class WaystoneManager implements Listener {
                         playerPages.put(player, playerPages.get(player) - 1);
                         newKnownWaystones = getKnownWaystones(player, thisWaystone);
                     }
-                    setWaystonesIcons(menu, newKnownWaystones, thisWaystone);
+                    setWaystonesIcons(player, menu, newKnownWaystones, thisWaystone);
+                    selected.remove(player);
                     MenuHandler.reloadMenu(player);
                 }
             }
         });
-        waystoneMenu.setButton(17, new Button(Material.STONE) { // todo: put right arrow button
+        waystoneMenu.setButton(BUTTON_SLOT_NEXT, new Button(CustomStack.getInstance(GUI_ICON_NEXT_ID).getItemStack()) { // todo: put right arrow button
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -319,20 +333,16 @@ public class WaystoneManager implements Listener {
                     playerPages.put(player, playerPages.get(player) - 1);
                     newKnownWaystones = getKnownWaystones(player, thisWaystone);
                 }
-                setWaystonesIcons(menu, newKnownWaystones, thisWaystone);
+                setWaystonesIcons(player, menu, newKnownWaystones, thisWaystone);
+                selected.remove(player);
                 MenuHandler.reloadMenu(player);
-            }
-        });
-        waystoneMenu.setButton(13, new Button(Material.OAK_PLANKS) { // todo: put accept button
-            @Override
-            public void onClick(Menu menu, InventoryClickEvent event) {
-                event.setCancelled(true);
-                // todo: implement accept action
             }
         });
     }
 
-    private static void setWaystonesIcons(Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private static final Map<Player, Integer> selected = new HashMap<>();
+
+    private static void setWaystonesIcons(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         for (int i = 0; i < 9; i++) {
             int _i = i;
             waystoneMenu.setButton(i, new Button(_i < knownWaystones.size() ? knownWaystones.get(_i) : null) {
@@ -340,8 +350,49 @@ public class WaystoneManager implements Listener {
                 public void onClick(Menu menu, InventoryClickEvent event) {
                     event.setCancelled(true);
                     if (_i < knownWaystones.size()) {
-                        // TODO: 10.11.2021 implement selection action
-                        NBTTagCompound dstTag = (NBTTagCompound) new NBTManager(knownWaystones.get(_i)).getTag("waystone_data");
+                        selected.put((Player) event.getWhoClicked(), _i);
+                        Bukkit.getPluginManager().registerEvents(
+                                new Listener() {
+                                    @EventHandler
+                                    public void onInventoryClose(InventoryCloseEvent e) {
+                                        selected.remove(player);
+                                        HandlerList.unregisterAll(this);
+                                    }
+                                },
+                                Main.getPlugin(Main.class)
+                        );
+                        drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
+                        MenuHandler.reloadMenu(player);
+                    }
+                }
+            });
+        }
+        drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+        waystoneMenu.setButton(BUTTON_SLOT_APPLY_CANCEL, new Button(
+                selected.containsKey(player)
+                ? ((Supplier<ItemStack>) () -> {
+                    List<String> lore = new ArrayList<>(Objects.requireNonNull(knownWaystones.get(selected.get(player)).getItemMeta().getLore()));
+                    lore.add(1, ChatColor.GOLD + "Пункт назначения:");
+                    return new ItemBuilder(CustomStack.getInstance(GUI_ICON_APPLY_ID).getItemStack())
+                            .setName(ChatColor.GREEN + "Подтвердить")
+                            .setLore(lore)
+                            .build();
+                }).get()
+                : new ItemBuilder(CustomStack.getInstance(GUI_ICON_CANCEL_ID).getItemStack())
+                        .setName(ChatColor.RED + "Отменить")
+                        .build()
+        ) {
+            @Override
+            public void onClick(Menu menu, InventoryClickEvent event) {
+                event.setCancelled(true);
+                if (selected.containsKey(player)) {
+                    if (!SourceDestinationPair.hasSelection(player)) {
+                        NBTTagCompound dstTag = (NBTTagCompound) new NBTManager(knownWaystones.get(selected.get(player)))
+                                .getTag("waystone_data");
                         assert dstTag != null;
                         Waystone destination = new Waystone(
                                 dstTag.getInt("x"),
@@ -350,18 +401,19 @@ public class WaystoneManager implements Listener {
                                 dstTag.getString("name"),
                                 Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
                         );
-                        SourceDestinationPlayer.registerNewPair(
-                                (Player) event.getWhoClicked(),
+                        SourceDestinationPair.registerNewPair(
+                                player,
                                 thisWaystone,
                                 destination
                         );
                     }
                 }
-            });
-        }
+                MenuHandler.closeMenu(player);
+            }
+        });
     }
 
-    private static List<ItemStack> getKnownWaystones(Player player, Waystone ...toExclude) {
+    private static List<ItemStack> getKnownWaystones(Player player, Waystone toExclude) {
         Map<Integer, byte[]> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(player.getUniqueId()));
         int offset = playerPages.get(player) * 9;
@@ -381,7 +433,7 @@ public class WaystoneManager implements Listener {
                                     waystonesRS.getString(1),
                                     Bukkit.getWorld(Converter.uuidFromBytes(waystonesRS.getBytes(5)))
                             );
-                            if (!Arrays.stream(toExclude).collect(Collectors.toList()).contains(waystone))
+                            if (!toExclude.equals(waystone))
                                 waystones.add(waystone);
                         }
                         return waystones.stream()

@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public final class Main extends JavaPlugin implements Listener {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
 
+        DatabaseManager.setCreateDatabase(getConfig().getBoolean("database.create-database"));
         DatabaseManager.setDb_host(getConfig().getString("database.host"));
         DatabaseManager.setDb_port(getConfig().getInt("database.port"));
         DatabaseManager.setDb_name(getConfig().getString("database.name"));
