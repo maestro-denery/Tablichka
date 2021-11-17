@@ -57,7 +57,7 @@ public class SourceDestinationPair implements Listener {
         activeSDPs.put(player, sourceDestinationPair);
         Bukkit.getPluginManager().registerEvents(
                 sourceDestinationPair,
-                Main.getPlugin(Main.class)
+                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
         );
     }
 
@@ -92,7 +92,7 @@ public class SourceDestinationPair implements Listener {
                     );
                 }
             }
-        }.runTaskTimerAsynchronously(Main.getPlugin(Main.class), 0L, 5L);
+        }.runTaskTimerAsynchronously(WayStonesPlugin.getPlugin(WayStonesPlugin.class), 0L, 5L);
     }
 
     @EventHandler
@@ -124,7 +124,7 @@ public class SourceDestinationPair implements Listener {
                         stopTeleportation();
                         activeSDPs.remove(player);
                     }
-                }.runTaskLater(Main.getPlugin(Main.class), screenEffectFadeIn);
+                }.runTaskLater(WayStonesPlugin.getPlugin(WayStonesPlugin.class), screenEffectFadeIn);
             }
         }
     }

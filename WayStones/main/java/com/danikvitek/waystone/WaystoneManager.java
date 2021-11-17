@@ -35,9 +35,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class WaystoneManager implements Listener {
-    Plugin plugin;
+    WayStonesPlugin plugin;
 
-    WaystoneManager(Plugin plugin) {
+    WaystoneManager(WayStonesPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -53,7 +53,6 @@ public class WaystoneManager implements Listener {
     public static final int BUTTON_SLOT_APPLY_CANCEL = 13;
 
     private static final Map<Player, Integer> playerPages = new HashMap<>();
-    private static final Map<Player, SourceDestinationPair> playerSourceDestinationPairs = new HashMap<>();
 
     @EventHandler
     public void onWaystoneInteract(CustomBlockInteractEvent event) {
@@ -109,7 +108,7 @@ public class WaystoneManager implements Listener {
     private void breakWaystone(int x, int y, int z, UUID world) {
         Integer waystoneId = getWaystoneID(x, y, z, world);
         if (waystoneId != null) {
-            String waystoneName = DatabaseManager.makeExecuteQuery(
+            String waystoneName = plugin.getDatabaseManager().makeExecuteQuery(
                     "select name from `waystones` where id = '" + waystoneId + "';",
                     null,
                     nameRS -> {
@@ -122,7 +121,7 @@ public class WaystoneManager implements Listener {
                         return null;
                     }
             );
-            List<Player> players = DatabaseManager.makeExecuteQuery(
+            List<Player> players = plugin.getDatabaseManager().makeExecuteQuery(
                     "select player from `player's waystones` where waystone_id = '" + waystoneId + "';",
                     null,
                     playersRS -> {
@@ -137,7 +136,7 @@ public class WaystoneManager implements Listener {
                         return null;
                     }
             );
-            DatabaseManager.makeExecuteUpdate(
+            plugin.getDatabaseManager().makeExecuteUpdate(
                     "delete from `waystones` where id = '" + waystoneId + "';",
                     null);
             if (players != null && waystoneName != null)
@@ -148,12 +147,12 @@ public class WaystoneManager implements Listener {
         }
     }
 
-    private static void interactWithWaystone(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
+    private void interactWithWaystone(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
         Integer existingId = getWaystoneID(x, y, z, world);
-        Map<Integer, byte[]> values = new HashMap<>();
+        Map<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(player.getUniqueId()));
         if (existingId != null) {
-            Optional<Boolean> knownWaystones = Optional.ofNullable(DatabaseManager.makeExecuteQuery(
+            Optional<Boolean> knownWaystones = Optional.ofNullable(plugin.getDatabaseManager().makeExecuteQuery(
                     "select count(1) from `player's waystones` where " +
                             "player = ? and waystone_id = '" + existingId + "';",
                     values,
@@ -191,20 +190,20 @@ public class WaystoneManager implements Listener {
             registerWaystone(player, x, y, z, world);
     }
 
-    private static void registerWaystoneForPlayer(@NotNull Player player, int x, int y, int z, @NotNull UUID world, int existingId) {
+    private void registerWaystoneForPlayer(@NotNull Player player, int x, int y, int z, @NotNull UUID world, int existingId) {
         if (player.getWorld().getUID().equals(world) && player.getLocation().toVector().distance(new Vector(x, y, z)) <= 6) {
-            HashMap<Integer, byte[]> values = new HashMap<>();
+            HashMap<Integer, Object> values = new HashMap<>();
             values.put(1, Converter.uuidToBytes(player.getUniqueId()));
-            DatabaseManager.makeExecuteUpdate(
+            plugin.getDatabaseManager().makeExecuteUpdate(
                     "insert into `player's waystones` values (?, '" + existingId + "');",
                     values);
             player.sendMessage(ChatColor.GOLD + "Обелиск сохранён");
-            Main.log(player.getName() + " discovered waystone " + existingId);
+            WayStonesPlugin.log(player.getName() + " discovered waystone " + existingId);
         }
         else throwCantReachWaystoneException(player, x, y, z, world);
     }
 
-    private static void registerWaystone(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
+    private void registerWaystone(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
         if (player.getWorld().getUID().equals(world) && player.getLocation().toVector().distance(new Vector(x, y, z)) <= 6) {
             new AnvilGUI.Builder()
                     .text("Введите имя")
@@ -216,9 +215,9 @@ public class WaystoneManager implements Listener {
                             )
                             .build())
                     .onComplete((p, t) -> {
-                        HashMap<Integer, byte[]> values = new HashMap<>();
+                        HashMap<Integer, Object> values = new HashMap<>();
                         values.put(1, Converter.uuidToBytes(world));
-                        DatabaseManager.makeExecuteUpdate(
+                        plugin.getDatabaseManager().makeExecuteUpdate(
                                 "insert into `waystones` (x, y, z, world, name) values (" +
                                         "'" + x + "', '" + y + "', '" + z + "', ?, '" + t + "');",
                                 values
@@ -226,7 +225,7 @@ public class WaystoneManager implements Listener {
                         p.sendMessage(ChatColor.GOLD + "Обелиск сформирован");
                         return AnvilGUI.Response.close();
                     })
-                    .plugin(Main.getPlugin(Main.class))
+                    .plugin(WayStonesPlugin.getPlugin(WayStonesPlugin.class))
                     .open(player);
             Integer existingId = getWaystoneID(x, y, z, world);
             if (existingId != null) {
@@ -241,10 +240,10 @@ public class WaystoneManager implements Listener {
         else throwCantReachWaystoneException(player, x, y, z, world);
     }
 
-    private static @Nullable Integer getWaystoneID(int x, int y, int z, @NotNull UUID world) {
-        HashMap<Integer, byte[]> values = new HashMap<>();
+    private @Nullable Integer getWaystoneID(int x, int y, int z, @NotNull UUID world) {
+        HashMap<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(world));
-        return DatabaseManager.makeExecuteQuery(
+        return plugin.getDatabaseManager().makeExecuteQuery(
                 "select id from `waystones` where " +
                         "x = '" + x + "' and y = '" + y + "' and z = '" + z + "' and world = ?;",
                 values,
@@ -262,8 +261,8 @@ public class WaystoneManager implements Listener {
         );
     }
 
-    private static @Nullable String getWaystoneName(int waystoneId) {
-        return DatabaseManager.makeExecuteQuery(
+    private @Nullable String getWaystoneName(int waystoneId) {
+        return plugin.getDatabaseManager().makeExecuteQuery(
                 "select name from `waystones` where id = '" + waystoneId + "';",
                 null,
                 nameResultSet -> {
@@ -280,7 +279,7 @@ public class WaystoneManager implements Listener {
         );
     }
 
-    private static void openWaystoneGUI(@NotNull Player player, int waystoneId, int x, int y, int z, @NotNull UUID world)
+    private void openWaystoneGUI(@NotNull Player player, int waystoneId, int x, int y, int z, @NotNull UUID world)
             throws IllegalStateException {
         if (player.getWorld().getUID().equals(world) && player.getLocation().toVector().distance(new Vector(x, y, z)) <= 6) {
             String waystoneName = getWaystoneName(waystoneId);
@@ -300,13 +299,13 @@ public class WaystoneManager implements Listener {
         else throwCantReachWaystoneException(player, x, y, z, world);
     }
 
-    private static void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
+    private void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
         List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
         setWaystonesIcons(player, waystoneMenu, knownWaystones, thisWaystone);
         setControlButtons(player, waystoneMenu, knownWaystones, thisWaystone);
     }
 
-    private static void setControlButtons(@NotNull Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private void setControlButtons(@NotNull Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) { // todo: put left arrow button
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
@@ -360,7 +359,7 @@ public class WaystoneManager implements Listener {
                                         HandlerList.unregisterAll(this);
                                     }
                                 },
-                                Main.getPlugin(Main.class)
+                                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
                         );
                         drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
                         MenuHandler.reloadMenu(player);
@@ -415,11 +414,11 @@ public class WaystoneManager implements Listener {
         });
     }
 
-    private static List<ItemStack> getKnownWaystones(Player player, Waystone toExclude) {
-        Map<Integer, byte[]> values = new HashMap<>();
+    private List<ItemStack> getKnownWaystones(Player player, Waystone toExclude) {
+        Map<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(player.getUniqueId()));
         int offset = playerPages.get(player) * 9;
-        return DatabaseManager.makeExecuteQuery(
+        return plugin.getDatabaseManager().makeExecuteQuery(
                 "select w.name, w.x, w.y, w.z, w.world from `waystones` as w " +
                         "inner join `player's waystones` as pw " +
                         "on w.id = pw.waystone_id and pw.player = ? limit " + offset + ", 9",
