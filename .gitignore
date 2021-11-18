@@ -123,7 +123,6 @@ run/
 .server/*
 !.server/launcher-airplane.jar
 !.server/eula.txt
-!.server/server.properties
 
 !.server/plugins/
 .server/plugins/*
