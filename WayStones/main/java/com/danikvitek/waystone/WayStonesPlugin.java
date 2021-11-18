@@ -7,20 +7,22 @@ import com.danikvitek.waystone.utils.gui.*;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
-public final class Main extends JavaPlugin implements Listener {
+public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
+    private DatabaseManager databaseManager;
     private static final Logger logger = Bukkit.getLogger();
 
     ProtocolManager protocolManager;
     boolean isWaystonesListenerRegistered = false;
+
+    public DatabaseManager getDatabaseManager() {
+        return this.databaseManager;
+    }
 
     // TODO: 09.11.2021 integrate CoreProtect
 
@@ -31,24 +33,20 @@ public final class Main extends JavaPlugin implements Listener {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
 
-        DatabaseManager.setCreateDatabase(getConfig().getBoolean("database.create-database"));
-        DatabaseManager.setDb_host(getConfig().getString("database.host"));
-        DatabaseManager.setDb_port(getConfig().getInt("database.port"));
-        DatabaseManager.setDb_name(getConfig().getString("database.name"));
-        DatabaseManager.setDb_user(getConfig().getString("database.login"));
-        DatabaseManager.setDb_password(getConfig().getString("database.password"));
-        DatabaseManager.connectToDB();
-        try {
-            DatabaseManager.createTables();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        databaseManager = new DatabaseManager(
+                getConfig().getString("database.host"),
+                getConfig().getInt("database.port", 3306),
+                getConfig().getString("database.name"),
+                getConfig().getString("database.login"),
+                getConfig().getString("database.password"),
+                getConfig().getBoolean("database.create-database")
+        );
         Bukkit.getPluginManager().registerEvents(this, this);
         log("Loading completed");
     }
 
     public static void log(String message) {
-        logger.info(String.format("[%s] %s", Main.getPlugin(Main.class).getName(), message));
+        logger.info(String.format("[%s] %s", WayStonesPlugin.getPlugin(WayStonesPlugin.class).getName(), message));
     }
 
     @EventHandler

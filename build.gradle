@@ -104,9 +104,9 @@ tabSubprojects.forEach( pr -> project(":$pr") {
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
                 compileOnly 'com.github.LoneDev6:api-itemsadder:2.4.21'
                 compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
-                implementation('mysql:mysql-connector-java:8.0.25') {
-                    exclude module: 'protobuf-java'
-                }
+//                implementation('mysql:mysql-connector-java:8.0.25') {
+//                    exclude module: 'protobuf-java'
+//                }
                 implementation 'net.wesjd:anvilgui:1.5.3-SNAPSHOT'
                 return
             }
