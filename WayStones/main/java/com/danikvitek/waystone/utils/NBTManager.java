@@ -1,34 +1,33 @@
 package com.danikvitek.waystone.utils;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import com.comphenix.protocol.utility.MinecraftReflection;
+import com.comphenix.protocol.wrappers.nbt.NbtBase;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class NBTManager {
-    private final net.minecraft.world.item.ItemStack nmsItemStack;
-    private final NBTTagCompound compound;
+    private final ItemStack itemStack;
+    private final NbtCompound compound;
 
     public NBTManager(@NotNull ItemStack itemStack) throws IllegalArgumentException {
-        this.nmsItemStack = CraftItemStack.asNMSCopy(itemStack);
-        this.compound = this.nmsItemStack.hasTag() ? this.nmsItemStack.getTag() : new NBTTagCompound();
+        this.itemStack = MinecraftReflection.getBukkitItemStack(itemStack);
+        this.compound = (NbtCompound) NbtFactory.fromItemTag(this.itemStack);
     }
 
-    public NBTManager addTag(String name, NBTBase tag) {
-        compound.set(name, tag);
+    public NBTManager addTag(NbtBase<?> tag) {
+        compound.put(tag);
         return this;
     }
 
     public ItemStack build() {
-        nmsItemStack.setTag(compound);
-        return CraftItemStack.asBukkitCopy(nmsItemStack);
+        NbtFactory.setItemTag(itemStack, compound);
+        return itemStack;
     }
 
-    public @Nullable NBTBase getTag(String name) {
-        assert nmsItemStack.getTag() != null;
-        return nmsItemStack.getTag().get(name);
+    public @Nullable NbtBase<?> getTag(String name) {
+        return compound.getValue(name);
     }
 }

@@ -14,15 +14,10 @@ import java.util.logging.Logger;
 
 public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
-    private DatabaseManager databaseManager;
     private static final Logger logger = Bukkit.getLogger();
 
     ProtocolManager protocolManager;
     boolean isWaystonesListenerRegistered = false;
-
-    public DatabaseManager getDatabaseManager() {
-        return this.databaseManager;
-    }
 
     // TODO: 09.11.2021 integrate CoreProtect
 
@@ -33,7 +28,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
 
-        databaseManager = new DatabaseManager(
+        DatabaseManager.getInstance().init(
                 getConfig().getString("database.host"),
                 getConfig().getInt("database.port", 3306),
                 getConfig().getString("database.name"),
@@ -53,7 +48,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
     public void onIALoad(ItemsAdderLoadDataEvent event) {
         log("ItemsAdderLoadDataEvent fired");
         if (!isWaystonesListenerRegistered) {
-            Bukkit.getPluginManager().registerEvents(new WaystoneManager(this), this);
+            Bukkit.getPluginManager().registerEvents(WaystoneManager.getInstance(), this);
             Bukkit.getPluginManager().registerEvents(MenuHandler.getListeners(), this);
             isWaystonesListenerRegistered = true;
             log("WayStones event listeners registered");
