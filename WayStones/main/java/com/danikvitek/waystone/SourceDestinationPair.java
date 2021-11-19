@@ -146,8 +146,8 @@ public class SourceDestinationPair implements Listener {
         }
     }
 
-    public void stopTeleportation() {
-        HandlerList.unregisterAll(this);
+    private void stopTeleportation() {
+        staticPlayerMoveEvent.getHandlers().unregister(this);
         this.stopDrawFieldTask();
     }
 

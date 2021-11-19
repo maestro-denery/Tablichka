@@ -6,6 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class DatabaseManager {
@@ -88,22 +90,24 @@ public class DatabaseManager {
         });
     }
 
-    public @Nullable <T> T makeExecuteQuery(String query, @Nullable Map<Integer, Object> values, @Nullable Function<ResultSet, T> function) {
-        T result = null;
-        try (
-                Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
-                PreparedStatement ps = conn.prepareStatement(query);
-        ) {
-            if (values != null)
-                for (Map.Entry<Integer, Object> value : values.entrySet())
-                    ps.setObject(value.getKey(), value.getValue());
-            ResultSet rs = ps.executeQuery();
-            if (function != null)
-                result = function.apply(rs);
-        } catch (SQLException e) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
-            e.printStackTrace();
-        }
-        return result;
+    public <T> CompletableFuture<T> makeExecuteQuery(String query, @Nullable Map<Integer, Object> values, @Nullable Function<ResultSet, T> function) {
+        return CompletableFuture.supplyAsync(() -> {
+            T result = null;
+            try (
+                    Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+                    PreparedStatement ps = conn.prepareStatement(query);
+            ) {
+                if (values != null)
+                    for (Map.Entry<Integer, Object> value : values.entrySet())
+                        ps.setObject(value.getKey(), value.getValue());
+                ResultSet rs = ps.executeQuery();
+                if (function != null)
+                    result = function.apply(rs);
+            } catch (SQLException e) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
+                e.printStackTrace();
+            }
+            return result;
+        });
     }
 }

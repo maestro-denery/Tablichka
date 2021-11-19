@@ -68,24 +68,22 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
                 .setMaxPerChunk(40)
                 .setEntities(registry.getRegisteredEntitiesList());
         }
-        /*
-        @EventHandler
-        public void onMoveTest(PlayerMoveEvent e) {
-            Flux<Optional<CustomizableEntity<?>>> entities = spawnBuilder.build()
-                    .apply(getServer(), e.getPlayer().getLocation());
 
-            // A Place where a reactive sequence becomes parallel in all system's threads, making spawn really scalable.
-            entities.subscribe(optionalCustomizableEntity -> {
-                if (optionalCustomizableEntity.isPresent()) {
-                    CustomizableEntity<?> entity = optionalCustomizableEntity.get();
-                    entity.setBehaviour(new GreatHungerBehaviour(e.getPlayer()));
-                    entity.modelEntity();
-                    entity.applyBehaviour(1, 1, entity.getOriginEntity().get());
-                }
-            });
-        }
-
-         */
+//        @EventHandler
+//        public void onMoveTest(PlayerMoveEvent e) {
+//            Flux<Optional<CustomizableEntity<?>>> entities = spawnBuilder.build()
+//                    .apply(getServer(), e.getPlayer().getLocation());
+//
+//            // A Place where a reactive sequence becomes parallel in all system's threads, making spawn really scalable.
+//            entities.parallel().runOn(Schedulers.boundedElastic()).subscribe(optionalCustomizableEntity -> {
+//                if (optionalCustomizableEntity.isPresent()) {
+//                    CustomizableEntity<?> entity = optionalCustomizableEntity.get();
+//                    entity.setBehaviour(new GreatHungerBehaviour(e.getPlayer()));
+//                    entity.modelEntity();
+//                    entity.applyBehaviour(1, 1, entity.getOriginEntity().get());
+//                }
+//            });
+//        }
     }
 
 }
