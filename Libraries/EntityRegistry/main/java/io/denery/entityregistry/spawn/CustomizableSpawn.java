@@ -54,9 +54,12 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Opti
                 logger.error("There is no entity types registered! please, register it!");
             }
             Random random = new Random();
-            int randindex = random.nextInt(Math.abs(types.size()));
-            AbstractCustomizableEntityType type = types.get(randindex);
-            if (type.getOriginType().isEmpty()) throw new NullPointerException("CustomizableEntityType's origin type is null! Please set it!");
+            int randIndex = random.nextInt(Math.abs(types.size()));
+            AbstractCustomizableEntityType type = types.get(randIndex);
+            if (type.getOriginType().isEmpty()) {
+                sink.error(new NullPointerException("CustomizableEntityType's origin type is null! Please set it!"));
+                return;
+            }
             int range = server.getViewDistance() * 2 * 16;
 
             // I guess everything in these methods needs to be called in async,
@@ -82,7 +85,7 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Opti
                 e.printStackTrace();
             }
         });
-    }
+    } // todo: call event of custom mob spawning
 
     // Really weird method but sometimes it really helps.
     private Location getBlockLocalChunkLocationThreadSafe(World world, int x, int z) {

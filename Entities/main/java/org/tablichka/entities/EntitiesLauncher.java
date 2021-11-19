@@ -60,13 +60,13 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     public class Events implements Listener {
 
-    private CustomizableSpawn.CustomizableSpawnBuilder spawnBuilder;
+        private CustomizableSpawn.CustomizableSpawnBuilder spawnBuilder;
 
         @EventHandler
         public void onModelEngineGeneratorStart(ModelEngineInitializeEvent e) {
             spawnBuilder = CustomizableSpawn.newBuilder()
-                .setMaxPerChunk(40)
-                .setEntities(registry.getRegisteredEntitiesList());
+                    .setMaxPerChunk(40)
+                    .setEntities(registry.getRegisteredEntitiesList());
         }
 
 //        @EventHandler
