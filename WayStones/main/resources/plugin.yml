@@ -3,5 +3,4 @@ version: '${project.version}'
 main: com.danikvitek.waystone.WayStonesPlugin
 api-version: 1.17
 depend: [ ItemsAdder, ProtocolLib ]
-softdepend: [ ScreenEffects ]
 authors: [ Danik_Vitek ]

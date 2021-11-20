@@ -6,7 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -21,11 +23,6 @@ public class SourceDestinationPair implements Listener {
     private static final PlayerMoveEvent staticPlayerMoveEvent = new PlayerMoveEvent(Bukkit.getOnlinePlayers().stream().findAny().orElseThrow(), new Location(Bukkit.getWorlds().stream().findAny().orElseThrow(), 0D, 0D, 0D), null);
     private static final Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
 
-//    private static final String screenEffectColor = "#101010";
-//    private static final long screenEffectFadeIn = 20L;
-//    private static final long screenEffectStay = 20L;
-//    private static final long screenEffectFadeOut = 20L;
-//    private static final boolean screenEffectFreeze = true;
     private static final List<Vector[]> particleOffset;
 
     static {
@@ -111,28 +108,11 @@ public class SourceDestinationPair implements Listener {
                 Location playerLocation = event.getTo(); // player.getLocation();
                 Location destinationLocation = this.toDestinationLocation().add(playerLocation.clone().subtract(this.toSourceLocation()).toVector());
                 if (this.toSourceLocation().distance(playerLocation) > 5) {
-//                    Bukkit.dispatchCommand(
-//                            Bukkit.getConsoleSender(),
-//                            String.format(
-//                                    "screeneffect fullscreen %s %d %d %d %s %s",
-//                                    screenEffectColor,
-//                                    screenEffectFadeIn,
-//                                    screenEffectStay,
-//                                    screenEffectFadeOut,
-//                                    screenEffectFreeze ? "freeze" : "nofreeze",
-//                                    player.getName()
-//                            ));
                     destinationLocation.setDirection(playerLocation.getDirection());
                     stopAndClearByPlayer(player);
                     Vector velocity = player.getVelocity();
                     player.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                     player.setVelocity(velocity);
-//                    new BukkitRunnable() {
-//                        @Override
-//                        public void run() {
-//
-//                        }
-//                    }.runTaskLater(WayStonesPlugin.getPlugin(WayStonesPlugin.class), screenEffectFadeIn);
                 } else {
                     destinationLocation.getWorld().spawnParticle(
                             Particle.REDSTONE,
@@ -143,6 +123,20 @@ public class SourceDestinationPair implements Listener {
                     );
                 }
             }
+        }
+    }
+
+    public static class UnexpectedMovementListener implements Listener {
+        @EventHandler
+        public void onPlayerDeath(PlayerDeathEvent event) {
+            Player player = event.getEntity();
+            stopAndClearByPlayer(player);
+        }
+
+        @EventHandler
+        public void onPlayerTeleport(PlayerTeleportEvent event) {
+            Player player = event.getPlayer();
+            stopAndClearByPlayer(player);
         }
     }
 
