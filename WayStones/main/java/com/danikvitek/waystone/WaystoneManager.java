@@ -2,9 +2,14 @@ package com.danikvitek.waystone;
 
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
-import com.danikvitek.waystone.utils.*;
-import com.danikvitek.waystone.utils.gui.Menu;
-import com.danikvitek.waystone.utils.gui.MenuHandler;
+import com.danikvitek.waystone.misc.*;
+import com.danikvitek.waystone.misc.utils.gui.Button;
+import com.danikvitek.waystone.misc.utils.gui.Menu;
+import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
+import com.danikvitek.waystone.misc.utils.DatabaseManager;
+import com.danikvitek.waystone.misc.utils.ItemBuilder;
+import com.danikvitek.waystone.misc.utils.MiscUtils;
+import com.danikvitek.waystone.misc.utils.NBTManager;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.CustomBlockInteractEvent;

@@ -1,15 +1,16 @@
 package com.danikvitek.waystone;
 
+import com.danikvitek.waystone.misc.Waystone;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -126,20 +127,6 @@ public class SourceDestinationPair implements Listener {
         }
     }
 
-    public static class UnexpectedMovementListener implements Listener {
-        @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent event) {
-            Player player = event.getEntity();
-            stopAndClearByPlayer(player);
-        }
-
-        @EventHandler
-        public void onPlayerTeleport(PlayerTeleportEvent event) {
-            Player player = event.getPlayer();
-            stopAndClearByPlayer(player);
-        }
-    }
-
     private void stopTeleportation() {
         staticPlayerMoveEvent.getHandlers().unregister(this);
         this.stopDrawFieldTask();
@@ -186,5 +173,25 @@ public class SourceDestinationPair implements Listener {
     @Override
     public int hashCode() {
         return Objects.hash(getSource(), getDestination());
+    }
+
+    public static class UnexpectedMovementListener implements Listener {
+        @EventHandler
+        public void onPlayerDeath(PlayerDeathEvent event) {
+            Player player = event.getEntity();
+            stopAndClearByPlayer(player);
+        }
+
+        @EventHandler
+        public void onPlayerTeleport(PlayerTeleportEvent event) {
+            Player player = event.getPlayer();
+            stopAndClearByPlayer(player);
+        }
+
+        @EventHandler
+        public void onPlayerLogout(PlayerQuitEvent event) {
+            Player player = event.getPlayer();
+            stopAndClearByPlayer(player);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.utils;
+package com.danikvitek.waystone.misc.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.*;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 public class DatabaseManager {

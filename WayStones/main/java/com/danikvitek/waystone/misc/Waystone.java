@@ -1,4 +1,4 @@
-package com.danikvitek.waystone;
+package com.danikvitek.waystone.misc;
 
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;

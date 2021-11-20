@@ -2,8 +2,8 @@ package com.danikvitek.waystone;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.danikvitek.waystone.utils.*;
-import com.danikvitek.waystone.utils.gui.*;
+import com.danikvitek.waystone.misc.utils.gui.*;
+import com.danikvitek.waystone.misc.utils.DatabaseManager;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
