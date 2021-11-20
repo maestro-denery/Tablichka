@@ -35,6 +35,9 @@ subprojects {
         maven {
             url "https://repo.dmulloy2.net/repository/public/"
         }
+        maven {
+            url 'https://hub.spigotmc.org/nexus/content/repositories/public/'
+        }
     }
 }
 
@@ -86,6 +89,7 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
         testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
+        testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.0.0'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
         switch (pr) {
             case "Entities": {
@@ -101,12 +105,8 @@ tabSubprojects.forEach( pr -> project(":$pr") {
                 return
             }
             case "WayStones": {
-//                compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
                 compileOnly 'com.github.LoneDev6:api-itemsadder:2.4.21'
                 compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
-//                implementation('mysql:mysql-connector-java:8.0.25') {
-//                    exclude module: 'protobuf-java'
-//                }
                 implementation 'net.wesjd:anvilgui:1.5.3-SNAPSHOT'
                 return
             }

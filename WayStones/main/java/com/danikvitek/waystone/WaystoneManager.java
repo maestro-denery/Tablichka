@@ -17,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -37,6 +36,8 @@ import java.util.stream.Collectors;
 
 public class WaystoneManager implements Listener {
     private WaystoneManager() {} // Singleton
+    private WayStonesPlugin plugin;
+    private boolean isInitialized = false;
 
     @NotNull public static final String TOP_HALF_ID = "ingredients:platinum_block";
     @NotNull public static final String BOTTOM_HALF_ID = "ingredients:cobalt_block";
@@ -56,6 +57,12 @@ public class WaystoneManager implements Listener {
     public static WaystoneManager getInstance() {
         if (instance == null) instance = new WaystoneManager();
         return instance;
+    }
+
+    public void init(WayStonesPlugin plugin) {
+        if (!isInitialized)
+            this.plugin = plugin;
+        else throw new IllegalStateException("WaystoneManager is already initialized");
     }
 
     @EventHandler
@@ -313,21 +320,21 @@ public class WaystoneManager implements Listener {
                 );
                 Menu waystoneMenu = new Menu(gui);
                 playerPages.put(player, 0);
-                redrawWaystones(player, waystoneMenu, new Waystone(x, y, z, waystoneName, Bukkit.getWorld(world)));
+                redrawWaystoneGUI(player, waystoneMenu, new Waystone(x, y, z, waystoneName, Bukkit.getWorld(world)));
                 MenuHandler.openMenu(player, waystoneMenu);
             }
         }
         else throwCantReachWaystoneException(player, x, y, z, world);
     }
 
-    private void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
+    private void redrawWaystoneGUI(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
         List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
         setWaystonesIcons(player, waystoneMenu, knownWaystones, thisWaystone);
-        setControlButtons(player, waystoneMenu, knownWaystones, thisWaystone);
+        setControlButtons(player, waystoneMenu, thisWaystone);
     }
 
-    private void setControlButtons(@NotNull Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
-        waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) { // todo: put left arrow button
+    private void setControlButtons(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
+        waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) {
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -344,7 +351,7 @@ public class WaystoneManager implements Listener {
                 }
             }
         });
-        waystoneMenu.setButton(BUTTON_SLOT_NEXT, new Button(CustomStack.getInstance(GUI_ICON_NEXT_ID).getItemStack()) { // todo: put right arrow button
+        waystoneMenu.setButton(BUTTON_SLOT_NEXT, new Button(CustomStack.getInstance(GUI_ICON_NEXT_ID).getItemStack()) {
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -363,7 +370,7 @@ public class WaystoneManager implements Listener {
 
     private static final Map<Player, Integer> selected = new HashMap<>();
 
-    private static void setWaystonesIcons(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private void setWaystonesIcons(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         for (int i = 0; i < 9; i++) {
             int _i = i;
             waystoneMenu.setButton(i, new Button(_i < knownWaystones.size() ? knownWaystones.get(_i) : null) {
@@ -371,18 +378,18 @@ public class WaystoneManager implements Listener {
                 public void onClick(Menu menu, InventoryClickEvent event) {
                     event.setCancelled(true);
                     if (_i < knownWaystones.size()) {
-                        selected.put((Player) event.getWhoClicked(), _i);
+                        selected.put(player, _i);
                         Bukkit.getPluginManager().registerEvents(
                                 new Listener() {
                                     @EventHandler
                                     public void onInventoryClose(InventoryCloseEvent e) {
                                         selected.remove(player);
-                                        HandlerList.unregisterAll(this);
+                                        e.getHandlers().unregister(this);
                                     }
                                 },
-                                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
+                                plugin
                         );
-                        drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
+                        drawApplyCancelButton(player, menu, knownWaystones, thisWaystone);
                         MenuHandler.reloadMenu(player);
                     }
                 }
@@ -392,7 +399,7 @@ public class WaystoneManager implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    private static void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         waystoneMenu.setButton(BUTTON_SLOT_APPLY_CANCEL, new Button(
                 selected.containsKey(player)
                 ? ((Supplier<ItemStack>) () -> {
@@ -412,24 +419,25 @@ public class WaystoneManager implements Listener {
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
                 if (selected.containsKey(player)) {
-                    if (!SourceDestinationPair.hasSelection(player)) {
-                        NbtCompound dstTag = (NbtCompound) new NBTManager(knownWaystones.get(selected.get(player)))
-                                .getTag("waystone_data");
-                        assert dstTag != null;
-                        Waystone destination = new Waystone(
-                                dstTag.getInteger("x"),
-                                dstTag.getInteger("y"),
-                                dstTag.getInteger("z"),
-                                dstTag.getString("name"),
-                                Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
-                        );
-                        SourceDestinationPair.registerNewPair(
-                                player,
-                                thisWaystone,
-                                destination
-                        );
-                    }
-                }
+                    if (SourceDestinationPair.hasSelection(player))
+                        SourceDestinationPair.stopAndClearByPlayer(player);
+                    NbtCompound dstTag = (NbtCompound) new NBTManager(knownWaystones.get(selected.get(player)))
+                            .getTag("waystone_data");
+                    assert dstTag != null;
+                    Waystone destination = new Waystone(
+                            dstTag.getInteger("x"),
+                            dstTag.getInteger("y"),
+                            dstTag.getInteger("z"),
+                            dstTag.getString("name"),
+                            Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
+                    );
+                    SourceDestinationPair.registerNewPair(
+                            player,
+                            thisWaystone,
+                            destination
+                    );
+                } else if (SourceDestinationPair.hasSelection(player))
+                    SourceDestinationPair.stopAndClearByPlayer(player);
                 MenuHandler.closeMenu(player);
             }
         });
@@ -493,7 +501,7 @@ public class WaystoneManager implements Listener {
         }
     }
 
-    private static void throwCantReachWaystoneException(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
+    private void throwCantReachWaystoneException(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
         if (!player.getWorld().getUID().equals(world))
             throw new CantReachWaystoneException(String.format(
                     "Player %s somehow tried to open waystone at (%d, %d, %d, %s) though he was in the world %s",

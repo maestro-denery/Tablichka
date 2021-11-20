@@ -48,6 +48,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
     public void onIALoad(ItemsAdderLoadDataEvent event) {
         log("ItemsAdderLoadDataEvent fired");
         if (!isWaystonesListenerRegistered) {
+            WaystoneManager.getInstance().init(this);
             Bukkit.getPluginManager().registerEvents(WaystoneManager.getInstance(), this);
             Bukkit.getPluginManager().registerEvents(MenuHandler.getListeners(), this);
             isWaystonesListenerRegistered = true;
