@@ -26,12 +26,12 @@ public class DatabaseManager {
 
     public void init(String dbHost, int dbPort, String dbName, String dbUser, String dbPassword, boolean createDatabase) {
         if (!isInitialized) {
-            isInitialized = true;
             this.dbName = dbName;
             this.createDatabase = createDatabase;
             this.dbURL = String.format("jdbc:mysql://%s:%d/%s", dbHost, dbPort, createDatabase ? "" : dbName);
             this.dbUser = dbUser;
             this.dbPassword = dbPassword;
+            isInitialized = true;
             createTables();
         }
         else throw new IllegalStateException("DatabaseManager is already initialized");
@@ -71,42 +71,46 @@ public class DatabaseManager {
     }
 
     public CompletableFuture<Boolean> makeExecuteUpdate(String query, @Nullable Map<Integer, Object> values) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (
-                    Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
-                    PreparedStatement ps = conn.prepareStatement(query);
-            ) {
-                if (values != null)
-                    for (Map.Entry<Integer, Object> value : values.entrySet())
-                        ps.setObject(value.getKey(), value.getValue());
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
-                e.printStackTrace();
-                return false;
-            }
-            return true;
-        });
+        if (isInitialized)
+            return CompletableFuture.supplyAsync(() -> {
+                try (
+                        Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+                        PreparedStatement ps = conn.prepareStatement(query);
+                ) {
+                    if (values != null)
+                        for (Map.Entry<Integer, Object> value : values.entrySet())
+                            ps.setObject(value.getKey(), value.getValue());
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
+                    e.printStackTrace();
+                    return false;
+                }
+                return true;
+            });
+        else throw new IllegalStateException("DatabaseManager is not initialized");
     }
 
     public <T> CompletableFuture<T> makeExecuteQuery(String query, @Nullable Map<Integer, Object> values, @Nullable Function<ResultSet, T> function) {
-        return CompletableFuture.supplyAsync(() -> {
-            T result = null;
-            try (
-                    Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
-                    PreparedStatement ps = conn.prepareStatement(query);
-            ) {
-                if (values != null)
-                    for (Map.Entry<Integer, Object> value : values.entrySet())
-                        ps.setObject(value.getKey(), value.getValue());
-                ResultSet rs = ps.executeQuery();
-                if (function != null)
-                    result = function.apply(rs);
-            } catch (SQLException e) {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
-                e.printStackTrace();
-            }
-            return result;
-        });
+        if (isInitialized)
+            return CompletableFuture.supplyAsync(() -> {
+                T result = null;
+                try (
+                        Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPassword);
+                        PreparedStatement ps = conn.prepareStatement(query);
+                ) {
+                    if (values != null)
+                        for (Map.Entry<Integer, Object> value : values.entrySet())
+                            ps.setObject(value.getKey(), value.getValue());
+                    ResultSet rs = ps.executeQuery();
+                    if (function != null)
+                        result = function.apply(rs);
+                } catch (SQLException e) {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "QUERY: " + query);
+                    e.printStackTrace();
+                }
+                return result;
+            });
+        else throw new IllegalStateException("DatabaseManager is not initialized");
     }
 }

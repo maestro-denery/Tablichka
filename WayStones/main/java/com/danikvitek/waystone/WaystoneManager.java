@@ -65,31 +65,35 @@ public class WaystoneManager implements Listener {
     }
 
     public void init(WayStonesPlugin plugin) {
-        if (!isInitialized)
+        if (!isInitialized) {
             this.plugin = plugin;
+            isInitialized = true;
+        }
         else throw new IllegalStateException("WaystoneManager is already initialized");
     }
 
     @EventHandler
     public void onWaystoneInteract(CustomBlockInteractEvent event) {
-        if (!event.getPlayer().isSneaking()) {
-            if (Objects.equals(event.getNamespacedID(), TOP_HALF_ID)) {
-                CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
-                    int x = event.getBlockClicked().getX(),
-                            y = event.getBlockClicked().getY() - 1,
-                            z = event.getBlockClicked().getZ();
-                    UUID world = event.getBlockClicked().getWorld().getUID();
-                    interactWithWaystone(event.getPlayer(), x, y, z, world);
-                }
-            } else if (Objects.equals(event.getNamespacedID(), BOTTOM_HALF_ID)) {
-                CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
-                    int x = event.getBlockClicked().getX(),
-                            y = event.getBlockClicked().getY(),
-                            z = event.getBlockClicked().getZ();
-                    UUID world = event.getBlockClicked().getWorld().getUID();
-                    interactWithWaystone(event.getPlayer(), x, y, z, world);
+        if (isInitialized) {
+            if (!event.getPlayer().isSneaking()) {
+                if (Objects.equals(event.getNamespacedID(), TOP_HALF_ID)) {
+                    CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.DOWN));
+                    if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
+                        int x = event.getBlockClicked().getX(),
+                                y = event.getBlockClicked().getY() - 1,
+                                z = event.getBlockClicked().getZ();
+                        UUID world = event.getBlockClicked().getWorld().getUID();
+                        interactWithWaystone(event.getPlayer(), x, y, z, world);
+                    }
+                } else if (Objects.equals(event.getNamespacedID(), BOTTOM_HALF_ID)) {
+                    CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.UP));
+                    if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
+                        int x = event.getBlockClicked().getX(),
+                                y = event.getBlockClicked().getY(),
+                                z = event.getBlockClicked().getZ();
+                        UUID world = event.getBlockClicked().getWorld().getUID();
+                        interactWithWaystone(event.getPlayer(), x, y, z, world);
+                    }
                 }
             }
         }
@@ -97,25 +101,27 @@ public class WaystoneManager implements Listener {
 
     @EventHandler
     public void onWaystoneBreak(BlockBreakEvent event) {
-        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
-        if (customBlock != null) {
-            if (Objects.equals(customBlock.getNamespacedID(), TOP_HALF_ID)) {
-                CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
-                    int x = event.getBlock().getX(),
-                            y = event.getBlock().getY() - 1,
-                            z = event.getBlock().getZ();
-                    UUID world = event.getBlock().getWorld().getUID();
-                    breakWaystone(x, y, z, world);
-                }
-            } else if (Objects.equals(customBlock.getNamespacedID(), BOTTOM_HALF_ID)) {
-                CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
-                    int x = event.getBlock().getX(),
-                            y = event.getBlock().getY(),
-                            z = event.getBlock().getZ();
-                    UUID world = event.getBlock().getWorld().getUID();
-                    breakWaystone(x, y, z, world);
+        if (isInitialized) {
+            CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
+            if (customBlock != null) {
+                if (Objects.equals(customBlock.getNamespacedID(), TOP_HALF_ID)) {
+                    CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.DOWN));
+                    if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
+                        int x = event.getBlock().getX(),
+                                y = event.getBlock().getY() - 1,
+                                z = event.getBlock().getZ();
+                        UUID world = event.getBlock().getWorld().getUID();
+                        breakWaystone(x, y, z, world);
+                    }
+                } else if (Objects.equals(customBlock.getNamespacedID(), BOTTOM_HALF_ID)) {
+                    CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.UP));
+                    if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
+                        int x = event.getBlock().getX(),
+                                y = event.getBlock().getY(),
+                                z = event.getBlock().getZ();
+                        UUID world = event.getBlock().getWorld().getUID();
+                        breakWaystone(x, y, z, world);
+                    }
                 }
             }
         }

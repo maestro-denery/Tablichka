@@ -36,6 +36,8 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
                 getConfig().getString("database.password"),
                 getConfig().getBoolean("database.create-database")
         );
+        WaystoneManager.getInstance().init(this);
+        TeleportationVisualizationManager.getInstance().init(this);
         Bukkit.getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new SourceDestinationPair.UnexpectedMovementListener(), this);
         log("Loading completed");
@@ -49,7 +51,6 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
     public void onIALoad(ItemsAdderLoadDataEvent event) {
         log("ItemsAdderLoadDataEvent fired");
         if (!isWaystonesListenerRegistered) {
-            WaystoneManager.getInstance().init(this);
             Bukkit.getPluginManager().registerEvents(WaystoneManager.getInstance(), this);
             Bukkit.getPluginManager().registerEvents(MenuHandler.getListeners(), this);
             isWaystonesListenerRegistered = true;
