@@ -1,14 +1,20 @@
 package com.danikvitek.waystone;
 
-import com.danikvitek.waystone.utils.*;
-import com.danikvitek.waystone.utils.gui.Menu;
-import com.danikvitek.waystone.utils.gui.MenuHandler;
+import com.comphenix.protocol.wrappers.nbt.NbtCompound;
+import com.comphenix.protocol.wrappers.nbt.NbtFactory;
+import com.danikvitek.waystone.misc.*;
+import com.danikvitek.waystone.misc.utils.gui.Button;
+import com.danikvitek.waystone.misc.utils.gui.Menu;
+import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
+import com.danikvitek.waystone.misc.utils.DatabaseManager;
+import com.danikvitek.waystone.misc.utils.ItemBuilder;
+import com.danikvitek.waystone.misc.utils.MiscUtils;
+import com.danikvitek.waystone.misc.utils.NBTManager;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.CustomBlockInteractEvent;
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import dev.lone.itemsadder.api.FontImages.TexturedInventoryWrapper;
-import net.minecraft.nbt.NBTTagCompound;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,7 +22,6 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -30,15 +35,14 @@ import org.foton.utils.Converter;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class WaystoneManager implements Listener {
-    WayStonesPlugin plugin;
-
-    WaystoneManager(WayStonesPlugin plugin) {
-        this.plugin = plugin;
-    }
+    private WaystoneManager() {} // Singleton
+    private WayStonesPlugin plugin;
+    private boolean isInitialized = false;
 
     @NotNull public static final String TOP_HALF_ID = "ingredients:platinum_block";
     @NotNull public static final String BOTTOM_HALF_ID = "ingredients:cobalt_block";
@@ -53,26 +57,43 @@ public class WaystoneManager implements Listener {
 
     private static final Map<Player, Integer> playerPages = new HashMap<>();
 
+    private static WaystoneManager instance;
+
+    public static WaystoneManager getInstance() {
+        if (instance == null) instance = new WaystoneManager();
+        return instance;
+    }
+
+    public void init(WayStonesPlugin plugin) {
+        if (!isInitialized) {
+            this.plugin = plugin;
+            isInitialized = true;
+        }
+        else throw new IllegalStateException("WaystoneManager is already initialized");
+    }
+
     @EventHandler
     public void onWaystoneInteract(CustomBlockInteractEvent event) {
-        if (!event.getPlayer().isSneaking()) {
-            if (Objects.equals(event.getNamespacedID(), TOP_HALF_ID)) {
-                CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
-                    int x = event.getBlockClicked().getX(),
-                            y = event.getBlockClicked().getY() - 1,
-                            z = event.getBlockClicked().getZ();
-                    UUID world = event.getBlockClicked().getWorld().getUID();
-                    interactWithWaystone(event.getPlayer(), x, y, z, world);
-                }
-            } else if (Objects.equals(event.getNamespacedID(), BOTTOM_HALF_ID)) {
-                CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
-                    int x = event.getBlockClicked().getX(),
-                            y = event.getBlockClicked().getY(),
-                            z = event.getBlockClicked().getZ();
-                    UUID world = event.getBlockClicked().getWorld().getUID();
-                    interactWithWaystone(event.getPlayer(), x, y, z, world);
+        if (isInitialized) {
+            if (!event.getPlayer().isSneaking()) {
+                if (Objects.equals(event.getNamespacedID(), TOP_HALF_ID)) {
+                    CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.DOWN));
+                    if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
+                        int x = event.getBlockClicked().getX(),
+                                y = event.getBlockClicked().getY() - 1,
+                                z = event.getBlockClicked().getZ();
+                        UUID world = event.getBlockClicked().getWorld().getUID();
+                        interactWithWaystone(event.getPlayer(), x, y, z, world);
+                    }
+                } else if (Objects.equals(event.getNamespacedID(), BOTTOM_HALF_ID)) {
+                    CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlockClicked().getRelative(BlockFace.UP));
+                    if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
+                        int x = event.getBlockClicked().getX(),
+                                y = event.getBlockClicked().getY(),
+                                z = event.getBlockClicked().getZ();
+                        UUID world = event.getBlockClicked().getWorld().getUID();
+                        interactWithWaystone(event.getPlayer(), x, y, z, world);
+                    }
                 }
             }
         }
@@ -80,69 +101,75 @@ public class WaystoneManager implements Listener {
 
     @EventHandler
     public void onWaystoneBreak(BlockBreakEvent event) {
-        CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
-        if (customBlock != null) {
-            if (Objects.equals(customBlock.getNamespacedID(), TOP_HALF_ID)) {
-                CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.DOWN));
-                if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
-                    int x = event.getBlock().getX(),
-                            y = event.getBlock().getY() - 1,
-                            z = event.getBlock().getZ();
-                    UUID world = event.getBlock().getWorld().getUID();
-                    breakWaystone(x, y, z, world);
-                }
-            } else if (Objects.equals(customBlock.getNamespacedID(), BOTTOM_HALF_ID)) {
-                CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.UP));
-                if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
-                    int x = event.getBlock().getX(),
-                            y = event.getBlock().getY(),
-                            z = event.getBlock().getZ();
-                    UUID world = event.getBlock().getWorld().getUID();
-                    breakWaystone(x, y, z, world);
+        if (isInitialized) {
+            CustomBlock customBlock = CustomBlock.byAlreadyPlaced(event.getBlock());
+            if (customBlock != null) {
+                if (Objects.equals(customBlock.getNamespacedID(), TOP_HALF_ID)) {
+                    CustomBlock bottomHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.DOWN));
+                    if (bottomHalf != null && bottomHalf.getNamespacedID().equals(BOTTOM_HALF_ID)) {
+                        int x = event.getBlock().getX(),
+                                y = event.getBlock().getY() - 1,
+                                z = event.getBlock().getZ();
+                        UUID world = event.getBlock().getWorld().getUID();
+                        breakWaystone(x, y, z, world);
+                    }
+                } else if (Objects.equals(customBlock.getNamespacedID(), BOTTOM_HALF_ID)) {
+                    CustomBlock topHalf = CustomBlock.byAlreadyPlaced(event.getBlock().getRelative(BlockFace.UP));
+                    if (topHalf != null && topHalf.getNamespacedID().equals(TOP_HALF_ID)) {
+                        int x = event.getBlock().getX(),
+                                y = event.getBlock().getY(),
+                                z = event.getBlock().getZ();
+                        UUID world = event.getBlock().getWorld().getUID();
+                        breakWaystone(x, y, z, world);
+                    }
                 }
             }
         }
     }
 
+    @SuppressWarnings("unchecked cast")
     private void breakWaystone(int x, int y, int z, UUID world) {
         Integer waystoneId = getWaystoneID(x, y, z, world);
         if (waystoneId != null) {
-            String waystoneName = plugin.getDatabaseManager().makeExecuteQuery(
-                    "select name from `waystones` where id = '" + waystoneId + "';",
-                    null,
-                    nameRS -> {
-                        try {
-                            if (nameRS.next())
-                                return nameRS.getString(1);
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
+            try {
+                String waystoneName = Optional.ofNullable(DatabaseManager.getInstance().makeExecuteQuery(
+                        "select name from `waystones` where id = '" + waystoneId + "';",
+                        null,
+                        nameRS -> {
+                            try {
+                                if (nameRS.next())
+                                    return nameRS.getString(1);
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-            );
-            List<Player> players = plugin.getDatabaseManager().makeExecuteQuery(
-                    "select player from `player's waystones` where waystone_id = '" + waystoneId + "';",
-                    null,
-                    playersRS -> {
-                        try {
-                            List<UUID> players_ids = new ArrayList<>();
-                            while (playersRS.next())
-                                players_ids.add(Converter.uuidFromBytes(playersRS.getBytes(1)));
-                            return Bukkit.getOnlinePlayers().stream().filter(p -> players_ids.contains(p.getUniqueId())).collect(Collectors.toList());
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
+                ).get()).orElseThrow();
+                List<Player> players = (List<Player>) Optional.ofNullable(DatabaseManager.getInstance().makeExecuteQuery(
+                        "select player from `player's waystones` where waystone_id = '" + waystoneId + "';",
+                        null,
+                        playersRS -> {
+                            try {
+                                List<UUID> players_ids = new ArrayList<>();
+                                while (playersRS.next())
+                                    players_ids.add(Converter.uuidFromBytes(playersRS.getBytes(1)));
+                                return Bukkit.getOnlinePlayers().stream().filter(p -> players_ids.contains(p.getUniqueId())).collect(Collectors.toList());
+                            } catch (SQLException throwables) {
+                                throwables.printStackTrace();
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-            );
-            plugin.getDatabaseManager().makeExecuteUpdate(
-                    "delete from `waystones` where id = '" + waystoneId + "';",
-                    null);
-            if (players != null && waystoneName != null)
+                ).get()).orElseThrow();
+                DatabaseManager.getInstance().makeExecuteUpdate(
+                        "delete from `waystones` where id = '" + waystoneId + "';",
+                        null).get();
                 for (Player p : players) {
                     p.sendMessage(String.format(ChatColor.RED + "Обелиск \"%s\" разрушен", waystoneName));
                     SourceDestinationPair.stopAndClearByPlayer(p);
                 }
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException("Cannot break waystone or write breaking action to the database!", e);
+            }
         }
     }
 
@@ -151,38 +178,42 @@ public class WaystoneManager implements Listener {
         Map<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(player.getUniqueId()));
         if (existingId != null) {
-            Optional<Boolean> knownWaystones = Optional.ofNullable(plugin.getDatabaseManager().makeExecuteQuery(
-                    "select count(1) from `player's waystones` where " +
-                            "player = ? and waystone_id = '" + existingId + "';",
-                    values,
-                    rs -> {
-                        try {
-                            if (rs.next())
-                                return rs.getInt(1) > 0;
-                            else
+            try {
+                Optional<Boolean> knownWaystones = Optional.ofNullable(DatabaseManager.getInstance().makeExecuteQuery(
+                        "select count(1) from `player's waystones` where " +
+                                "player = ? and waystone_id = '" + existingId + "';",
+                        values,
+                        rs -> {
+                            try {
+                                if (rs.next())
+                                    return rs.getInt(1) > 0;
+                                else
+                                    return null;
+                            } catch (SQLException e) {
+                                e.printStackTrace();
                                 return null;
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                            return null;
+                            }
                         }
-                    }
-            ));
-            if (knownWaystones.isEmpty()) throw new RuntimeException("Somehow database couldn't find a player-waystone pair!");
+                ).get());
+                if (knownWaystones.isEmpty())
+                    throw new RuntimeException("Somehow database couldn't find a player-waystone pair!");
 
-            if (knownWaystones.get()) {
-                try {
-                    openWaystoneGUI(player, existingId, x, y, z, world);
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
+                if (knownWaystones.get()) {
+                    try {
+                        openWaystoneGUI(player, existingId, x, y, z, world);
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                    }
+                } else { // if player does not know the waystone
+                    registerWaystoneForPlayer(player, x, y, z, world, existingId);
+                    try {
+                        openWaystoneGUI(player, existingId, x, y, z, world);
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-            else { // if player does not know the waystone
-                registerWaystoneForPlayer(player, x, y, z, world, existingId);
-                try {
-                    openWaystoneGUI(player, existingId, x, y, z, world);
-                } catch (IllegalStateException e) {
-                    e.printStackTrace();
-                }
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
             }
         }
         else // if waystone is not registered
@@ -193,7 +224,7 @@ public class WaystoneManager implements Listener {
         if (player.getWorld().getUID().equals(world) && player.getLocation().toVector().distance(new Vector(x, y, z)) <= 6) {
             HashMap<Integer, Object> values = new HashMap<>();
             values.put(1, Converter.uuidToBytes(player.getUniqueId()));
-            plugin.getDatabaseManager().makeExecuteUpdate(
+            DatabaseManager.getInstance().makeExecuteUpdate(
                     "insert into `player's waystones` values (?, '" + existingId + "');",
                     values);
             player.sendMessage(ChatColor.GOLD + "Обелиск сохранён");
@@ -216,7 +247,7 @@ public class WaystoneManager implements Listener {
                     .onComplete((p, t) -> {
                         HashMap<Integer, Object> values = new HashMap<>();
                         values.put(1, Converter.uuidToBytes(world));
-                        plugin.getDatabaseManager().makeExecuteUpdate(
+                        DatabaseManager.getInstance().makeExecuteUpdate(
                                 "insert into `waystones` (x, y, z, world, name) values (" +
                                         "'" + x + "', '" + y + "', '" + z + "', ?, '" + t + "');",
                                 values
@@ -242,40 +273,49 @@ public class WaystoneManager implements Listener {
     private @Nullable Integer getWaystoneID(int x, int y, int z, @NotNull UUID world) {
         HashMap<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(world));
-        return plugin.getDatabaseManager().makeExecuteQuery(
-                "select id from `waystones` where " +
-                        "x = '" + x + "' and y = '" + y + "' and z = '" + z + "' and world = ?;",
-                values,
-                idResultSet -> {
-                    try {
-                        if (idResultSet.next()) {
-                            return idResultSet.getInt(1);
+        try {
+            return DatabaseManager.getInstance().makeExecuteQuery(
+                    "select id from `waystones` where " +
+                            "x = '" + x + "' and y = '" + y + "' and z = '" + z + "' and world = ?;",
+                    values,
+                    idResultSet -> {
+                        try {
+                            if (idResultSet.next()) {
+                                return idResultSet.getInt(1);
+                            }
+                            else return null;
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            return null;
                         }
-                        else return null;
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        return null;
                     }
-                }
-        );
+            ).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private @Nullable String getWaystoneName(int waystoneId) {
-        return plugin.getDatabaseManager().makeExecuteQuery(
-                "select name from `waystones` where id = '" + waystoneId + "';",
-                null,
-                nameResultSet -> {
-                    try {
-                        if (nameResultSet.next())
-                            return nameResultSet.getString(1);
-                        else
+        try {
+            return DatabaseManager.getInstance().makeExecuteQuery(
+                    "select name from `waystones` where id = '" + waystoneId + "';",
+                    null,
+                    nameResultSet -> {
+                        try {
+                            if (nameResultSet.next())
+                                return nameResultSet.getString(1);
+                            else
+                                return null;
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
                             return null;
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                        return null;
+                        }
                     }
-                }
-        );
+            ).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("Cannot get waystone name from database!", e);
+        }
     }
 
     private void openWaystoneGUI(@NotNull Player player, int waystoneId, int x, int y, int z, @NotNull UUID world)
@@ -291,21 +331,21 @@ public class WaystoneManager implements Listener {
                 );
                 Menu waystoneMenu = new Menu(gui);
                 playerPages.put(player, 0);
-                redrawWaystones(player, waystoneMenu, new Waystone(x, y, z, waystoneName, Bukkit.getWorld(world)));
+                redrawWaystoneGUI(player, waystoneMenu, new Waystone(x, y, z, waystoneName, Bukkit.getWorld(world)));
                 MenuHandler.openMenu(player, waystoneMenu);
             }
         }
         else throwCantReachWaystoneException(player, x, y, z, world);
     }
 
-    private void redrawWaystones(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
+    private void redrawWaystoneGUI(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
         List<ItemStack> knownWaystones = getKnownWaystones(player, thisWaystone);
         setWaystonesIcons(player, waystoneMenu, knownWaystones, thisWaystone);
-        setControlButtons(player, waystoneMenu, knownWaystones, thisWaystone);
+        setControlButtons(player, waystoneMenu, thisWaystone);
     }
 
-    private void setControlButtons(@NotNull Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
-        waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) { // todo: put left arrow button
+    private void setControlButtons(@NotNull Player player, Menu waystoneMenu, Waystone thisWaystone) {
+        waystoneMenu.setButton(BUTTON_SLOT_BACK, new Button(CustomStack.getInstance(GUI_ICON_BACK_ID).getItemStack()) {
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -322,7 +362,7 @@ public class WaystoneManager implements Listener {
                 }
             }
         });
-        waystoneMenu.setButton(BUTTON_SLOT_NEXT, new Button(CustomStack.getInstance(GUI_ICON_NEXT_ID).getItemStack()) { // todo: put right arrow button
+        waystoneMenu.setButton(BUTTON_SLOT_NEXT, new Button(CustomStack.getInstance(GUI_ICON_NEXT_ID).getItemStack()) {
             @Override
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
@@ -341,7 +381,7 @@ public class WaystoneManager implements Listener {
 
     private static final Map<Player, Integer> selected = new HashMap<>();
 
-    private static void setWaystonesIcons(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private void setWaystonesIcons(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         for (int i = 0; i < 9; i++) {
             int _i = i;
             waystoneMenu.setButton(i, new Button(_i < knownWaystones.size() ? knownWaystones.get(_i) : null) {
@@ -349,18 +389,18 @@ public class WaystoneManager implements Listener {
                 public void onClick(Menu menu, InventoryClickEvent event) {
                     event.setCancelled(true);
                     if (_i < knownWaystones.size()) {
-                        selected.put((Player) event.getWhoClicked(), _i);
+                        selected.put(player, _i);
                         Bukkit.getPluginManager().registerEvents(
                                 new Listener() {
                                     @EventHandler
                                     public void onInventoryClose(InventoryCloseEvent e) {
                                         selected.remove(player);
-                                        HandlerList.unregisterAll(this);
+                                        e.getHandlers().unregister(this);
                                     }
                                 },
-                                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
+                                plugin
                         );
-                        drawApplyCancelButton(player, waystoneMenu, knownWaystones, thisWaystone);
+                        drawApplyCancelButton(player, menu, knownWaystones, thisWaystone);
                         MenuHandler.reloadMenu(player);
                     }
                 }
@@ -370,7 +410,7 @@ public class WaystoneManager implements Listener {
     }
 
     @SuppressWarnings("deprecation")
-    private static void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
+    private void drawApplyCancelButton(Player player, Menu waystoneMenu, List<ItemStack> knownWaystones, Waystone thisWaystone) {
         waystoneMenu.setButton(BUTTON_SLOT_APPLY_CANCEL, new Button(
                 selected.containsKey(player)
                 ? ((Supplier<ItemStack>) () -> {
@@ -390,83 +430,89 @@ public class WaystoneManager implements Listener {
             public void onClick(Menu menu, InventoryClickEvent event) {
                 event.setCancelled(true);
                 if (selected.containsKey(player)) {
-                    if (!SourceDestinationPair.hasSelection(player)) {
-                        NBTTagCompound dstTag = (NBTTagCompound) new NBTManager(knownWaystones.get(selected.get(player)))
-                                .getTag("waystone_data");
-                        assert dstTag != null;
-                        Waystone destination = new Waystone(
-                                dstTag.getInt("x"),
-                                dstTag.getInt("y"),
-                                dstTag.getInt("z"),
-                                dstTag.getString("name"),
-                                Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
-                        );
-                        SourceDestinationPair.registerNewPair(
-                                player,
-                                thisWaystone,
-                                destination
-                        );
-                    }
-                }
+                    if (SourceDestinationPair.hasSelection(player))
+                        SourceDestinationPair.stopAndClearByPlayer(player);
+                    NbtCompound dstTag = (NbtCompound) new NBTManager(knownWaystones.get(selected.get(player)))
+                            .getTag("waystone_data");
+                    assert dstTag != null;
+                    Waystone destination = new Waystone(
+                            dstTag.getInteger("x"),
+                            dstTag.getInteger("y"),
+                            dstTag.getInteger("z"),
+                            dstTag.getString("name"),
+                            Bukkit.getWorld(Converter.uuidFromBytes(dstTag.getByteArray("world")))
+                    );
+                    SourceDestinationPair.registerNewPair(
+                            player,
+                            thisWaystone,
+                            destination
+                    );
+                } else if (SourceDestinationPair.hasSelection(player))
+                    SourceDestinationPair.stopAndClearByPlayer(player);
                 MenuHandler.closeMenu(player);
             }
         });
     }
 
+    @SuppressWarnings("unchecked cast")
     private List<ItemStack> getKnownWaystones(Player player, Waystone toExclude) {
         Map<Integer, Object> values = new HashMap<>();
         values.put(1, Converter.uuidToBytes(player.getUniqueId()));
         int offset = playerPages.get(player) * 9;
-        return plugin.getDatabaseManager().makeExecuteQuery(
-                "select w.name, w.x, w.y, w.z, w.world from `waystones` as w " +
-                        "inner join `player's waystones` as pw " +
-                        "on w.id = pw.waystone_id and pw.player = ? limit " + offset + ", 9",
-                values,
-                waystonesRS -> {
-                    try {
-                        List<Waystone> waystones = new ArrayList<>();
-                        while (waystonesRS.next()) {
-                            Waystone waystone = new Waystone(
-                                    waystonesRS.getInt(2),
-                                    waystonesRS.getInt(3),
-                                    waystonesRS.getInt(4),
-                                    waystonesRS.getString(1),
-                                    Bukkit.getWorld(Converter.uuidFromBytes(waystonesRS.getBytes(5)))
-                            );
-                            if (!toExclude.equals(waystone))
-                                waystones.add(waystone);
+        try {
+            return (List<ItemStack>) DatabaseManager.getInstance().makeExecuteQuery(
+                    "select w.name, w.x, w.y, w.z, w.world from `waystones` as w " +
+                            "inner join `player's waystones` as pw " +
+                            "on w.id = pw.waystone_id and pw.player = ? limit " + offset + ", 9",
+                    values,
+                    waystonesRS -> {
+                        try {
+                            List<Waystone> waystones = new ArrayList<>();
+                            while (waystonesRS.next()) {
+                                Waystone waystone = new Waystone(
+                                        waystonesRS.getInt(2),
+                                        waystonesRS.getInt(3),
+                                        waystonesRS.getInt(4),
+                                        waystonesRS.getString(1),
+                                        Bukkit.getWorld(Converter.uuidFromBytes(waystonesRS.getBytes(5)))
+                                );
+                                if (!toExclude.equals(waystone))
+                                    waystones.add(waystone);
+                            }
+                            return waystones.stream()
+                                    .map(w -> {
+                                        NbtCompound waystoneData = NbtFactory.ofCompound("waystone_data");
+                                        waystoneData.put("x", w.getX());
+                                        waystoneData.put("y", w.getY());
+                                        waystoneData.put("z", w.getZ());
+                                        waystoneData.put("name", w.getName());
+                                        waystoneData.put("world", Converter.uuidToBytes(Objects.requireNonNull(w.getWorld()).getUID()));
+                                        return new NBTManager(
+                                                new ItemBuilder(Material.PAPER)
+                                                        .setName(w.getName())
+                                                        .setLore(
+                                                                "",
+                                                                ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
+                                                                ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
+                                                                ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
+                                                                ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
+                                                        )
+                                                        .build()
+                                        ).addTag(waystoneData).build();
+                                    })
+                                    .collect(Collectors.toList());
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
                         }
-                        return waystones.stream()
-                                .map(w -> {
-                                    NBTTagCompound waystoneData = new NBTTagCompound();
-                                    waystoneData.setInt("x", w.getX());
-                                    waystoneData.setInt("y", w.getY());
-                                    waystoneData.setInt("z", w.getZ());
-                                    waystoneData.setString("name", w.getName());
-                                    waystoneData.setByteArray("world", Converter.uuidToBytes(Objects.requireNonNull(w.getWorld()).getUID()));
-                                    return new NBTManager(
-                                            new ItemBuilder(Material.PAPER)
-                                                    .setName(w.getName())
-                                                    .setLore(
-                                                            "",
-                                                            ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
-                                                            ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
-                                                            ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
-                                                            ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
-                                                    )
-                                                    .build()
-                                    ).addTag("waystone_data", waystoneData).build();
-                                })
-                                .collect(Collectors.toList());
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
+                        return Collections.emptyList();
                     }
-                    return Collections.emptyList();
-                }
-        );
+            ).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Cannot get known waystones from database!", e);
+        }
     }
 
-    private static void throwCantReachWaystoneException(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
+    private void throwCantReachWaystoneException(@NotNull Player player, int x, int y, int z, @NotNull UUID world) {
         if (!player.getWorld().getUID().equals(world))
             throw new CantReachWaystoneException(String.format(
                     "Player %s somehow tried to open waystone at (%d, %d, %d, %s) though he was in the world %s",
