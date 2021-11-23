@@ -1,14 +1,16 @@
 package com.danikvitek.waystone;
 
+import com.danikvitek.waystone.misc.Waystone;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -19,13 +21,9 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class SourceDestinationPair implements Listener {
+    private static final PlayerMoveEvent staticPlayerMoveEvent = new PlayerMoveEvent(Bukkit.getOnlinePlayers().stream().findAny().orElseThrow(), new Location(Bukkit.getWorlds().stream().findAny().orElseThrow(), 0D, 0D, 0D), null);
     private static final Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
 
-    private static final String screenEffectColor = "#101010";
-    private static final long screenEffectFadeIn = 20L;
-    private static final long screenEffectStay = 20L;
-    private static final long screenEffectFadeOut = 20L;
-    private static final boolean screenEffectFreeze = true;
     private static final List<Vector[]> particleOffset;
 
     static {
@@ -53,7 +51,9 @@ public class SourceDestinationPair implements Listener {
 
     public static void registerNewPair(@NotNull Player player, @NotNull Waystone source, @NotNull Waystone destination) {
         SourceDestinationPair sourceDestinationPair = new SourceDestinationPair(source, destination, player);
-        if (hasSelection(player)) stopAndClearByPlayer(player);
+        if (hasSelection(player)) {
+            stopAndClearByPlayer(player);
+        }
         activeSDPs.put(player, sourceDestinationPair);
         Bukkit.getPluginManager().registerEvents(
                 sourceDestinationPair,
@@ -66,12 +66,15 @@ public class SourceDestinationPair implements Listener {
     }
 
     public static void stopAndClearByPlayer(Player player) {
-        getByPlayer(player).stopTeleportation();
-        activeSDPs.remove(player);
+        SourceDestinationPair sdp = getByPlayer(player);
+        if (sdp != null) {
+            sdp.stopTeleportation();
+            activeSDPs.remove(player);
+        }
     }
 
-    @NotNull private Waystone source;
-    @NotNull private Waystone destination;
+    @NotNull private final Waystone source;
+    @NotNull private final Waystone destination;
     @NotNull private final BukkitTask drawFieldTask;
 
     private SourceDestinationPair(@NotNull Waystone source, @NotNull Waystone destination, @NotNull Player player) {
@@ -86,8 +89,9 @@ public class SourceDestinationPair implements Listener {
                             v -> player.spawnParticle(
                                     Particle.REDSTONE,
                                     sourceLocation.clone().add(v),
-                                    1,
-                                    new Particle.DustOptions(Color.PURPLE, 0.5f)
+                                    1,                        // amount
+                                    0.5, 0.5, 0.5,      // maximal offsets
+                                    new Particle.DustOptions(Color.PURPLE, 1f)
                             )
                     );
                 }
@@ -96,41 +100,35 @@ public class SourceDestinationPair implements Listener {
     }
 
     @EventHandler
-    public void onCrossingBorderLine(PlayerMoveEvent event) {
+    public void onMoveInTeleportationField(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (this.equals(activeSDPs.get(player))) {
             if (!player.getWorld().equals(this.source.getWorld())) {
-                stopTeleportation();
-                activeSDPs.remove(player);
-            } else if (this.toSourceLocation().distance(player.getLocation()) > 5) {
-                Bukkit.dispatchCommand(
-                        Bukkit.getConsoleSender(),
-                        String.format(
-                                "screeneffect fullscreen %s %d %d %d %s %s",
-                                screenEffectColor,
-                                screenEffectFadeIn,
-                                screenEffectStay,
-                                screenEffectFadeOut,
-                                screenEffectFreeze ? "freeze" : "nofreeze",
-                                player.getName()
-                        ));
-                Location offset = player.getLocation().subtract(this.toSourceLocation());
-                Location destinationLocation = this.toDestinationLocation().add(offset.toVector());
-                destinationLocation.setDirection(player.getLocation().getDirection());
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        player.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        stopTeleportation();
-                        activeSDPs.remove(player);
-                    }
-                }.runTaskLater(WayStonesPlugin.getPlugin(WayStonesPlugin.class), screenEffectFadeIn);
+                stopAndClearByPlayer(player);
+            } else {
+                Location playerLocation = event.getTo(); // player.getLocation();
+                Location destinationLocation = this.toDestinationLocation().add(playerLocation.clone().subtract(this.toSourceLocation()).toVector());
+                if (this.toSourceLocation().distance(playerLocation) > 5) {
+                    destinationLocation.setDirection(playerLocation.getDirection());
+                    stopAndClearByPlayer(player);
+                    Vector velocity = player.getVelocity();
+                    player.teleport(destinationLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    player.setVelocity(velocity);
+                } else {
+                    destinationLocation.getWorld().spawnParticle(
+                            Particle.REDSTONE,
+                            destinationLocation.clone().add(0, 1, 0),
+                            10,                   // amount
+                            0.3, 1, 0.3,      // maximal offsets
+                            new Particle.DustOptions(Color.PURPLE, 1f)
+                    );
+                }
             }
         }
     }
 
-    public void stopTeleportation() {
-        HandlerList.unregisterAll(this);
+    private void stopTeleportation() {
+        staticPlayerMoveEvent.getHandlers().unregister(this);
         this.stopDrawFieldTask();
     }
 
@@ -165,14 +163,6 @@ public class SourceDestinationPair implements Listener {
         );
     }
 
-    public void setSource(@NotNull Waystone source) {
-        this.source = source;
-    }
-
-    public void setDestination(@NotNull Waystone destination) {
-        this.destination = destination;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -183,5 +173,25 @@ public class SourceDestinationPair implements Listener {
     @Override
     public int hashCode() {
         return Objects.hash(getSource(), getDestination());
+    }
+
+    public static class UnexpectedMovementListener implements Listener {
+        @EventHandler
+        public void onPlayerDeath(PlayerDeathEvent event) {
+            Player player = event.getEntity();
+            stopAndClearByPlayer(player);
+        }
+
+        @EventHandler
+        public void onPlayerTeleport(PlayerTeleportEvent event) {
+            Player player = event.getPlayer();
+            stopAndClearByPlayer(player);
+        }
+
+        @EventHandler
+        public void onPlayerLogout(PlayerQuitEvent event) {
+            Player player = event.getPlayer();
+            stopAndClearByPlayer(player);
+        }
     }
 }

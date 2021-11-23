@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.utils;
+package com.danikvitek.waystone.misc.utils;
 
 import com.danikvitek.waystone.WayStonesPlugin;
 import org.bukkit.ChatColor;

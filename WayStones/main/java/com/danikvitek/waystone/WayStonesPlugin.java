@@ -2,8 +2,8 @@ package com.danikvitek.waystone;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.danikvitek.waystone.utils.*;
-import com.danikvitek.waystone.utils.gui.*;
+import com.danikvitek.waystone.misc.utils.gui.*;
+import com.danikvitek.waystone.misc.utils.DatabaseManager;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -14,15 +14,10 @@ import java.util.logging.Logger;
 
 public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
-    private DatabaseManager databaseManager;
     private static final Logger logger = Bukkit.getLogger();
 
     ProtocolManager protocolManager;
     boolean isWaystonesListenerRegistered = false;
-
-    public DatabaseManager getDatabaseManager() {
-        return this.databaseManager;
-    }
 
     // TODO: 09.11.2021 integrate CoreProtect
 
@@ -33,7 +28,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
 
-        databaseManager = new DatabaseManager(
+        DatabaseManager.getInstance().init(
                 getConfig().getString("database.host"),
                 getConfig().getInt("database.port", 3306),
                 getConfig().getString("database.name"),
@@ -41,7 +36,10 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
                 getConfig().getString("database.password"),
                 getConfig().getBoolean("database.create-database")
         );
+        WaystoneManager.getInstance().init(this);
+        TeleportationVisualizationManager.getInstance().init(this);
         Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new SourceDestinationPair.UnexpectedMovementListener(), this);
         log("Loading completed");
     }
 
@@ -53,7 +51,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
     public void onIALoad(ItemsAdderLoadDataEvent event) {
         log("ItemsAdderLoadDataEvent fired");
         if (!isWaystonesListenerRegistered) {
-            Bukkit.getPluginManager().registerEvents(new WaystoneManager(this), this);
+            Bukkit.getPluginManager().registerEvents(WaystoneManager.getInstance(), this);
             Bukkit.getPluginManager().registerEvents(MenuHandler.getListeners(), this);
             isWaystonesListenerRegistered = true;
             log("WayStones event listeners registered");
