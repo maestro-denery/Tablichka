@@ -1,9 +1,9 @@
 package com.danikvitek.discregistry;
 
-import org.tablichka.utils.nms.Reflector;
+import org.foton.utils.nms.Reflector;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.tablichka.architecture.pattern.Applier;
+import org.foton.architecture.pattern.Applier;
 
 import java.util.logging.Logger;
 

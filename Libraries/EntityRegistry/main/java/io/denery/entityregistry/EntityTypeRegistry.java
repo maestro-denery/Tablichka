@@ -1,10 +1,9 @@
 package io.denery.entityregistry;
 
 import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
-import io.denery.entityregistry.entity.CustomizableEntityTypeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tablichka.architecture.pattern.Applier;
+import org.foton.architecture.pattern.Applier;
 
 import java.util.*;
 

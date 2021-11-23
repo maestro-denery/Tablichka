@@ -12,18 +12,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.BiFunction;
 
 /**
  * Class where you can customize spawning of your CustomizableEntityTypes.
  */
-public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Optional<CustomizableEntity<?>>>> {
+public class CustomizableSpawn implements BiFunction<Server, Location, List<Optional<CustomizableEntity<?>>>> {
     private CustomizableSpawn() {}
     private static final Logger logger = LoggerFactory.getLogger("EntityRegistryLib");
 
@@ -34,7 +31,7 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Opti
     public int maxPerChunk = 20;
     public int maxLightLevel = 15;
     private List<AbstractCustomizableEntityType> types;
-    private final int threadsAvailable = Runtime.getRuntime().availableProcessors();
+    private final int cores = Runtime.getRuntime().availableProcessors();
 
 
     /**
@@ -48,41 +45,59 @@ public class CustomizableSpawn implements BiFunction<Server, Location, Flux<Opti
      * so you MUST add your custom null handler, otherwise you'll have NullPointerExceptions thrown.
      */
     @Override
-    public Flux<Optional<CustomizableEntity<?>>> apply(Server server, Location location) {
-        return Flux.create(sink -> {
-            if (types.size() < 1) {
-                logger.error("There is no entity types registered! please, register it!");
+    public List<Optional<CustomizableEntity<?>>> apply(Server server, Location location) {
+        if (types.size() < 1) {
+            logger.error("There is no entity types registered! please, register it!");
+        }
+        Random random = new Random();
+        int randindex = random.nextInt(Math.abs(types.size()));
+        AbstractCustomizableEntityType type = types.get(randindex);
+        if (type.getOriginType().isEmpty()) throw new NullPointerException("CustomizableEntityType's origin type is null! Please set it!");
+        int range = server.getViewDistance() * 2 * 16;
+        
+        List<Optional<CustomizableEntity<?>>> optionalCustomizableEntities = new ArrayList<>();
+            List<CompletableFuture<Optional<CustomizableEntity<?>>>> optionalCustomizableEntityFutures = new ArrayList<>();
+
+            // Computing in parallel these spawn actions
+            for (int i = 0; i < cores; i++) {
+                optionalCustomizableEntityFutures.add(CompletableFuture.supplyAsync(() -> {
+                    Optional<CustomizableEntity<?>> optionalCustomizableEntity = null;
+                    /*
+                    try {
+
+                        if (random.nextBoolean()) {
+                            // Spawn entity on the first not solid block from height 1.
+                            optionalCustomizableEntity = Optional.of(CustomizableEntityBuilder.newBuilder()
+                                    .applyType(type)
+                                    .applyOriginEntity(doSpawnFromZeroLevel(type, location, range))
+                                    .build());
+                        } else {
+                            // Spawn entity under location's Y coordinate
+                            optionalCustomizableEntity = Optional.of(CustomizableEntityBuilder.newBuilder()
+                                    .applyType(type)
+                                    .applyOriginEntity(doAtHighestBlockInLocation(type, location, range))
+                                    .build());
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                     */
+                    return optionalCustomizableEntity;
+                }));
             }
-            Random random = new Random();
-            int randindex = random.nextInt(Math.abs(types.size()));
-            AbstractCustomizableEntityType type = types.get(randindex);
-            if (type.getOriginType().isEmpty()) throw new NullPointerException("CustomizableEntityType's origin type is null! Please set it!");
-            int range = server.getViewDistance() * 2 * 16;
-
-            // I guess everything in these methods needs to be called in async,
-            // because async methods must be thread safe and all the work in this sequence goes parallel.
-
-            try {
-                // Did this loop for fully parallel subscribing on this sequence on event handling,
-                // if there was only two invocations, then subscriber could use only these two invocations in parallel.
-                for (int i = 0; i < threadsAvailable; i++) {
-                    // Spawn entity on the first not solid block from height 1.
-                    sink.next(Optional.of(CustomizableEntityBuilder.newBuilder()
-                            .applyType(type)
-                            .applyOriginEntity(doSpawnFromZeroLevel(type, location, range))
-                            .build()));
-
-                    // Spawn entity under location's Y coordinate
-                    sink.next(Optional.of(CustomizableEntityBuilder.newBuilder()
-                            .applyType(type)
-                            .applyOriginEntity(doAtHighestBlockInLocation(type, location, range))
-                            .build()));
-                }
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+        try {
+            for (CompletableFuture<Optional<CustomizableEntity<?>>> optionalCustomizableEntityFuture : optionalCustomizableEntityFutures) {
+                optionalCustomizableEntities.add(optionalCustomizableEntityFuture.get());
             }
-        });
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return optionalCustomizableEntities;
     }
+
+    // I guess everything in these methods needs to be called in async,
+    // because async methods must be thread safe and all the work in this sequence goes parallel.
 
     // Really weird method but sometimes it really helps.
     private Location getBlockLocalChunkLocationThreadSafe(World world, int x, int z) {

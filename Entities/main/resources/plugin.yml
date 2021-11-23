@@ -1,6 +1,6 @@
 name: Entities
 version: '$A1.0'
-main: org.tablichka.entities.EntitiesLauncher
+main: org.foton.entities.EntitiesLauncher
 api-version: 1.17
 authors: [ Denery ]
 

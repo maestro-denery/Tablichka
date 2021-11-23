@@ -1,4 +1,4 @@
-rootProject.name = 'Tablichka'
+rootProject.name = 'Foton'
 
 include ':Entities'
 include ':Discs'

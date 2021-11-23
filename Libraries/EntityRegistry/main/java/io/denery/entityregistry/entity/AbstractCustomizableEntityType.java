@@ -1,9 +1,8 @@
 package io.denery.entityregistry.entity;
 
-import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import org.bukkit.entity.EntityType;
-import org.tablichka.architecture.pattern.Registrable;
+import org.foton.architecture.pattern.Registrable;
 
 import java.util.Optional;
 

@@ -1,7 +1,5 @@
 package io.denery.entityregistry.entity;
 
-import io.denery.entityregistry.behaviour.AbstractBehaviour;
-import io.denery.entityregistry.behaviour.BehaviourBuilder;
 import org.bukkit.entity.LivingEntity;
 
 public final class CustomizableEntityBuilder<T extends LivingEntity> extends CustomizableEntity<T> {
@@ -21,12 +19,15 @@ public final class CustomizableEntityBuilder<T extends LivingEntity> extends Cus
         return this;
     }
 
+    /*
     public CustomizableEntityBuilder<T> applyBehaviour(AbstractBehaviour behaviour) {
         super.behaviour = behaviour;
         return this;
     }
+    
+     */
 
-    public CustomizableEntity<T> build() {
-        return new CustomizableEntity<T>(type, origin, behaviour);
-    }
+    //public CustomizableEntity<T> build() {
+        //return new CustomizableEntity<T>(type, origin, behaviour);
+    //}
 }

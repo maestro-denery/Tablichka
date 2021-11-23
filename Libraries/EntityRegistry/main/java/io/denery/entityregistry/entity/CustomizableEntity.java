@@ -4,7 +4,7 @@ import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import io.denery.entityregistry.EntityTypeRegistry;
-import io.denery.entityregistry.behaviour.AbstractBehaviour;
+import io.denery.scala.behaviour.BehaviourCategories;
 import org.bukkit.entity.LivingEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,24 +21,28 @@ public class CustomizableEntity<T extends LivingEntity> {
     protected AbstractCustomizableEntityType type;
     protected T origin;
     private ModeledEntity modeledEntity;
-    protected AbstractBehaviour behaviour;
+    //protected BehaviourCategories.Behaviour behaviour;
 
-    public CustomizableEntity(AbstractCustomizableEntityType type, T entity, AbstractBehaviour behaviour) {
+    /*public CustomizableEntity(AbstractCustomizableEntityType type, T entity, BehaviourCategories behaviour) {
         this.type = type;
         this.origin = entity;
-        this.behaviour = behaviour;
+        //this.behaviour = behaviour;
     }
+
+     */
 
     public CustomizableEntity(AbstractCustomizableEntityType type, T entity) {
         this.type = type;
         this.origin = entity;
     }
 
-    public CustomizableEntity(String id, T entity, AbstractBehaviour behaviour) {
+    /*public CustomizableEntity(String id, T entity, BehaviourCategories behaviour) {
         this.type = EntityTypeRegistry.getInstance().getRegisteredEntities().get(id);
         this.origin = entity;
-        this.behaviour = behaviour;
+        //this.behaviour = behaviour;
     }
+
+     */
 
     public CustomizableEntity(String id, T entity) {
         this.type = EntityTypeRegistry.getInstance().getRegisteredEntities().get(id);
@@ -59,10 +63,6 @@ public class CustomizableEntity<T extends LivingEntity> {
         modeledEntity.setInvisible(true);
     }
 
-    public void applyBehaviour(int completions, int randomness, LivingEntity entity) {
-        behaviour.acceptRandom(completions, randomness, entity);
-    }
-
     public AbstractCustomizableEntityType getType() {
         return type;
     }
@@ -75,11 +75,11 @@ public class CustomizableEntity<T extends LivingEntity> {
         return Optional.ofNullable(modeledEntity);
     }
 
-    public Optional<AbstractBehaviour> getBehaviour() {
-        return Optional.ofNullable(behaviour);
-    }
+    //public Optional<BehaviourCategories.Behaviour> getBehaviour() {
+    //    return Optional.ofNullable(behaviour);
+    //}
 
-    public void setBehaviour(AbstractBehaviour behaviour) {
-        this.behaviour = behaviour;
-    }
+    //public void setBehaviour(BehaviourCategories.Behaviour behaviour) {
+    //    this.behaviour = behaviour;
+    //}
 }
