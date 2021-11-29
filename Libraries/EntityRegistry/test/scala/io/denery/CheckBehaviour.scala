@@ -1,23 +1,34 @@
 package io.denery
 
+import io.denery.entityregistry.behaviour.BehaviourCategories._
+import io.denery.entityregistry.entity.CustomizableEntity
 import org.junit.Test
-import io.denery.scala.behaviour.BehaviourCategories
-import io.denery.scala.behaviour.BehaviourCategories.*
-import io.denery.scala.behaviour.BehaviourCategories.BehaviourNodeDictionary.*
-import io.denery.scala.behaviour.BehaviourCategories.BehaviourActionDictionary.*
 
 class CheckBehaviour:
 
+  import io.denery.entityregistry.behaviour.BehaviourCategories.BehaviourNodeDictionary._
+  import io.denery.entityregistry.behaviour.BehaviourCategories.BehaviourActionDictionary._
+
   def sample[A]: CommonBehaviourDictionary[A] =
     ActionNode("root",
-      Action("a", s => s.remove()),
+      Action("a", s => {
+        
+      }),
       ActionNode("sub-a",
-        Action("b", s => s.remove()),
-        Action("c", s => s.remove())
+        Action("b", s => {
+          
+        }),
+        Action("c", s => {
+          
+        })
       )
     )
 
+  
+  
   @Test
   def check: Unit = {
-    println(sample[Int])
+    sample[Seq[CustomizableEntity[_] => Unit]].asInstanceOf[Seq[CustomizableEntity[_] => Unit]].foreach(s => {
+      //Randomizer.applyRandom(s, 50)
+    })
   }

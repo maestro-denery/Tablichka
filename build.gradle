@@ -3,8 +3,7 @@ plugins {
     id 'scala'
 }
 
-group = 'org.tablichka'
-version = '0.1'
+group = 'org.foton'
 
 subprojects {
     repositories {
@@ -74,9 +73,19 @@ tabSubprojects.forEach( pr -> project(":$pr") {
 
     sourceSets {
         main {
-            java.srcDirs = ["$projectDir/main/java"]
-            scala.srcDirs = ["$projectDir/main/scala"]
             resources.srcDirs = ["$projectDir/main/resources"]
+            resources.srcDirs = ["$projectDir/main/resources"]
+            switch (pr) {
+                case "Entities": {
+                    scala.srcDirs = ["$projectDir/main/mixed"]
+                    return
+                }
+                default: {
+                    java.srcDirs = ["$projectDir/main/java"]
+                    scala.srcDirs = ["$projectDir/main/scala"]
+                    return
+                }
+            }
         }
 
         test {
@@ -92,15 +101,15 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
         testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.8.1'
-        testImplementation 'com.github.seeseemelk:MockBukkit-v1.16:1.0.0'
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
 
-        //Scala
+        // Scala
         compileOnly group: 'org.scala-lang', name: 'scala3-library_3', version: '3.1.0'
         switch (pr) {
             case "Entities": {
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 implementation project(":Libraries:EntityRegistry")
+                implementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
 
                 // Tests
                 testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
@@ -120,9 +129,9 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         }
     }
 
-    // Костыль для билда скалы с джавой вместе.
-    tasks.compileScala.classpath = sourceSets.main.compileClasspath
-    tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
+    // Костыль для билда скалы с джавой вместе в разных папках.
+    //tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
+    //tasks.compileScala.classpath = sourceSets.main.compileClasspath
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -140,7 +149,9 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         useJUnitPlatform()
     }
 })
-
+project(":Libraries") {
+    apply plugin: 'java-library'
+}
 // Регистрация проектовых библиотек
 libraries.forEach(lib -> project(":Libraries:$lib") {
     apply plugin: 'java-library'
@@ -148,9 +159,22 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
 
     sourceSets {
         main {
-            java.srcDirs = ["$projectDir/main/java"]
-            scala.srcDirs = ["$projectDir/main/scala"]
             resources.srcDirs = ["$projectDir/main/resources"]
+            switch (lib) {
+                case "Misc": {
+                    scala.srcDirs = ["$projectDir/main/mixed"]
+                    return
+                }
+                case "EntityRegistry": {
+                    scala.srcDirs = ["$projectDir/main/mixed"]
+                    return
+                }
+                default: {
+                    java.srcDirs = ["$projectDir/main/java"]
+                    scala.srcDirs = ["$projectDir/main/scala"]
+                    return
+                }
+            }
         }
 
         test {
@@ -181,11 +205,15 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
                 compileOnly group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12' // реактивность для удобства кодинга ИИ.
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
-                compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
+                //compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
+
+                // Скаловская библиотека от разрабов тинькофф банка для очень удобного ФП с Cats/ZIO.
+                implementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
 
                 // Tests
                 testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
                 testImplementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
+                testImplementation project(':Libraries:Misc')
                 return
             }
             case "DiscRegistry": {
@@ -197,9 +225,9 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
         }
     }
 
-    // Костыль для билда скалы с джавой вместе.
-    tasks.compileScala.classpath = sourceSets.main.compileClasspath
-    tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
+    // Костыль для билда скалы с джавой вместе в разных папках.
+    //tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
+    //tasks.compileScala.classpath = sourceSets.main.compileClasspath
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -214,12 +242,53 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
     }
 })
 
+// Отдельный плагин, который просто в себе хранит всю скаловскую стандартную библиотеку,
+// лучше найти другой способ для использования скалы на сервере.
+project(":Libraries:ScalaSupport") {
+    apply plugin: 'java-library'
+    apply plugin: 'scala'
+
+    sourceSets {
+        main {
+            scala.srcDirs = ["$projectDir/main/scala"]
+            resources.srcDirs = ["$projectDir/main/resources"]
+        }
+
+        test {
+            scala.srcDirs = ["$projectDir/test/scala"]
+            resources.srcDirs = ["$projectDir/test/resources"]
+        }
+    }
+
+    dependencies {
+        compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        implementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.1.0'
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        from {
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+        destinationDir = file("$rootDir/.server/plugins")
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
 jar {
-    libraries.forEach( lib -> {
-        dependsOn(rootProject.project(":Libraries:$lib").tasks.jar)
-    })
+    dependsOn(project(":Libraries:ScalaSupport").tasks.buildNeeded)
+    dependsOn(project(":Libraries:ScalaSupport").tasks.clean)
+    dependsOn(project(":Libraries").tasks.buildNeeded)
     tabSubprojects.forEach( pr -> {
-        dependsOn(rootProject.project(":$pr").tasks.jar)
+        dependsOn(project(":$pr").tasks.buildNeeded)
+        dependsOn(project(":$pr").tasks.clean)
     })
 }
 
