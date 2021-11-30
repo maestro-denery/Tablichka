@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -61,7 +62,7 @@ public class SourceDestinationPair implements Listener {
         );
     }
 
-    private static SourceDestinationPair getByPlayer(Player player) {
+    public static @Nullable SourceDestinationPair getByPlayer(Player player) {
         return activeSDPs.get(player);
     }
 

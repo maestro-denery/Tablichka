@@ -1,13 +1,13 @@
 package org.foton.scalasupport
 
 import org.bukkit.event.{Event, HandlerList}
-import org.foton.scalasupport.OnScalaSupportLoadEvent.HANDLERS
+import org.foton.scalasupport.OnScalaSupportUnloadEvent.HANDLERS
 
-class OnScalaSupportLoadEvent extends Event {
+class OnScalaSupportUnloadEvent extends Event {
   override def getHandlers: HandlerList = HANDLERS
 }
 
-object OnScalaSupportLoadEvent {
+object OnScalaSupportUnloadEvent {
   private val HANDLERS = new HandlerList
 
   def getHandlerList: HandlerList = HANDLERS
