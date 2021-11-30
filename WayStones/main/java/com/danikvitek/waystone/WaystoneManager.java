@@ -489,7 +489,7 @@ public class WaystoneManager implements Listener {
                                         waystoneData.put("world", Converter.uuidToBytes(Objects.requireNonNull(w.world()).getUID()));
                                         return new NBTManager(
                                                 new ItemBuilder(Material.PAPER)
-                                                        .setName(w.getName())
+                                                        .setName(w.name())
                                                         .setLore(
                                                                 "",
                                                                 ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.x(),
