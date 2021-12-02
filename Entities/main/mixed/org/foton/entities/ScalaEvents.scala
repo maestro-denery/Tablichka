@@ -4,8 +4,9 @@ import cats.effect.IO
 import io.denery.entityregistry.EntityTypeRegistry
 import io.denery.entityregistry.behaviour.BehaviourCategories
 import io.denery.entityregistry.entity.CustomizableEntity
-import io.denery.entityregistry.spawn.SpawnCategories._
+import io.denery.entityregistry.spawn.SpawnCategories.*
 import io.denery.entityregistry.spawn.{CustomizableSpawn, SpawnCategories}
+import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.entity.Mob
 import org.bukkit.event.player.PlayerMoveEvent
@@ -23,7 +24,7 @@ class ScalaEvents(plugin: JavaPlugin) extends Listener {
   import SpawnCategories.SpawnSettingsNode.*
   def spawnSettings[A]: CommonSpawnSettingsDictionary[A] =
     Node("root",
-      Delay(1000)
+      Settings("default-spawner",DefaultSettings())
     )
 
   @EventHandler

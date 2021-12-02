@@ -10,12 +10,13 @@ class CheckSpawn:
   import SpawnCategories.SpawnSettingsNode._
   def spawnSettings[A]: CommonSpawnSettingsDictionary[A] =
     Node("root",
-      MaximumLight(15),
-      MinimumLight(10),
-      MaximumPerChunk(20)
+      Settings("normal", DefaultSettings())
     )
 
   @Test
   def check(): Unit = {
-
+    /*
+    spawnSettings[Seq[DefaultSettings]].foreach(s => {
+      println(s.delay)
+    }) */
   }

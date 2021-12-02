@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.foton.entities.commands.EntitiesCommands;
 import org.foton.entities.ScalaEvents;
+import org.foton.scalasupport.ScalaSupportInitEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.foton.architecture.Launcher;
@@ -21,7 +22,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     AbstractCustomizableEntityType greatHunger = CustomizableEntityTypeBuilder.newBuilder()
             .setID("mobc")
-            .setOriginType(EntityType.OCELOT)
+            .setOriginType(EntityType.PIG)
             .build();
 
     @Override
@@ -39,6 +40,10 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
         logger.info("Loading Entities Module.");
         logger.info("Version dev-1.0.019");
 
+        EntityTypeRegistry.newRegistry()
+                .register(greatHunger)
+                .apply();
+
         loadEvents();
         loadCommands();
     }
@@ -47,15 +52,20 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public void onDisable() {
         super.onDisable();
     }
-
+    /*
+    private class ScalaSupport implements Listener {
+        @EventHandler
+        public void scalaSupportInitEvent(ScalaSupportInitEvent e) {
+            EntityTypeRegistry.newRegistry()
+                    .register(greatHunger)
+                    .apply();
+            getServer().getPluginManager().registerEvents(new Events(), EntitiesLauncher.this);
+        }
+    }
+    */
     public class Events implements Listener {
-        
         @EventHandler
         public void onModelEngineGeneratorStart(ModelEngineInitializeEvent e) {
-        EntityTypeRegistry.newRegistry()
-                .register(greatHunger)
-                .apply();
-        
             getServer().getPluginManager().registerEvents(new ScalaEvents(EntitiesLauncher.this), EntitiesLauncher.this);
         }
     }

@@ -109,7 +109,8 @@ tabSubprojects.forEach( pr -> project(":$pr") {
             case "Entities": {
                 compileOnly 'com.ticxo.modelengine:api:R2.2.0'
                 implementation project(":Libraries:EntityRegistry")
-                implementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
+                compileOnly project(':Libraries:ScalaSupport')
+                compileOnly group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
 
                 // Tests
                 testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
@@ -200,6 +201,7 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 return
             }
             case "EntityRegistry": {
+                compileOnly project(':Libraries:ScalaSupport')
                 compileOnly project(':Libraries:Misc')
                 // импортирует nms прямо из папируса, конечно так публиковать джарник нелегально, но у нас приватый репо, нам можно.
                 compileOnly files("$rootDir/.sources/patched_1.17.1.jar")
@@ -242,8 +244,8 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
     }
 })
 
-// Отдельный плагин, который просто в себе хранит всю скаловскую стандартную библиотеку,
-// лучше найти другой способ для использования скалы на сервере.
+// Отдельный плагин, который просто в себе хранит всё скавловское в том числе и стандартную библиотеку скалы,
+// лучше найти другой способ для использования стандартной библиотеки скалы на сервере.
 project(":Libraries:ScalaSupport") {
     apply plugin: 'java-library'
     apply plugin: 'scala'
@@ -262,6 +264,7 @@ project(":Libraries:ScalaSupport") {
 
     dependencies {
         compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+        implementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3' // Tofu with cats
         implementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.1.0'
     }
 
