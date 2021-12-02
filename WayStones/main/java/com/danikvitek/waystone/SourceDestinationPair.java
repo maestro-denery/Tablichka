@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -61,7 +62,7 @@ public class SourceDestinationPair implements Listener {
         );
     }
 
-    private static SourceDestinationPair getByPlayer(Player player) {
+    public static @Nullable SourceDestinationPair getByPlayer(Player player) {
         return activeSDPs.get(player);
     }
 
@@ -103,7 +104,7 @@ public class SourceDestinationPair implements Listener {
     public void onMoveInTeleportationField(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (this.equals(activeSDPs.get(player))) {
-            if (!player.getWorld().equals(this.source.getWorld())) {
+            if (!player.getWorld().equals(this.source.world())) {
                 stopAndClearByPlayer(player);
             } else {
                 Location playerLocation = event.getTo(); // player.getLocation();
@@ -118,7 +119,7 @@ public class SourceDestinationPair implements Listener {
                     destinationLocation.getWorld().spawnParticle(
                             Particle.REDSTONE,
                             destinationLocation.clone().add(0, 1, 0),
-                            10,                   // amount
+                            10,                             // amount
                             0.3, 1, 0.3,      // maximal offsets
                             new Particle.DustOptions(Color.PURPLE, 1f)
                     );
@@ -147,19 +148,19 @@ public class SourceDestinationPair implements Listener {
 
     public @NotNull Location toSourceLocation() {
         return new Location(
-                source.getWorld(),
-                source.getX() + 0.5D,
-                source.getY(),
-                source.getZ() + 0.5D
+                source.world(),
+                source.x() + 0.5D,
+                source.y(),
+                source.z() + 0.5D
         );
     }
 
     public @NotNull Location toDestinationLocation() {
         return new Location(
-                destination.getWorld(),
-                destination.getX() + 0.5D,
-                destination.getY(),
-                destination.getZ() + 0.5D
+                destination.world(),
+                destination.x() + 0.5D,
+                destination.y(),
+                destination.z() + 0.5D
         );
     }
 

@@ -482,20 +482,20 @@ public class WaystoneManager implements Listener {
                             return waystones.stream()
                                     .map(w -> {
                                         NbtCompound waystoneData = NbtFactory.ofCompound("waystone_data");
-                                        waystoneData.put("x", w.getX());
-                                        waystoneData.put("y", w.getY());
-                                        waystoneData.put("z", w.getZ());
-                                        waystoneData.put("name", w.getName());
-                                        waystoneData.put("world", Converter.uuidToBytes(Objects.requireNonNull(w.getWorld()).getUID()));
+                                        waystoneData.put("x", w.x());
+                                        waystoneData.put("y", w.y());
+                                        waystoneData.put("z", w.z());
+                                        waystoneData.put("name", w.name());
+                                        waystoneData.put("world", Converter.uuidToBytes(Objects.requireNonNull(w.world()).getUID()));
                                         return new NBTManager(
                                                 new ItemBuilder(Material.PAPER)
-                                                        .setName(w.getName())
+                                                        .setName(w.name())
                                                         .setLore(
                                                                 "",
-                                                                ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.getX(),
-                                                                ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.getY(),
-                                                                ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.getZ(),
-                                                                ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.getWorld())
+                                                                ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.x(),
+                                                                ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.y(),
+                                                                ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.z(),
+                                                                ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.world())
                                                         )
                                                         .build()
                                         ).addTag(waystoneData).build();
