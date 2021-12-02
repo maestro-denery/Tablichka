@@ -123,6 +123,7 @@ tabSubprojects.forEach( pr -> project(":$pr") {
             case "WayStones": {
                 compileOnly 'com.github.LoneDev6:api-itemsadder:2.4.21'
                 compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
+                compileOnly project(':Libraries:Misc')
                 implementation 'net.wesjd:anvilgui:1.5.3-SNAPSHOT'
                 return
             }
@@ -131,8 +132,24 @@ tabSubprojects.forEach( pr -> project(":$pr") {
     }
 
     // Костыль для билда скалы с джавой вместе в разных папках.
-    //tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
-    //tasks.compileScala.classpath = sourceSets.main.compileClasspath
+    tasks.compileJava {
+        switch (pr) {
+            case "WayStones": {
+                classpath += files(sourceSets.main.scala.classesDirectory)
+                return
+            }
+            default: return
+        }
+    }
+    tasks.compileScala {
+        switch (pr) {
+            case "WayStones": {
+                classpath = sourceSets.main.compileClasspath
+                return
+            }
+            default: return
+        }
+    }
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -228,8 +245,24 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
     }
 
     // Костыль для билда скалы с джавой вместе в разных папках.
-    //tasks.compileJava.classpath += files(sourceSets.main.scala.classesDirectory)
-    //tasks.compileScala.classpath = sourceSets.main.compileClasspath
+    tasks.compileJava {
+        switch (lib) {
+            case "Misc": {
+                classpath += files(sourceSets.main.scala.classesDirectory)
+                return
+            }
+            default: return
+        }
+    }
+    tasks.compileScala {
+        switch (lib) {
+            case "Misc": {
+                classpath = sourceSets.main.compileClasspath
+                return
+            }
+            default: return
+        }
+    }
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE

@@ -10,7 +10,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.foton.entities.commands.EntitiesCommands;
 import org.foton.entities.ScalaEvents;
-import org.foton.scalasupport.ScalaSupportInitEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.foton.architecture.Launcher;
