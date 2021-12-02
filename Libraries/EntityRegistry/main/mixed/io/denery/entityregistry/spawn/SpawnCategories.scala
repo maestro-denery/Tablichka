@@ -75,6 +75,6 @@ object SpawnCategories:
                        server: Server,
                        locationNear: Location,
                        list: List[AbstractCustomizableEntityType])(using raise: Raise[F, SpawnError]): F[LivingEntity] = {
-
+      // TODO: Different spawn mechanisms, spawn working.
       raise.raise(SpawnError())
     }

@@ -227,11 +227,11 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                 //compileOnly group: 'de.tr7zw', name: 'item-nbt-api-plugin', version: '2.8.0'
 
                 // Скаловская библиотека от разрабов тинькофф банка для очень удобного ФП с Cats/ZIO.
-                implementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
+                compileOnly group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
 
                 // Tests
                 testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
-                testImplementation group: 'io.projectreactor', name: 'reactor-core', version: '3.4.12'
+                testImplementation group: 'tf.tofu', name: 'tofu-core_2.13', version: '0.10.3'
                 testImplementation project(':Libraries:Misc')
                 return
             }

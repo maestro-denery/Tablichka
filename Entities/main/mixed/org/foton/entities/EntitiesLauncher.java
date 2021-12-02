@@ -8,16 +8,17 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.foton.entities.commands.EntitiesCommands;
+import org.foton.entities.commands.Commands;
 import org.foton.entities.ScalaEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.foton.architecture.Launcher;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class EntitiesLauncher extends JavaPlugin implements Launcher {
-    public static final Logger logger = LoggerFactory.getLogger("Tablichka-Entities");
+    public static final Logger logger = LoggerFactory.getLogger("Foton-Entities");
 
     AbstractCustomizableEntityType greatHunger = CustomizableEntityTypeBuilder.newBuilder()
             .setID("mobc")
@@ -31,7 +32,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     @Override
     public void loadCommands() {
-        Objects.requireNonNull(getCommand("erspawn")).setExecutor(EntitiesCommands.getInstance());
+        Objects.requireNonNull(getCommand("erspawn")).setExecutor(Commands.getInstance());
     }
 
     @Override
@@ -42,6 +43,8 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
         EntityTypeRegistry.newRegistry()
                 .register(greatHunger)
                 .apply();
+        
+        logger.info("Registered entities: " + Arrays.toString(EntityTypeRegistry.getInstance().getRegisteredEntities().keySet().toArray()));
 
         loadEvents();
         loadCommands();
@@ -49,7 +52,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     @Override
     public void onDisable() {
-        super.onDisable();
+        logger.info("Shutting down entities module...");
     }
     /*
     private class ScalaSupport implements Listener {

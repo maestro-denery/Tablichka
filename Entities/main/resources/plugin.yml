@@ -9,6 +9,6 @@ commands:
     description: Spawn entity if its ID is registered in EntityRegistryLib.
     usage: /<command>
 permissions:
-  "Tablichka.commands.erspawn":
+  "foton.commands.erspawn":
     description: A player may use the spawnmodel command
     default: op
