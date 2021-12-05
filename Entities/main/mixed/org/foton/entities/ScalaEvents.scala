@@ -5,7 +5,7 @@ import io.denery.entityregistry.EntityTypeRegistry
 import io.denery.entityregistry.behaviour.BehaviourCategories
 import io.denery.entityregistry.entity.CustomizableEntity
 import io.denery.entityregistry.spawn.SpawnCategories.*
-import io.denery.entityregistry.spawn.{CustomizableSpawn, SpawnCategories}
+import io.denery.entityregistry.spawn.SpawnCategories
 import net.kyori.adventure.text.Component
 import org.bukkit.Location
 import org.bukkit.entity.Mob

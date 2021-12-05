@@ -1,5 +1,3 @@
-package io.denery.entityregistry.spawn;
-
 import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
 import io.denery.entityregistry.entity.CustomizableEntity;
 import org.bukkit.Chunk;
@@ -19,9 +17,11 @@ import java.util.function.BiFunction;
 /**
  * Class where you can customize spawning of your CustomizableEntityTypes.
  */
+
 public class CustomizableSpawn implements BiFunction<Server, Location, List<Optional<CustomizableEntity<?>>>> {
     private CustomizableSpawn() {}
     private static final Logger logger = LoggerFactory.getLogger("EntityRegistryLib");
+ 
 
     /**
      * means delay between 2 spawn actions, in milliseconds, by default is 100.
@@ -218,4 +218,5 @@ public class CustomizableSpawn implements BiFunction<Server, Location, List<Opti
             return CustomizableSpawn.this;
         }
     }
+    
 }

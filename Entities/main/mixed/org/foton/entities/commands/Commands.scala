@@ -2,7 +2,6 @@ package org.foton.entities.commands
 
 import io.denery.entityregistry.EntityTypeRegistry
 import io.denery.entityregistry.entity.CustomizableEntity
-import io.denery.entityregistry.entity.AbstractCustomizableEntityType
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.slf4j.{Logger, LoggerFactory}
@@ -29,10 +28,10 @@ class Commands private () extends TabExecutor:
             val entityType = EntityTypeRegistry.getInstance.getRegisteredEntities.get(args(0))
             val player = sender.asInstanceOf[Player]
             val optionalEntityType = entityType.getOriginType
-            if optionalEntityType.isPresent then
-              val entityClass = Optional.ofNullable(entityType.getOriginType.orElseThrow.getEntityClass)
+            if optionalEntityType.isDefined then
+              val entityClass = Optional.ofNullable(entityType.getOriginType.getOrElse(throw RuntimeException("Cannot get entity's origin type to spawn it!")).getEntityClass)
               val entity: LivingEntity = player.getWorld.spawn(player.getLocation, entityClass.orElseThrow).asInstanceOf[LivingEntity]
-              val customizableEntity = CustomizableEntity[LivingEntity](args(0), entity)
+              val customizableEntity = CustomizableEntity[LivingEntity](entityType, entity)
               customizableEntity.modelEntity()
 
               return true

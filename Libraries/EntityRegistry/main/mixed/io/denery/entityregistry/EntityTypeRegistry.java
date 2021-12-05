@@ -1,9 +1,10 @@
 package io.denery.entityregistry;
 
-import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
+import io.denery.entityregistry.entity.CustomizableEntityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.foton.architecture.pattern.Applier;
+import scala.Option;
 
 import java.util.*;
 
@@ -29,23 +30,23 @@ public final class EntityTypeRegistry {
         return instance;
     }
 
-    private Map<String, AbstractCustomizableEntityType> types = new HashMap<>();
-    private final Map<String, AbstractCustomizableEntityType> localReg = new HashMap<>();
+    private Map<String, CustomizableEntityType> types = new HashMap<>();
+    private final Map<String, CustomizableEntityType> localReg = new HashMap<>();
 
-    public Map<String, AbstractCustomizableEntityType> getRegisteredEntities() {
+    public Map<String, CustomizableEntityType> getRegisteredEntities() {
         return types;
     }
 
-    public List<AbstractCustomizableEntityType> getRegisteredEntitiesList() {
+    public List<CustomizableEntityType> getRegisteredEntitiesList() {
         return new ArrayList<>(types.values());
     }
 
     public class EntityApplier implements Applier<EntityTypeRegistry> {
         private EntityApplier() {}
 
-        public EntityApplier register(AbstractCustomizableEntityType type) {
-            Optional<String> optID = type.getID();
-            if (optID.isPresent()) {
+        public EntityApplier register(CustomizableEntityType type) {
+            Option<String> optID = type.getID();
+            if (optID.isDefined()) {
                 localReg.put(optID.get(), type);
                 return this;
             }

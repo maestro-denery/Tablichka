@@ -28,7 +28,7 @@ class CheckBehaviour:
   
   @Test
   def check: Unit = {
-    sample[Seq[CustomizableEntity[_] => Unit]].asInstanceOf[Seq[CustomizableEntity[_] => Unit]].foreach(s => {
+    sample[Seq[CustomizableEntity[_] => Unit]].foreach(s => {
       //Randomizer.applyRandom(s, 50)
     })
   }

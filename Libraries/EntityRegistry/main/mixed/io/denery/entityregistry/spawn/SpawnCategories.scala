@@ -8,8 +8,15 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import cats.Monad
-import io.denery.entityregistry.entity.AbstractCustomizableEntityType
+import io.denery.entityregistry.entity.CustomizableEntityType
 
+/**
+ * Class representing spawn settings "construction" 
+ * and implementing spawn mechanisms that use these constructed spawn settings.
+ * Used Tagless Final FP pattern, don't get infarct of this code, it's perfect!
+ * 
+ * TODO: Spawning Mechanisms described in resources/CustomizableSpawn.java or more enhanced mechanisms.
+ */
 object SpawnCategories:
 
   case class DefaultSettings(delay: Int = 100, maximumPerChunk: Int = 20, maximumLight: Int = 15, minimumLight: Int = 0)
@@ -49,7 +56,7 @@ object SpawnCategories:
     def spawn(settings: CommonSpawnSettingsDictionary[Int],
               server: Server,
               locationNear: Location,
-              list: List[AbstractCustomizableEntityType])(using raise: Raise[F, SpawnError]): F[LivingEntity]
+              list: List[CustomizableEntityType])(using raise: Raise[F, SpawnError]): F[LivingEntity]
 
   trait SpawnNodeAlgebra[F[_]: Monad]:
     def node(node: Seq[F[LivingEntity]]): F[LivingEntity]
@@ -62,7 +69,7 @@ object SpawnCategories:
     def Spawn[F[_]: Monad](settings: CommonSpawnSettingsDictionary[Int],
                     server: Server,
                     locationNear: Location,
-                    list: List[AbstractCustomizableEntityType])
+                    list: List[CustomizableEntityType])
                           (using raise: Raise[F, SpawnError]): SpawnDictionary[F] =
       (alg: SpawnAlgebra[F]) ?=> alg.spawn(settings, server, locationNear, list)
 
@@ -74,7 +81,7 @@ object SpawnCategories:
     override def spawn(settings: CommonSpawnSettingsDictionary[Int],
                        server: Server,
                        locationNear: Location,
-                       list: List[AbstractCustomizableEntityType])(using raise: Raise[F, SpawnError]): F[LivingEntity] = {
+                       list: List[CustomizableEntityType])(using raise: Raise[F, SpawnError]): F[LivingEntity] = {
       // TODO: Different spawn mechanisms, spawn working.
       raise.raise(SpawnError())
     }

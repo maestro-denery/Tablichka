@@ -2,28 +2,20 @@ package org.foton.entities;
 
 import com.ticxo.modelengine.api.event.ModelEngineInitializeEvent;
 import io.denery.entityregistry.EntityTypeRegistry;
-import io.denery.entityregistry.entity.AbstractCustomizableEntityType;
-import io.denery.entityregistry.entity.CustomizableEntityTypeBuilder;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.foton.architecture.Launcher;
 import org.foton.entities.commands.Commands;
-import org.foton.entities.ScalaEvents;
+import org.foton.entities.mobs.GreatHunger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.foton.architecture.Launcher;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public static final Logger logger = LoggerFactory.getLogger("Foton-Entities");
-
-    AbstractCustomizableEntityType greatHunger = CustomizableEntityTypeBuilder.newBuilder()
-            .setID("mobc")
-            .setOriginType(EntityType.PIG)
-            .build();
 
     @Override
     public void loadEvents() {
@@ -39,10 +31,6 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public void onEnable() {
         logger.info("Loading Entities Module.");
         logger.info("Version dev-1.0.019");
-
-        EntityTypeRegistry.newRegistry()
-                .register(greatHunger)
-                .apply();
         
         logger.info("Registered entities: " + Arrays.toString(EntityTypeRegistry.getInstance().getRegisteredEntities().keySet().toArray()));
 
@@ -68,6 +56,11 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public class Events implements Listener {
         @EventHandler
         public void onModelEngineGeneratorStart(ModelEngineInitializeEvent e) {
+            
+            EntityTypeRegistry.newRegistry()
+                    .register(GreatHunger.greatHungerType())
+                    .apply();
+            
             getServer().getPluginManager().registerEvents(new ScalaEvents(EntitiesLauncher.this), EntitiesLauncher.this);
         }
     }
