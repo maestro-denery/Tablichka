@@ -80,6 +80,10 @@ tabSubprojects.forEach( pr -> project(":$pr") {
                     scala.srcDirs = ["$projectDir/main/mixed"]
                     return
                 }
+                case "WayStones": {
+                    scala.srcDirs = ["$projectDir/main/mixed"]
+                    return
+                }
                 default: {
                     java.srcDirs = ["$projectDir/main/java"]
                     scala.srcDirs = ["$projectDir/main/scala"]
@@ -131,25 +135,25 @@ tabSubprojects.forEach( pr -> project(":$pr") {
         }
     }
 
-    // Костыль для билда скалы с джавой вместе в разных папках.
-    tasks.compileJava {
-        switch (pr) {
-            case "WayStones": {
-                classpath += files(sourceSets.main.scala.classesDirectory)
-                return
-            }
-            default: return
-        }
-    }
-    tasks.compileScala {
-        switch (pr) {
-            case "WayStones": {
-                classpath = sourceSets.main.compileClasspath
-                return
-            }
-            default: return
-        }
-    }
+//    // Костыль для билда скалы с джавой вместе в разных папках.
+//    tasks.compileJava {
+//        switch (pr) {
+//            case "WayStones": {
+//                classpath += files(sourceSets.main.scala.classesDirectory)
+//                return
+//            }
+//            default: return
+//        }
+//    }
+//    tasks.compileScala {
+//        switch (pr) {
+//            case "WayStones": {
+//                classpath = sourceSets.main.compileClasspath
+//                return
+//            }
+//            default: return
+//        }
+//    }
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -184,6 +188,10 @@ libraries.forEach(lib -> project(":Libraries:$lib") {
                     return
                 }
                 case "EntityRegistry": {
+                    scala.srcDirs = ["$projectDir/main/mixed"]
+                    return
+                }
+                case "WayStones": {
                     scala.srcDirs = ["$projectDir/main/mixed"]
                     return
                 }

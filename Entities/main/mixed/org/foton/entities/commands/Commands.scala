@@ -17,38 +17,43 @@ class Commands private () extends TabExecutor:
   val logger: Logger = LoggerFactory.getLogger("Foton-Entities")
 
   override def onCommand(sender: CommandSender, command: Command, label: String, args: Array[String]): Boolean = {
-    command.getName match {
-      case "erspawn" =>
-        if sender.hasPermission("foton.commands.erspawn") then
-          if args.length == 1 then
-            if !EntityTypeRegistry.getInstance.getRegisteredEntities.containsKey(args(0)) then
-              sender.sendMessage(Component.text("Cannot find registered entities!").color(NamedTextColor.GRAY))
-              return false
+    if args.length == 1 then
+      command.getName match {
+        case "erspawn" =>
+          if sender.hasPermission("foton.commands.erspawn") then
+            if args.length == 1 then
+              if !EntityTypeRegistry.getInstance.getRegisteredEntities.containsKey(args(0)) then
+                sender.sendMessage(Component.text("Cannot find registered entities!").color(NamedTextColor.GRAY))
+                return false
 
-            val entityType = EntityTypeRegistry.getInstance.getRegisteredEntities.get(args(0))
-            val player = sender.asInstanceOf[Player]
-            val optionalEntityType = entityType.getOriginType
-            if optionalEntityType.isDefined then
-              val entityClass = Optional.ofNullable(entityType.getOriginType.getOrElse(throw RuntimeException("Cannot get entity's origin type to spawn it!")).getEntityClass)
-              val entity: LivingEntity = player.getWorld.spawn(player.getLocation, entityClass.orElseThrow).asInstanceOf[LivingEntity]
-              val customizableEntity = CustomizableEntity[LivingEntity](entityType, entity)
-              customizableEntity.modelEntity()
+              val entityType = EntityTypeRegistry.getInstance.getRegisteredEntities.get(args(0))
+              val player = sender.asInstanceOf[Player]
+              val optionalEntityType = entityType.getOriginType
+              if optionalEntityType.isDefined then
+                val entityClass = Optional.ofNullable(entityType.getOriginType.getOrElse(throw RuntimeException("Cannot get entity's origin type to spawn it!")).getEntityClass)
+                val entity: LivingEntity = player.getWorld.spawn(player.getLocation, entityClass.orElseThrow).asInstanceOf[LivingEntity]
+                val customizableEntity = CustomizableEntity[LivingEntity](entityType, entity)
+                customizableEntity.modelEntity()
 
-              return true
+                return true
 
-          return false
-        false
-      case _ => false;
-    }
+            return false
+          false
+        case _ => false;
+      }
+    else false
   }
 
   override def onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array[String]): util.List[String] =
-    StringUtils.copyPartialInnerMatches(args(0),
-      command.getName match {
-        case "erspawn" => EntityTypeRegistry.getInstance.getRegisteredEntities.keySet.stream.toList
-        case _ => Collections.emptyList()
-      }
-    )
+    if args.length == 1 then
+      StringUtils.copyPartialInnerMatches(args(0),
+        command.getName match {
+          case "erspawn" => EntityTypeRegistry.getInstance.getRegisteredEntities.keySet.stream.toList
+          case _ => Collections.emptyList()
+        }
+      )
+    else Collections.emptyList()
+end Commands
 
 object Commands:
   private val instance = null

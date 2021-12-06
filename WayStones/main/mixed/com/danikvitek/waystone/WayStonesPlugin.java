@@ -37,7 +37,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
                 getConfig().getBoolean("database.create-database")
         );
         WaystoneManager.getInstance().init(this);
-        TeleportationVisualizationManager.getInstance().init(this);
+        TeleportVisManager.init(this);
         Bukkit.getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new SourceDestinationPair.UnexpectedMovementListener(), this);
         log("Loading completed");
