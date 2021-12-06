@@ -3,6 +3,8 @@ version: '$A1.0'
 main: org.foton.entities.EntitiesLauncher
 api-version: 1.17
 authors: [ Denery ]
+depend:
+  - ModelEngine
 
 commands:
   erspawn:

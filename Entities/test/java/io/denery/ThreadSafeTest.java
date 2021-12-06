@@ -53,9 +53,7 @@ class ThreadSafeTest {
 
     @Test
     void supplyAsyncNull() throws ExecutionException, InterruptedException {
-        CompletableFuture<LivingEntity> lecf = CompletableFuture.supplyAsync(() -> {
-            return null;
-        });
+        CompletableFuture<LivingEntity> lecf = CompletableFuture.supplyAsync(() -> null);
 
         System.out.println(lecf.get());
     }
