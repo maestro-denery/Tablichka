@@ -29,14 +29,14 @@ public class SourceDestinationPair implements Listener {
 
     static {
         particleOffset = new ArrayList<>();
-        double multiplier = 5D;
+        double multiplier = 5d; // sphere radius
         for (double i = 0; i <= Math.PI; i += Math.PI / 20) {
             double radius = Math.sin(i) * multiplier;
             double y = Math.cos(i) * multiplier;
             int n_circle = i != 0 && i < Math.PI ? 20 : 1;
             Vector[] circle = new Vector[n_circle];
             int j = 0;
-            for (double degree = 0D; degree < 360D; degree += 360D / n_circle) {
+            for (double degree = 0d; degree < 360d; degree += 360d / n_circle) {
                 double radians = Math.toRadians(degree);
                 double x = Math.cos(radians) * radius;
                 double z = Math.sin(radians) * radius;
