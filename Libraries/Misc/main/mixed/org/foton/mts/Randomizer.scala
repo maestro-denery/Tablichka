@@ -7,8 +7,8 @@ import scala.util.Random
  */
 object Randomizer:
   def applyRandom[A, B](func: A => B, a: A, percentage: Int): Option[B] = {
-    if (percentage < 0 && percentage < 100) throw IllegalStateException("Percentage needs to be between 0 or 100!")
+    if (percentage < 0 || percentage > 100) throw IllegalStateException("Percentage needs to be between 0 or 100!")
     val rand: Int = Random.nextInt(100)
     if (rand > percentage) return Option(func(a))
-    return Option.empty
+    Option.empty
   }
