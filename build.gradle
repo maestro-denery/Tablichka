@@ -129,31 +129,15 @@ tabSubprojects.forEach( pr -> project(":$pr") {
                 compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
                 compileOnly project(':Libraries:Misc')
                 implementation 'net.wesjd:anvilgui:1.5.3-SNAPSHOT'
+
+                // Tests
+                testImplementation 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
+                testImplementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.1.0'
                 return
             }
             default: return
         }
     }
-
-//    // Костыль для билда скалы с джавой вместе в разных папках.
-//    tasks.compileJava {
-//        switch (pr) {
-//            case "WayStones": {
-//                classpath += files(sourceSets.main.scala.classesDirectory)
-//                return
-//            }
-//            default: return
-//        }
-//    }
-//    tasks.compileScala {
-//        switch (pr) {
-//            case "WayStones": {
-//                classpath = sourceSets.main.compileClasspath
-//                return
-//            }
-//            default: return
-//        }
-//    }
 
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class DatabaseManager {
+public final class DatabaseManager {
     private String dbURL, dbUser, dbPassword;
     private boolean createDatabase;
     private String dbName;
@@ -24,7 +24,8 @@ public class DatabaseManager {
         return instance;
     }
 
-    public void init(String dbHost, int dbPort, String dbName, String dbUser, String dbPassword, boolean createDatabase) {
+    public void init(String dbHost, int dbPort, String dbName, String dbUser, String dbPassword, boolean createDatabase)
+    throws IllegalStateException {
         if (!isInitialized) {
             this.dbName = dbName;
             this.createDatabase = createDatabase;
@@ -70,7 +71,8 @@ public class DatabaseManager {
         }
     }
 
-    public CompletableFuture<Boolean> makeExecuteUpdate(String query, @Nullable Map<Integer, Object> values) {
+    public CompletableFuture<Boolean> makeExecuteUpdate(String query, @Nullable Map<Integer, Object> values) 
+    throws IllegalStateException {
         if (isInitialized)
             return CompletableFuture.supplyAsync(() -> {
                 try (
@@ -91,7 +93,8 @@ public class DatabaseManager {
         else throw new IllegalStateException("DatabaseManager is not initialized");
     }
 
-    public <T> CompletableFuture<T> makeExecuteQuery(String query, @Nullable Map<Integer, Object> values, @Nullable Function<ResultSet, T> function) {
+    public <T> CompletableFuture<T> makeExecuteQuery(String query, @Nullable Map<Integer, Object> values, @Nullable Function<ResultSet, T> function) 
+    throws IllegalStateException {
         if (isInitialized)
             return CompletableFuture.supplyAsync(() -> {
                 T result = null;

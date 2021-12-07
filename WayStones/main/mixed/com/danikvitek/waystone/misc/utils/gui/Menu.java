@@ -7,7 +7,7 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
 
-public class Menu {
+public final class Menu {
     private final TexturedInventoryWrapper inventoryWrapper;
     private final HashMap<Integer, Button> buttons;
 
@@ -25,7 +25,7 @@ public class Menu {
             buttons.get(event.getSlot()).onClick(menu, event);
     }
 
-    protected void loadButtons() {
+    void loadButtons() {
         Inventory inventory = inventoryWrapper.getInternal();
         buttons.forEach(inventory::setItem);
     }

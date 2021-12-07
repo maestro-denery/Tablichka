@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MenuHandler {
+public final class MenuHandler {
 
     private static final ConcurrentHashMap<UUID, Menu> openMenus = new ConcurrentHashMap<>();
 

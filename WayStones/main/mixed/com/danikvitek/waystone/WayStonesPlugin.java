@@ -2,8 +2,8 @@ package com.danikvitek.waystone;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.danikvitek.waystone.misc.utils.gui.*;
 import com.danikvitek.waystone.misc.utils.DatabaseManager;
+import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -18,7 +18,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
 
     ProtocolManager protocolManager;
     boolean isWaystonesListenerRegistered = false;
-
+    
     // TODO: 09.11.2021 integrate CoreProtect
 
     @Override
@@ -27,7 +27,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
         saveDefaultConfig();
 
         protocolManager = ProtocolLibrary.getProtocolManager();
-
+        
         DatabaseManager.getInstance().init(
                 getConfig().getString("database.host"),
                 getConfig().getInt("database.port", 3306),
@@ -38,6 +38,7 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
         );
         WaystoneManager.getInstance().init(this);
         TeleportVisManager.init(this);
+        
         Bukkit.getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new SourceDestinationPair.UnexpectedMovementListener(), this);
         log("Loading completed");

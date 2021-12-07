@@ -8,11 +8,13 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NBTManager {
+import java.util.Optional;
+
+public final class NBTManager {
     private final ItemStack itemStack;
     private final NbtCompound compound;
 
-    public NBTManager(@NotNull ItemStack itemStack) throws IllegalArgumentException {
+    public NBTManager(@NotNull ItemStack itemStack) {
         this.itemStack = MinecraftReflection.getBukkitItemStack(itemStack);
         this.compound = (NbtCompound) NbtFactory.fromItemTag(this.itemStack);
     }
@@ -27,7 +29,7 @@ public class NBTManager {
         return itemStack;
     }
 
-    public @Nullable NbtBase<?> getTag(String name) {
-        return compound.getValue(name);
+    public Optional<NbtBase<?>> getTag(String name) {
+        return Optional.ofNullable(compound.getValue(name));
     }
 }
