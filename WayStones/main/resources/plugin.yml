@@ -1,6 +1,6 @@
 name: WayStones
 version: '${project.version}'
-main: com.danikvitek.waystone.WayStonesPlugin
+main: com.danikvitek.waystones.WayStonesPlugin
 api-version: 1.17
 depend: [ ItemsAdder, ProtocolLib, ScalaSupport ]
 authors: [ Danik_Vitek ]

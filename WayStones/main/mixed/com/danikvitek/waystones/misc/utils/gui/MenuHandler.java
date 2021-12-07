@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.misc.utils.gui;
+package com.danikvitek.waystones.misc.utils.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

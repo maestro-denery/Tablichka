@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.misc.utils;
+package com.danikvitek.waystones.misc.utils;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

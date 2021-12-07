@@ -1,6 +1,7 @@
-package com.danikvitek.waystone;
+package com.danikvitek.waystones;
 
-import com.danikvitek.waystone.misc.Waystone;
+import com.danikvitek.waystones.visualisation.TeleportVisManager;
+import com.danikvitek.waystones.waystone.Waystone;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;

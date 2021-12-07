@@ -1,14 +1,17 @@
-package com.danikvitek.waystone;
+package com.danikvitek.waystones.waystone;
 
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
-import com.danikvitek.waystone.misc.*;
-import com.danikvitek.waystone.misc.utils.gui.Button;
-import com.danikvitek.waystone.misc.utils.gui.Menu;
-import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
-import com.danikvitek.waystone.misc.utils.DatabaseManager;
-import com.danikvitek.waystone.misc.utils.ItemBuilder;
-import com.danikvitek.waystone.misc.utils.NBTManager;
+import com.danikvitek.waystones.SourceDestinationPair;
+import com.danikvitek.waystones.WayStonesPlugin;
+import com.danikvitek.waystones.misc.exceptions.CantReachWaystoneException;
+import com.danikvitek.waystones.misc.utils.DatabaseManager;
+import com.danikvitek.waystones.misc.utils.ItemBuilder;
+import com.danikvitek.waystones.misc.utils.NBTManager;
+import com.danikvitek.waystones.misc.utils.gui.Button;
+import com.danikvitek.waystones.misc.utils.gui.Menu;
+import com.danikvitek.waystones.misc.utils.gui.MenuHandler;
+import com.danikvitek.waystones.package$;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.CustomBlockInteractEvent;
@@ -28,9 +31,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+import org.foton.utils.Converter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.foton.utils.Converter;
 
 import java.sql.SQLException;
 import java.util.*;

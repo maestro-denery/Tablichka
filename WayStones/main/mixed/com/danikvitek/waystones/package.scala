@@ -1,13 +1,14 @@
 package com.danikvitek
 
-import com.danikvitek.waystone.misc.Waystone
+import com.danikvitek.waystones.WayStonesPlugin
+import com.danikvitek.waystones.waystone.Waystone
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.{ChatColor, Location, World}
 
 import java.util.UUID
 
-package object waystone {
+package object waystones {
   def waystoneToLocation(waystone: Waystone): Location =
     new Location(
       waystone.world,
@@ -29,4 +30,8 @@ package object waystone {
       world.getName
     }
   }
+
+  def toRadians(x: Double): Double = (x / 180d) * math.Pi
+
+  def toDegrees(x: Double): Double = (x / math.Pi) * 180d
 }

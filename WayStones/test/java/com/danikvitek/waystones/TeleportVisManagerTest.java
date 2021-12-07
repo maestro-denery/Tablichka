@@ -1,4 +1,4 @@
-package com.danikvitek.waystone;
+package com.danikvitek.waystones;
 
 import com.destroystokyo.paper.HeightmapType;
 import com.destroystokyo.paper.block.BlockSoundGroup;
@@ -20,7 +20,6 @@ import org.bukkit.util.*;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.*;

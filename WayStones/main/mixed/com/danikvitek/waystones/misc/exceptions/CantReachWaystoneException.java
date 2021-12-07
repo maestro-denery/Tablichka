@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.misc;
+package com.danikvitek.waystones.misc.exceptions;
 
 /**
  * Thrown when a player can not open Waystone GUI but somehow tries to do this

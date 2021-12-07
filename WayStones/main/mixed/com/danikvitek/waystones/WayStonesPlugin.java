@@ -1,9 +1,11 @@
-package com.danikvitek.waystone;
+package com.danikvitek.waystones;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.danikvitek.waystone.misc.utils.DatabaseManager;
-import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
+import com.danikvitek.waystones.misc.utils.DatabaseManager;
+import com.danikvitek.waystones.misc.utils.gui.MenuHandler;
+import com.danikvitek.waystones.visualisation.TeleportVisManager;
+import com.danikvitek.waystones.waystone.WaystoneManager;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -17,6 +19,10 @@ public final class WayStonesPlugin extends JavaPlugin implements Listener {
     private static final Logger logger = Bukkit.getLogger();
 
     ProtocolManager protocolManager;
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
+    }
+
     boolean isWaystonesListenerRegistered = false;
     
     // TODO: 09.11.2021 integrate CoreProtect

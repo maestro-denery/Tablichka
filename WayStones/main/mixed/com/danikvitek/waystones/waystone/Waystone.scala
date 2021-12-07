@@ -1,4 +1,4 @@
-package com.danikvitek.waystone.misc
+package com.danikvitek.waystones.waystone
 
 import org.bukkit.World
 import org.jetbrains.annotations.{NotNull, Nullable}
