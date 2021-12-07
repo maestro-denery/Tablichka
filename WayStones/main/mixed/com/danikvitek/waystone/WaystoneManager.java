@@ -8,7 +8,6 @@ import com.danikvitek.waystone.misc.utils.gui.Menu;
 import com.danikvitek.waystone.misc.utils.gui.MenuHandler;
 import com.danikvitek.waystone.misc.utils.DatabaseManager;
 import com.danikvitek.waystone.misc.utils.ItemBuilder;
-import com.danikvitek.waystone.misc.utils.MiscUtils;
 import com.danikvitek.waystone.misc.utils.NBTManager;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
@@ -39,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class WaystoneManager implements Listener {
+public final class WaystoneManager implements Listener {
     private WaystoneManager() {} // Singleton
     private WayStonesPlugin plugin;
     private boolean isInitialized = false;
@@ -180,8 +179,8 @@ public class WaystoneManager implements Listener {
         if (existingId != null) {
             try {
                 Optional<Boolean> knownWaystones = Optional.ofNullable(DatabaseManager.getInstance().makeExecuteQuery(
-                        "select count(1) from `player's waystones` where " +
-                                "player = ? and waystone_id = '" + existingId + "';",
+                        "select count(1) from `player's waystones` " +
+                                "where player = ? and waystone_id = '" + existingId + "';",
                         values,
                         rs -> {
                             try {
@@ -433,8 +432,7 @@ public class WaystoneManager implements Listener {
                     if (SourceDestinationPair.hasSelection(player))
                         SourceDestinationPair.stopAndClearByPlayer(player);
                     NbtCompound dstTag = (NbtCompound) new NBTManager(knownWaystones.get(selected.get(player)))
-                            .getTag("waystone_data");
-                    assert dstTag != null;
+                            .getTag("waystone_data").orElseThrow();
                     Waystone destination = new Waystone(
                             dstTag.getInteger("x"),
                             dstTag.getInteger("y"),
@@ -495,7 +493,7 @@ public class WaystoneManager implements Listener {
                                                                 ChatColor.GOLD + "X: " + ChatColor.YELLOW + w.x(),
                                                                 ChatColor.GOLD + "Y: " + ChatColor.YELLOW + w.y(),
                                                                 ChatColor.GOLD + "Z: " + ChatColor.YELLOW + w.z(),
-                                                                ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + MiscUtils.getWorldName(w.world())
+                                                                ChatColor.GOLD + "Мир: " + ChatColor.YELLOW + package$.MODULE$.getWorldName(w.world())
                                                         )
                                                         .build()
                                         ).addTag(waystoneData).build();

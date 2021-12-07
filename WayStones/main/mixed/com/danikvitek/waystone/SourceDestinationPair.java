@@ -21,8 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class SourceDestinationPair implements Listener {
-    private static final PlayerMoveEvent staticPlayerMoveEvent = new PlayerMoveEvent(Bukkit.getOnlinePlayers().stream().findAny().orElseThrow(), new Location(Bukkit.getWorlds().stream().findAny().orElseThrow(), 0D, 0D, 0D), null);
+public final class SourceDestinationPair implements Listener {
     private static final Map<Player, SourceDestinationPair> activeSDPs = new HashMap<>();
 
     private static final List<Vector[]> particleOffset;
@@ -46,34 +45,6 @@ public class SourceDestinationPair implements Listener {
         }
     }
 
-    public static boolean hasSelection(Player player) {
-        return activeSDPs.containsKey(player);
-    }
-
-    public static void registerNewPair(@NotNull Player player, @NotNull Waystone source, @NotNull Waystone destination) {
-        SourceDestinationPair sourceDestinationPair = new SourceDestinationPair(source, destination, player);
-        if (hasSelection(player)) {
-            stopAndClearByPlayer(player);
-        }
-        activeSDPs.put(player, sourceDestinationPair);
-        Bukkit.getPluginManager().registerEvents(
-                sourceDestinationPair,
-                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
-        );
-    }
-
-    public static @Nullable SourceDestinationPair getByPlayer(Player player) {
-        return activeSDPs.get(player);
-    }
-
-    public static void stopAndClearByPlayer(Player player) {
-        SourceDestinationPair sdp = getByPlayer(player);
-        if (sdp != null) {
-            sdp.stopTeleportation();
-            activeSDPs.remove(player);
-        }
-    }
-
     @NotNull private final Waystone source;
     @NotNull private final Waystone destination;
     @NotNull private final BukkitTask drawFieldTask;
@@ -91,13 +62,43 @@ public class SourceDestinationPair implements Listener {
                                     Particle.REDSTONE,
                                     sourceLocation.clone().add(v),
                                     1,                        // amount
-                                    0.5, 0.5, 0.5,      // maximal offsets
+                                    0.5, 1, 0.5,      // max offsets
                                     new Particle.DustOptions(Color.PURPLE, 1f)
                             )
                     );
                 }
             }
         }.runTaskTimerAsynchronously(WayStonesPlugin.getPlugin(WayStonesPlugin.class), 0L, 5L);
+    }
+
+    public static boolean hasSelection(Player player) {
+        return activeSDPs.containsKey(player);
+    }
+
+    public static void registerNewPair(@NotNull Player player, @NotNull Waystone source, @NotNull Waystone destination) {
+        SourceDestinationPair sdp = new SourceDestinationPair(source, destination, player);
+        if (hasSelection(player)) {
+            stopAndClearByPlayer(player);
+        }
+        activeSDPs.put(player, sdp);
+        Bukkit.getPluginManager().registerEvents(
+                sdp,
+                WayStonesPlugin.getPlugin(WayStonesPlugin.class)
+        );
+        TeleportVisManager.startVisualisation(player, sdp);
+    }
+
+    public static @Nullable SourceDestinationPair getByPlayer(Player player) {
+        return activeSDPs.get(player);
+    }
+
+    public static void stopAndClearByPlayer(Player player) {
+        SourceDestinationPair sdp = getByPlayer(player);
+        if (sdp != null) {
+            sdp.stopTeleportation();
+            activeSDPs.remove(player);
+            TeleportVisManager.cancelVisualisation(player, sdp);
+        }
     }
 
     @EventHandler
@@ -129,7 +130,7 @@ public class SourceDestinationPair implements Listener {
     }
 
     private void stopTeleportation() {
-        staticPlayerMoveEvent.getHandlers().unregister(this);
+        PlayerMoveEvent.getHandlerList().unregister(this);
         this.stopDrawFieldTask();
     }
 
