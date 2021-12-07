@@ -31,7 +31,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public void onEnable() {
         logger.info("Loading Entities Module.");
         logger.info("Version dev-1.0.019");
-        
+
         logger.info("Registered entities: " + Arrays.toString(EntityTypeRegistry.getInstance().getRegisteredEntities().keySet().toArray()));
 
         loadEvents();
@@ -40,7 +40,7 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
 
     @Override
     public void onDisable() {
-        logger.info("Shutting down entities module...");
+        logger.info("Shutting down Foton Entities...");
     }
     /*
     private class ScalaSupport implements Listener {
@@ -56,13 +56,11 @@ public final class EntitiesLauncher extends JavaPlugin implements Launcher {
     public class Events implements Listener {
         @EventHandler
         public void onModelEngineGeneratorStart(ModelEngineInitializeEvent e) {
-            
             EntityTypeRegistry.newRegistry()
                     .register(GreatHunger.greatHungerType())
                     .apply();
-            
+
             getServer().getPluginManager().registerEvents(new ScalaEvents(EntitiesLauncher.this), EntitiesLauncher.this);
         }
     }
-
 }
