@@ -15,7 +15,7 @@ description = "Main TabLight gameplay mods and plugins."
 
 tasks {
     register("buildAll") {
-        subprojects.filter { sub -> sub.name.startsWith("pl") }
+        subprojects.filter { sub -> sub.name.startsWith("pl-") }
             .map { sub -> sub.tasks.shadowJar }
             .forEach { sub -> dependsOn(sub) }
     }
@@ -26,14 +26,14 @@ tasks {
 
     runServer {
         runDirectory(file("$rootDir/run"))
-        subprojects.filter { sub -> sub.name.startsWith("pl") }.forEach {sub ->
+        subprojects.filter { sub -> sub.name.startsWith("pl-") }.forEach {sub ->
             pluginJars.from(sub.tasks.shadowJar.get().archiveFile)
         }
         minecraftVersion("1.17.1")
     }
 }
 
-configure(subprojects.filter{sub -> sub.name.startsWith("pl")}) {
+configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
     apply(plugin = "java")
     apply(plugin = "scala")
     apply(plugin = "com.github.johnrengelman.shadow")
@@ -102,9 +102,9 @@ configure(subprojects.filter{sub -> sub.name.startsWith("pl")}) {
 
 project(":pl-entities") {
     dependencies {
-        compileOnly(project(":pllib-misc"))
-        compileOnly(project(":pllib-entity-registry"))
-        compileOnly(project(":pllib-scala-support"))
+        compileOnly(project(":pl-misc-lib"))
+        compileOnly(project(":pl-entity-registry-lib"))
+        compileOnly(project(":pl-scala-support-lib"))
         compileOnly("com.ticxo.modelengine:api:R2.2.0")
         compileOnly("tf.tofu:tofu-core_2.13:0.10.3")
     }
@@ -134,8 +134,8 @@ project(":pl-entities") {
 
 project(":pl-discs") {
     dependencies {
-        compileOnly(project(":pllib-misc"))
-        compileOnly(project(":pllib-disc-registry"))
+        compileOnly(project(":pl-misc-lib"))
+        compileOnly(project(":pl-disc-registry-lib"))
     }
 
     bukkit {
@@ -150,7 +150,7 @@ project(":pl-discs") {
 
 project(":pl-waystones") {
     dependencies {
-        compileOnly(project(":pllib-misc"))
+        compileOnly(project(":pl-misc-lib"))
         compileOnly("com.github.LoneDev6:api-itemsadder:2.4.21")
         compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
         implementation("net.wesjd:anvilgui:1.5.3-SNAPSHOT")
@@ -171,10 +171,10 @@ project(":pl-waystones") {
     }
 }
 
-project(":pllib-entity-registry") {
+project(":pl-entity-registry-lib") {
     dependencies {
-        compileOnly(project(":pllib-scala-support"))
-        compileOnly(project(":pllib-misc"))
+        compileOnly(project(":pl-scala-support-lib"))
+        compileOnly(project(":pl-misc-lib"))
 
         compileOnly("com.ticxo.modelengine:api:R2.2.0")
         compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
@@ -190,9 +190,9 @@ project(":pllib-entity-registry") {
     }
 }
 
-project(":pllib-disc-registry") {
+project(":pl-disc-registry-lib") {
     dependencies {
-        compileOnly(project(":pllib-misc"))
+        compileOnly(project(":pl-misc-lib"))
     }
 
     bukkit {
@@ -204,7 +204,7 @@ project(":pllib-disc-registry") {
     }
 }
 
-project(":pllib-misc") {
+project(":pl-misc-lib") {
     bukkit {
         name = "Misc"
         main = "org.foton.MiscPlugin"
@@ -213,7 +213,7 @@ project(":pllib-misc") {
     }
 }
 
-project(":pllib-scala-support") {
+project(":pl-scala-support-lib") {
     dependencies {
         implementation("tf.tofu:tofu-core_2.13:0.10.3")
         implementation("org.scala-lang:scala3-library_3:3.1.0")

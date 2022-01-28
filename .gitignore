@@ -115,7 +115,7 @@ gradle-app.setting
 
 # Common working directory
 run/*
-
+!run/eula.txt
 #ModelEngine testing.
 !run/plugins/
 run/plugins/*
