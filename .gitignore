@@ -113,6 +113,8 @@ gradle-app.setting
 
 **/build/
 
+out-plugins/
+
 # Common working directory
 run/*
 !run/eula.txt

@@ -1,6 +1,5 @@
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
-
 plugins {
+    //TODO: Implement checkstyle plugin to automate checking APIs structure.
     id("java")
     id("scala")
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -9,7 +8,7 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
 }
 
-group = "org.tablight"
+group = "dev.tablight.common"
 version = "dev-0"
 description = "Main TabLight gameplay mods and plugins."
 
@@ -56,14 +55,14 @@ configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
 
     sourceSets {
         main {
-            scala.srcDirs("$projectDir/main/mixed")
-            resources.srcDir("$projectDir/main/resources")
+            scala.srcDirs("$projectDir/src/main/mixed")
+            resources.srcDir("$projectDir/src/main/resources")
         }
 
         test {
-            java.srcDirs("$projectDir/test/java")
-            scala.srcDirs("$projectDir/test/scala")
-            resources.srcDirs("$projectDir/test/resources")
+            java.srcDirs("$projectDir/src/test/java")
+            scala.srcDirs("$projectDir/src/test/scala")
+            resources.srcDirs("$projectDir/src/test/resources")
         }
     }
 
@@ -97,133 +96,8 @@ configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
         getByName<Test>("test"){
             useJUnitPlatform()
         }
-    }
-}
-
-project(":pl-entities") {
-    dependencies {
-        compileOnly(project(":pl-misc-lib"))
-        compileOnly(project(":pl-entity-registry-lib"))
-        compileOnly(project(":pl-scala-support-lib"))
-        compileOnly("com.ticxo.modelengine:api:R2.2.0")
-        compileOnly("tf.tofu:tofu-core_2.13:0.10.3")
-    }
-
-    bukkit {
-        name = "Entities"
-        main = "org.foton.entities.FotonEntities"
-        version = "a1.0"
-        apiVersion = "1.17"
-        authors = listOf("Denery")
-        depend = listOf("ModelEngine", "EntityRegistry", "ScalaSupport")
-        commands {
-            register("erspawn") {
-                description = "Spawn entity if its ID is registered in EntityRegistryLib"
-                usage = "/<command>"
-            }
+        shadowJar {
+          destinationDirectory.set(file("$rootDir/out-plugins"))
         }
-
-        permissions {
-            register("foton.commands.erspawn") {
-                description = "Player can use the erspawn command"
-                default = BukkitPluginDescription.Permission.Default.OP
-            }
-        }
-    }
-}
-
-project(":pl-discs") {
-    dependencies {
-        compileOnly(project(":pl-misc-lib"))
-        compileOnly(project(":pl-disc-registry-lib"))
-    }
-
-    bukkit {
-        name = "Discs"
-        main = "org.foton.discs.DiscsLauncher"
-        apiVersion = "1.17"
-        authors = listOf("Danik_Vitek")
-        depend = listOf("DiscRegistry", "Misc")
-        description = "Register custom music discs"
-    }
-}
-
-project(":pl-waystones") {
-    dependencies {
-        compileOnly(project(":pl-misc-lib"))
-        compileOnly("com.github.LoneDev6:api-itemsadder:2.4.21")
-        compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
-        implementation("net.wesjd:anvilgui:1.5.3-SNAPSHOT")
-    }
-
-    bukkit {
-        name = "WayStones"
-        main = "com.danikvitek.waystones.WayStonesPlugin"
-        apiVersion = "1.17"
-        depend = listOf("ItemsAdder", "ProtocolLib", "ScalaSupport", "Misc")
-        authors = listOf("Danik_Vitek")
-        description = """This plugin lets players to create waystones. 
-        After discovering a few waystones, player will be able to teleport from one to another.
-        Teleportation is visualized in several ways:
-        - far presence (foreign players will see the position of those who is going to teleport to their waystone),
-        - destination preview (phantom blocks ae shown to the player, displaying the scene, that is located
-        at the destination point)."""
-    }
-}
-
-project(":pl-entity-registry-lib") {
-    dependencies {
-        compileOnly(project(":pl-scala-support-lib"))
-        compileOnly(project(":pl-misc-lib"))
-
-        compileOnly("com.ticxo.modelengine:api:R2.2.0")
-        compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
-        compileOnly("tf.tofu:tofu-core_2.13:0.10.3")
-    }
-
-    bukkit {
-        name = "EntityRegistry"
-        main = "io.denery.entityregistry.EntityRegistryPlugin"
-        apiVersion = "1.17"
-        depend = listOf("Misc", "ScalaSupport")
-        authors = listOf("Denery")
-    }
-}
-
-project(":pl-disc-registry-lib") {
-    dependencies {
-        compileOnly(project(":pl-misc-lib"))
-    }
-
-    bukkit {
-        name = "DiscRegistry"
-        main = "com.danikvitek.discregistry.DiscRegistryPlugin"
-        apiVersion = "1.17"
-        depend = listOf("Misc")
-        authors = listOf("Danik_Vitek")
-    }
-}
-
-project(":pl-misc-lib") {
-    bukkit {
-        name = "Misc"
-        main = "org.foton.MiscPlugin"
-        apiVersion = "1.17"
-        authors = listOf("Denery", "Danik_Vitek")
-    }
-}
-
-project(":pl-scala-support-lib") {
-    dependencies {
-        implementation("tf.tofu:tofu-core_2.13:0.10.3")
-        implementation("org.scala-lang:scala3-library_3:3.1.0")
-    }
-
-    bukkit {
-        name = "ScalaSupport"
-        version = "a1.0"
-        main = "org.foton.scalasupport.ScalaLauncher"
-        apiVersion = "1.17"
-        authors = listOf("Denery")
     }
 }

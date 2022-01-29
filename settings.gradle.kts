@@ -11,13 +11,16 @@ include(":pl-entities")
 include(":pl-discs")
 include(":pl-waystones")
 
-// библиотечки, могут использовать nms и разные извращения, главное чтобы было понятно и удобно использовать.
+include(":pl-tablight-api-base")
+include(":pl-tablight-entity-registry-api-v0")
+include(":pl-tablight-disc-registry-api-v0")
+
 include(":pl-scala-support-lib")
-include(":pl-entity-registry-lib")
-include(":pl-disc-registry-lib")
 include(":pl-misc-lib")
 
+project(":pl-tablight-api-base").projectDir = file("apis/tablight-api-base")
+project(":pl-tablight-entity-registry-api-v0").projectDir = file("apis/tablight-entity-registry-api-v0")
+project(":pl-tablight-disc-registry-api-v0").projectDir = file("apis/tablight-disc-registry-api-v0")
+
 project(":pl-scala-support-lib").projectDir = file("libraries/scala-support")
-project(":pl-entity-registry-lib").projectDir = file("libraries/entity-registry")
-project(":pl-disc-registry-lib").projectDir = file("libraries/disc-registry")
 project(":pl-misc-lib").projectDir = file("libraries/misc")

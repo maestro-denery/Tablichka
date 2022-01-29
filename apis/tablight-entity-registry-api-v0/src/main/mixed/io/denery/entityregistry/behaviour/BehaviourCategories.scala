@@ -70,6 +70,5 @@ object BehaviourCategories:
         (action._1, func)
       }}
 
-
   given BehaviourNodeAlgebra[SeqOfActions] with
     override def actionNode(id: String, sub: Seq[SeqOfActions]): SeqOfActions = sub.flatten
