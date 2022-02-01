@@ -1,5 +1,0 @@
-name: ScalaSupport
-version: '$A1.0'
-main: org.foton.scalasupport.ScalaLauncher
-api-version: 1.17
-authors: [ Denery ]
