@@ -1,6 +1,7 @@
 package com.danikvitek.waystones.visualisation
 
-import com.danikvitek.waystones.{SourceDestinationPair, WayStonesPlugin, waystoneToLocation, toRadians, toDegrees}
+import com.danikvitek.waystones.{SourceDestinationPair, WayStonesPlugin, toDegrees, toRadians, waystoneToLocation}
+import io.papermc.paper.text.PaperComponents
 import org.bukkit.Location
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.BlockData
@@ -37,6 +38,7 @@ object TeleportVisManager {
   }
 
   private def getBlocksAt(location: Location): Set[(Int, Int, Int)/*BlockState*/] = {
+//    location.getWorld.getChunkAtAsync(location).get.getBlock(0, 0, 0).getState
     (for { // todo: fix "Caused by: java.lang.IllegalStateException: Tile is null, asynchronous access?"
       r <- 5 to 50
       theta <- /*Range.BigDecimal.inclusive(0d, 180d, toDegrees(2d * math.acos(math.sqrt(r * r - 0.25) / r)))*/ 0 to 360 map (_.toDouble / 2d) map toRadians
