@@ -7,20 +7,24 @@ pluginManagement {
 
 rootProject.name = "TabLight"
 
-include(":pl-entities")
-include(":pl-discs")
-include(":pl-waystones")
+include(":entities")
+include(":discs")
+include(":waystones")
 
-include(":pl-tablight-api-base")
-include(":pl-tablight-entity-registry-api-v0")
-include(":pl-tablight-disc-registry-api-v0")
+include(":tablight-api-base")
+include(":tablight-entity-registry-api")
+include(":tablight-disc-registry-api")
 
-include(":pl-scala-support-lib")
-include(":pl-misc-lib")
+include(":scala-support-lib")
+include(":misc-lib")
 
-project(":pl-tablight-api-base").projectDir = file("apis/tablight-api-base")
-project(":pl-tablight-entity-registry-api-v0").projectDir = file("apis/tablight-entity-registry-api-v0")
-project(":pl-tablight-disc-registry-api-v0").projectDir = file("apis/tablight-disc-registry-api-v0")
+project(":entities").projectDir = file("tablight-entities")
+project(":discs").projectDir = file("tablight-discs")
+project(":waystones").projectDir = file("tablight-waystones")
 
-project(":pl-scala-support-lib").projectDir = file("libraries/scala-support")
-project(":pl-misc-lib").projectDir = file("libraries/misc")
+project(":tablight-api-base").projectDir = file("apis/tablight-api-base")
+project(":tablight-entity-registry-api").projectDir = file("apis/tablight-entity-registry-api")
+project(":tablight-disc-registry-api").projectDir = file("apis/tablight-disc-registry-api")
+
+project(":scala-support-lib").projectDir = file("libraries/scala-support")
+project(":misc-lib").projectDir = file("libraries/misc")

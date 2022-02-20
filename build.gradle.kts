@@ -5,16 +5,17 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("io.papermc.paperweight.userdev") version "1.3.3" apply false
     id("xyz.jpenilla.run-paper") version "1.0.6"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+    id("net.minecrell.plugin-yml.bukkit") version "0.5.1" apply false
+    id("org.sonarqube") version "3.3"
 }
 
 group = "dev.tablight.common"
 version = "dev-0"
-description = "Main TabLight gameplay mods and plugins."
+description = "Main TabLight gameplay plugins, APIs and libraries for them."
 
 tasks {
     register("buildAll") {
-        subprojects.filter { sub -> sub.name.startsWith("pl-") }
+        subprojects
             .map { sub -> sub.tasks.shadowJar }
             .forEach { sub -> dependsOn(sub) }
     }
@@ -25,16 +26,23 @@ tasks {
 
     runServer {
         runDirectory(file("$rootDir/run"))
-        subprojects.filter { sub -> sub.name.startsWith("pl-") }.forEach {sub ->
+        subprojects.forEach { sub ->
             pluginJars.from(sub.tasks.shadowJar.get().archiveFile)
         }
         minecraftVersion("1.17.1")
     }
+
+    sonarqube {
+        properties {
+            property("sonar.host.url", System.getenv("host.url"))
+            property("sonar.login", System.getenv("login"))
+            property("sonar.projectKey", System.getenv("projectKey"))
+        }
+    }
 }
 
-configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
+subprojects {
     apply(plugin = "java")
-    apply(plugin = "scala")
     apply(plugin = "com.github.johnrengelman.shadow")
     apply(plugin = "io.papermc.paperweight.userdev")
     apply(plugin = "xyz.jpenilla.run-paper")
@@ -53,27 +61,16 @@ configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
         maven("https://papermc.io/repo/repository/maven-public/")
     }
 
-    sourceSets {
-        main {
-            scala.srcDirs("$projectDir/src/main/mixed")
-            resources.srcDir("$projectDir/src/main/resources")
-        }
-
-        test {
-            java.srcDirs("$projectDir/src/test/java")
-            scala.srcDirs("$projectDir/src/test/scala")
-            resources.srcDirs("$projectDir/src/test/resources")
-        }
-    }
-
     dependencies {
         paperDevBundle("1.17.1-R0.1-SNAPSHOT")
         compileOnly("com.lmax:disruptor:3.4.4")
         compileOnly("org.scala-lang:scala3-library_3:3.1.0")
         compileOnly("org.jetbrains:annotations:22.0.0")
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
         testImplementation("org.junit.vintage:junit-vintage-engine:5.8.1")
+        testImplementation("org.scala-lang:scala3-library_3:3.1.0")
+        testImplementation("tf.tofu:tofu-core_2.13:0.10.3")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     }
 
     tasks {
@@ -93,7 +90,7 @@ configure(subprojects.filter { sub -> sub.name.startsWith("pl-") }) {
         withType(JavaCompile::class.java) {
             options.encoding = "UTF-8"
         }
-        getByName<Test>("test"){
+        getByName<Test>("test") {
             useJUnitPlatform()
         }
         shadowJar {
