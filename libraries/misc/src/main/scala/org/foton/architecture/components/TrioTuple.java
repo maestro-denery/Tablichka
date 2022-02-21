@@ -2,6 +2,7 @@ package org.foton.architecture.components;
 
 import java.util.Objects;
 
+@Deprecated
 public class TrioTuple<A, B, C> {
     private A first;
     private B second;

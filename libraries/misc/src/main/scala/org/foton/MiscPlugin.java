@@ -8,11 +8,11 @@ public final class MiscPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger.info("Enabling DiscRegistry...");
+        logger.info("Enabling Misc...");
     }
 
     @Override
     public void onDisable() {
-        logger.info("Disabling DiscRegistry...");
+        logger.info("Disabling Misc...");
     }
 }

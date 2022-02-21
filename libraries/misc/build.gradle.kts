@@ -1,7 +1,7 @@
 apply(plugin = "scala")
 
 bukkit {
-    name = "Misc"
+    name = "misc-lib"
     main = "org.foton.MiscPlugin"
     description = "library plugin adding miscellaneous features for tablight team."
     apiVersion = "1.17"

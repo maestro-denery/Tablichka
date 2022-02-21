@@ -2,7 +2,7 @@ package org.foton.scalasupport
 
 import org.bukkit.event.{Event, HandlerList}
 import org.foton.scalasupport.OnScalaSupportUnloadEvent.HANDLERS
-
+@deprecated
 class OnScalaSupportUnloadEvent extends Event {
   override def getHandlers: HandlerList = HANDLERS
 }

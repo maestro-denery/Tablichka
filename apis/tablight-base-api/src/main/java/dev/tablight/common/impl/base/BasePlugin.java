@@ -1,4 +1,4 @@
-package dev.tablight.common;
+package dev.tablight.common.impl.base;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;

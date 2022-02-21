@@ -8,10 +8,10 @@ dependencies {
 }
 
 bukkit {
-    name = "WayStones"
+    name = "waystones"
     main = "com.danikvitek.waystones.WayStonesPlugin"
     apiVersion = "1.17"
-    depend = listOf("ItemsAdder", "ProtocolLib", "ScalaSupport", "Misc")
+    depend = listOf("ItemsAdder", "ProtocolLib", "scala-support-lib", "misc-lib")
     authors = listOf("Danik_Vitek")
     description = """This plugin lets players to create waystones. 
         After discovering a few waystones, player will be able to teleport from one to another.

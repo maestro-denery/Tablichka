@@ -16,8 +16,8 @@ description = "Main TabLight gameplay plugins, APIs and libraries for them."
 tasks {
     register("buildAll") {
         subprojects
-            .map { sub -> sub.tasks.shadowJar }
-            .forEach { sub -> dependsOn(sub) }
+            .map { sub -> sub.tasks.getByName<io.papermc.paperweight.tasks.RemapJar>("reobfJar") }
+            .forEach { reobf -> dependsOn(reobf) }
     }
 
     runPaper {
@@ -26,8 +26,10 @@ tasks {
 
     runServer {
         runDirectory(file("$rootDir/run"))
-        subprojects.forEach { sub ->
-            pluginJars.from(sub.tasks.shadowJar.get().archiveFile)
+        subprojects.filter { sub ->
+               sub.name != "waystones"
+        }.forEach { sub ->
+            pluginJars.from(sub.tasks.getByName<io.papermc.paperweight.tasks.RemapJar>("reobfJar").outputJar)
         }
         minecraftVersion("1.17.1")
     }
@@ -94,7 +96,8 @@ subprojects {
             useJUnitPlatform()
         }
         shadowJar {
-          destinationDirectory.set(file("$rootDir/out-plugins"))
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            destinationDirectory.set(file("$rootDir/out-plugins"))
         }
     }
 }

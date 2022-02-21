@@ -6,7 +6,7 @@ dependencies {
 }
 
 bukkit {
-    name = "ScalaSupport"
+    name = "scala-support-lib"
     version = "a1.0"
     description = "Plugin adding support for scala plugins via shading scala standard library."
     main = "org.foton.scalasupport.ScalaLauncher"

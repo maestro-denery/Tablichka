@@ -2,6 +2,7 @@ package org.foton.architecture.components;
 
 import java.util.Objects;
 
+@Deprecated
 public class BiTuple<A, B> {
     private A first;
     private B second;

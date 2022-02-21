@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.Bukkit
 import org.slf4j.{Logger, LoggerFactory}
 
+@deprecated("There is a better way to support scala in project.")
 class ScalaLauncher extends JavaPlugin:
   
   val log: Logger = LoggerFactory.getLogger("ScalaSupport")

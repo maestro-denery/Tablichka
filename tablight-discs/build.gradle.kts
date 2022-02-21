@@ -4,11 +4,11 @@ dependencies {
 }
 
 bukkit {
-    name = "Discs"
+    name = "discs"
     main = "org.foton.discs.DiscsLauncher"
     description = "Plugin adding Disc in TabLight server."
     apiVersion = "1.17"
     authors = listOf("Danik_Vitek")
-    depend = listOf("DiscRegistry", "Misc")
+    depend = listOf("tablight-disc-registry-api", "misc-lib")
     description = "Register custom music discs"
 }
