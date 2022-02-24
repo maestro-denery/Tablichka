@@ -8,7 +8,9 @@ public abstract class StoreLoadController {
 
 	public abstract void load(Class<? extends Registrable> registrableType);
 	
-	public abstract <N> void lookup(StoreLoadLookup<N> lookup);
+	public abstract <T extends Registrable, N> void lookup(StoreLoadLookup<T, N> lookup);
+	
+	public abstract <T extends Registrable, N> void lookupAndLoad(Class<T> registrableType, StoreLoadLookup<T, N> lookup);
 	
 	public abstract void addRegistrableHolder(RegistrableHolder registrableHolder);
 }

@@ -43,6 +43,11 @@ public class DefaultTypeRegistry extends TypeRegistry {
 	}
 
 	@Override
+	public void clearRegistry() {
+		registryBiMap.clear();
+	}
+
+	@Override
 	public <T extends Registrable> T newRegisteredInstance(Class<T> registrableType) {
 		try {
 			if (registryBiMap.containsValue(registrableType)) {

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-public abstract class ConcurrentRegistrableHolder extends RegistrableHolder {
+public class ConcurrentRegistrableHolder extends RegistrableHolder {
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
 	protected final Multimap<Class<? extends Registrable>, Registrable> instances =
 			Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
@@ -29,6 +29,11 @@ public abstract class ConcurrentRegistrableHolder extends RegistrableHolder {
 	@Override
 	public <T extends Registrable> void release(T instance) {
 		instances.remove(instance.getClass(), instance);
+	}
+
+	@Override
+	public void clearHeld() {
+		instances.clear();
 	}
 
 	@Override

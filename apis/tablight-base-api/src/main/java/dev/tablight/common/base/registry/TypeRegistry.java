@@ -20,4 +20,6 @@ public abstract class TypeRegistry {
 	public abstract <T extends Registrable> Pair<Supplier<T>, Supplier<T>> getLazyStoreLoad(Class<T> registrableType);
 	
 	public abstract void addRegistrableHolder(RegistrableHolder registrableHolder);
+	
+	public abstract void clearRegistry(); 
 }

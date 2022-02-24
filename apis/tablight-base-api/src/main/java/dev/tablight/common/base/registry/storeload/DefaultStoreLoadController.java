@@ -11,7 +11,7 @@ public class DefaultStoreLoadController extends StoreLoadController {
 
 	@Override
 	public void store(Class<? extends Registrable> registrableType) {
-		holders.forEach(holder -> holder.getHeld(registrableType).forEach(registrable -> holder.hold(registrable.store())));
+		holders.forEach(holder -> holder.getHeld(registrableType).forEach(Registrable::store));
 	}
 
 	@Override
@@ -20,8 +20,14 @@ public class DefaultStoreLoadController extends StoreLoadController {
 	}
 
 	@Override
-	public <N> void lookup(StoreLoadLookup<N> lookup) {
-		lookup.lookup().get().forEach(registrable -> holders.forEach(holder -> holder.hold(registrable.lazystore().get())));
+	public <T extends Registrable, N> void lookupAndLoad(Class<T> registrableType, StoreLoadLookup<T, N> lookup) {
+		this.lookup(lookup);
+		this.load(registrableType);
+	}
+
+	@Override
+	public <T extends Registrable, N> void lookup(StoreLoadLookup<T, N> lookup) {
+		lookup.lookup().get().forEach(registrable -> holders.forEach(holder -> holder.hold(registrable)));
 	}
 
 	@Override
