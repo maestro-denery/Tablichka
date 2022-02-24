@@ -116,7 +116,6 @@ gradle-app.setting
 out-plugins/
 
 # Common server run directory
-run/*
 **/run/*
 !run/eula.txt
 !run/plugins/

@@ -69,9 +69,9 @@ subprojects {
         compileOnly("org.scala-lang:scala3-library_3:3.1.0")
         compileOnly("org.jetbrains:annotations:22.0.0")
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-        testImplementation("org.junit.vintage:junit-vintage-engine:5.8.1")
-        testImplementation("org.scala-lang:scala3-library_3:3.1.0")
-        testImplementation("tf.tofu:tofu-core_2.13:0.10.3")
+        //testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.8.1")
+        //testImplementation("org.scala-lang:scala3-library_3:3.1.0")
+        //testImplementation("tf.tofu:tofu-core_2.13:0.10.3")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     }
 
