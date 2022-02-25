@@ -9,25 +9,32 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.global.GlobalRegistrableHolder;
-import dev.tablight.common.base.global.GlobalTypeRegistry;
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.DefaultTypeRegistry;
 import dev.tablight.common.base.registry.TypeRegistry;
+import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
 import dev.tablight.test.dummies.RegistrableDummy;
 
 public class RegistrableHolderTest {
-	final RegistrableHolder holder = GlobalRegistrableHolder.getInstance();
-	final TypeRegistry typeRegistry = GlobalTypeRegistry.getInstance();
+	RegistrableHolder holder;
+	TypeRegistry typeRegistry;
 
 	@BeforeEach
 	void before() {
+		typeRegistry = new DefaultTypeRegistry();
+		holder = new ConcurrentRegistrableHolder();
+		holder.addTypeRegistry(typeRegistry);
+		typeRegistry.addRegistrableHolder(holder);
 		typeRegistry.register(RegistrableDummy.class);
 	}
 
 	@AfterEach
 	void after() {
 		holder.clearHeld();
+		((ConcurrentRegistrableHolder) holder).shutdownDisruptor();
 		typeRegistry.clearRegistry();
+		typeRegistry = null;
+		holder = null;
 	}
 
 	@Test
@@ -85,5 +92,22 @@ public class RegistrableHolderTest {
 		holder.release("dummy");
 		assertFalse(holder.containsInstance(dummy));
 		assertFalse(holder.containsInstance(dummy1));
+	}
+
+	@Test
+	void checkEventHandlerType() {
+		holder.handle(((event, sequence, endOfBatch) -> {
+			assertEquals(RegistrableDummy.class, event.getRegistrableType());
+		}));
+		holder.hold(new RegistrableDummy());
+	}
+
+	@Test
+	void checkEventHandlerCollection() {
+		var dummy = new RegistrableDummy();
+		holder.handle(((event, sequence, endOfBatch) -> {
+			assertIterableEquals(List.of(dummy), event.getRegistrables());
+		}));
+		holder.hold(dummy);
 	}
 }

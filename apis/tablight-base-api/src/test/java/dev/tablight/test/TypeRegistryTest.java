@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import dev.tablight.common.base.global.GlobalTypeRegistry;
 
+import dev.tablight.common.base.registry.DefaultTypeRegistry;
+
+import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,16 +16,21 @@ import dev.tablight.common.base.registry.TypeRegistry;
 import dev.tablight.test.dummies.RegistrableDummy;
 
 public class TypeRegistryTest {
-	final TypeRegistry registry = GlobalTypeRegistry.getInstance();
+	TypeRegistry registry;
 	
 	@BeforeEach
 	void before() {
+		registry = new DefaultTypeRegistry();
+		ConcurrentRegistrableHolder concurrentRegistrableHolder = new ConcurrentRegistrableHolder();
+		concurrentRegistrableHolder.addTypeRegistry(registry);
+		registry.addRegistrableHolder(concurrentRegistrableHolder);
 		registry.register(RegistrableDummy.class);
 	}
 
 	@AfterEach
 	void after() {
 		registry.clearRegistry();
+		registry = null;
 	}
 
 	@Test

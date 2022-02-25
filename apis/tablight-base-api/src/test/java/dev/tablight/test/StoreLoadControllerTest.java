@@ -2,29 +2,32 @@ package dev.tablight.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import dev.tablight.common.base.global.GlobalRegistrableHolder;
-import dev.tablight.common.base.global.GlobalStoreLoadController;
-
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
-
-import dev.tablight.test.dummies.RegistrableDummyLookup;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.global.GlobalTypeRegistry;
+import dev.tablight.common.base.registry.DefaultTypeRegistry;
 import dev.tablight.common.base.registry.TypeRegistry;
+import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.storeload.DefaultStoreLoadController;
 import dev.tablight.common.base.registry.storeload.StoreLoadController;
 import dev.tablight.test.dummies.RegistrableDummy;
+import dev.tablight.test.dummies.RegistrableDummyLookup;
 
 public class StoreLoadControllerTest {
-	final TypeRegistry typeRegistry = GlobalTypeRegistry.getInstance();
-	final RegistrableHolder holder = GlobalRegistrableHolder.getInstance();
-	final StoreLoadController controller = GlobalStoreLoadController.getInstance();
+	TypeRegistry typeRegistry;
+	RegistrableHolder holder;
+	StoreLoadController controller;
 
 	@BeforeEach
 	void before() {
+		typeRegistry = new DefaultTypeRegistry();
+		holder = new ConcurrentRegistrableHolder();
+		holder.addTypeRegistry(typeRegistry);
+		typeRegistry.addRegistrableHolder(holder);
+		controller = new DefaultStoreLoadController();
+		controller.addRegistrableHolder(holder);
 		typeRegistry.register(RegistrableDummy.class);
 	}
 
@@ -32,6 +35,9 @@ public class StoreLoadControllerTest {
 	void after() {
 		holder.clearHeld();
 		typeRegistry.clearRegistry();
+		typeRegistry = null;
+		holder = null;
+		controller = null;
 	}
 
 	@Test

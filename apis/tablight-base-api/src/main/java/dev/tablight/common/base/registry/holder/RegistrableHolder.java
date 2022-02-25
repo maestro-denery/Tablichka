@@ -1,9 +1,11 @@
 package dev.tablight.common.base.registry.holder;
 
+import java.util.Collection;
+
+import com.lmax.disruptor.EventHandler;
+
 import dev.tablight.common.base.registry.Registrable;
 import dev.tablight.common.base.registry.TypeRegistry;
-
-import java.util.Collection;
 
 /**
  * Class "holding" instances of {@link TypeRegistry},
@@ -27,7 +29,7 @@ public abstract class RegistrableHolder {
 	public abstract <T extends Registrable> void release(T instance);
 
 	/**
-	 * Removes your {@link Registrable} type from holding in this holder. 
+	 * Removes your {@link Registrable} type from holding in this holder.
 	 * @param registrableType type of Instance you want to release.
 	 * @param <T> Type of instance toy want to release.
 	 */
@@ -64,7 +66,18 @@ public abstract class RegistrableHolder {
 	public abstract <T extends Registrable> Collection<T> getHeld(String identifier);
 
 	/**
-	 * Adds TypeRegistry checks to this holder, if you are making your implementations you need to specify TypeRegistries for your holder. 
+	 * Adds handler of Events happening after {@link #hold(Registrable)} and {@link #release(Class)} methods.
+	 * @param handler handler you want to add.
+	 */
+	public abstract void handle(EventHandler<? super HolderEvent> handler);
+
+	/**
+	 * Starts handlers mechanism of this holder.
+	 */
+	public abstract void forceStart();
+
+	/**
+	 * Adds TypeRegistry checks to this holder, if you are making your implementations you need to specify TypeRegistries for your holder.
 	 * @param typeRegistry {@link TypeRegistry} you want to check in this holder.
 	 */
 	public abstract void addTypeRegistry(TypeRegistry typeRegistry);
