@@ -1,6 +1,6 @@
 package dev.tablight.common.base.global;
 
-import dev.tablight.common.base.registry.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
 import dev.tablight.common.base.registry.storeload.DefaultStoreLoadController;
 import dev.tablight.common.base.registry.RegistryException;
 

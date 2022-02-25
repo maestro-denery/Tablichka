@@ -10,6 +10,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Pair;
 
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
+
 public class DefaultTypeRegistry extends TypeRegistry {
 	protected final Collection<RegistrableHolder> holders = new ArrayList<>();
 	protected final BiMap<String, Class<? extends Registrable>> registryBiMap = HashBiMap.create();
@@ -31,7 +33,7 @@ public class DefaultTypeRegistry extends TypeRegistry {
 		try {
 			Registrable registrable = registrableType.getDeclaredConstructor().newInstance();
 			registryBiMap.put(registrable.identifier(), registrableType);
-			storeLoadSuppliers.put(registrableType, Pair.of(registrable.lazystore(), registrable.lazyload()));
+			storeLoadSuppliers.put(registrableType, Pair.of(registrable.lazyStore(), registrable.lazyLoad()));
 		} catch (Throwable e) {
 			throw new RegistryException(registrableType, e);
 		}
@@ -48,7 +50,12 @@ public class DefaultTypeRegistry extends TypeRegistry {
 	}
 
 	@Override
-	public <T extends Registrable> T newRegisteredInstance(Class<T> registrableType) {
+	public Collection<RegistrableHolder> getRegistrableHolders() {
+		return holders;
+	}
+
+	@Override
+	public <T extends Registrable> T newInstance(Class<T> registrableType) {
 		try {
 			if (registryBiMap.containsValue(registrableType)) {
 				var registrableInstance = registrableType.getDeclaredConstructor().newInstance();
@@ -64,9 +71,9 @@ public class DefaultTypeRegistry extends TypeRegistry {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Registrable> T newRegisteredInstance(String identifier) {
+	public <T extends Registrable> T newInstance(String identifier) {
 		Class<T> registrableType = (Class<T>) registryBiMap.get(identifier);
-		return this.newRegisteredInstance(registrableType);
+		return this.newInstance(registrableType);
 	}
 
 	@Override

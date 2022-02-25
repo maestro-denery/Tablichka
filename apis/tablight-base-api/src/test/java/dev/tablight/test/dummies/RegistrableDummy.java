@@ -1,6 +1,7 @@
 package dev.tablight.test.dummies;
 
 import dev.tablight.common.base.registry.Registrable;
+import dev.tablight.common.base.registry.storeload.StoreLoadLookup;
 
 public class RegistrableDummy implements Registrable {
 	private String someString;
@@ -33,5 +34,10 @@ public class RegistrableDummy implements Registrable {
 	public RegistrableDummy load() {
 		someString = "load";
 		return this;
+	}
+
+	@Override
+	public StoreLoadLookup<RegistrableDummy, RegistrableDummyLookup.NativeDummy> getlookup() {
+		return new RegistrableDummyLookup();
 	}
 }

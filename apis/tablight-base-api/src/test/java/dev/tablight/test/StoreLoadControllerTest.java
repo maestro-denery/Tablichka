@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import dev.tablight.common.base.global.GlobalRegistrableHolder;
 import dev.tablight.common.base.global.GlobalStoreLoadController;
 
-import dev.tablight.common.base.registry.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
 
 import dev.tablight.test.dummies.RegistrableDummyLookup;
 
@@ -36,8 +36,8 @@ public class StoreLoadControllerTest {
 
 	@Test
 	void checkStore() {
-		var dummy = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
 		controller.store(RegistrableDummy.class);
 		assertEquals("store", dummy.getSomeString());
 		assertEquals("store", dummy1.getSomeString());
@@ -45,8 +45,8 @@ public class StoreLoadControllerTest {
 
 	@Test
 	void checkLoad() {
-		var dummy = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
 		controller.load(RegistrableDummy.class);
 		assertEquals("load", dummy.getSomeString());
 		assertEquals("load", dummy1.getSomeString());
@@ -63,7 +63,24 @@ public class StoreLoadControllerTest {
 
 	@Test
 	void checkLookupAndLoad() {
-		controller.lookupAndLoad(RegistrableDummy.class, new RegistrableDummyLookup());
+		controller.lookupAndLoad(new RegistrableDummyLookup());
+		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		assertEquals("native1", dummy.getSomeNativeStringData());
+		assertEquals("load", dummy.getSomeString());
+	}
+
+	@Test
+	void checkLookupClass() {
+		controller.lookup(RegistrableDummy.class);
+		controller.load(RegistrableDummy.class);
+		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		assertEquals("native1", dummy.getSomeNativeStringData());
+		assertEquals("load", dummy.getSomeString());
+	}
+
+	@Test
+	void checkLookupAndLoadClass() {
+		controller.lookupAndLoad(RegistrableDummy.class);
 		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
 		assertEquals("native1", dummy.getSomeNativeStringData());
 		assertEquals("load", dummy.getSomeString());

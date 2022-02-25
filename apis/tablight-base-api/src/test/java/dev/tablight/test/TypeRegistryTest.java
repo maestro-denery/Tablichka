@@ -31,12 +31,12 @@ public class TypeRegistryTest {
 
 	@Test
 	void checkNewInstanceClass() {
-		assertNotNull(registry.newRegisteredInstance(RegistrableDummy.class));
+		assertNotNull(registry.newInstance(RegistrableDummy.class));
 	}
 
 	@Test
 	void checkNewInstanceID() {
-		assertNotNull(registry.newRegisteredInstance("dummy"));
+		assertNotNull(registry.newInstance("dummy"));
 	}
 	
 	@Test

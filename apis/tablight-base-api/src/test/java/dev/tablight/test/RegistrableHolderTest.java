@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import dev.tablight.common.base.global.GlobalRegistrableHolder;
 import dev.tablight.common.base.global.GlobalTypeRegistry;
-import dev.tablight.common.base.registry.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.RegistrableHolder;
 import dev.tablight.common.base.registry.TypeRegistry;
 import dev.tablight.test.dummies.RegistrableDummy;
 
@@ -44,19 +44,46 @@ public class RegistrableHolderTest {
 
 	@Test
 	void checkGetType() {
-		var dummy = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
 		assertIterableEquals(List.of(dummy), holder.getHeld(RegistrableDummy.class));
 	}
 
 	@Test
 	void checkGetID() {
-		var dummy = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
 		assertIterableEquals(List.of(dummy), holder.getHeld("dummy"));
 	}
 
 	@Test
 	void checkContains() {
-		var dummy = typeRegistry.newRegisteredInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
 		assertTrue(holder.containsInstance(dummy));
+	}
+
+	@Test
+	void checkRelease() {
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
+		holder.release(dummy);
+		assertFalse(holder.containsInstance(dummy));
+		assertTrue(holder.containsInstance(dummy1));
+	}
+
+	@Test
+	void checkReleaseClass() {
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
+		holder.release(RegistrableDummy.class);
+		assertFalse(holder.containsInstance(dummy));
+		assertFalse(holder.containsInstance(dummy1));
+	}
+
+	@Test
+	void checkReleaseID() {
+		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
+		holder.release("dummy");
+		assertFalse(holder.containsInstance(dummy));
+		assertFalse(holder.containsInstance(dummy1));
 	}
 }
