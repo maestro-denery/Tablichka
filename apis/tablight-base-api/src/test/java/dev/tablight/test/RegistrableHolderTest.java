@@ -1,6 +1,5 @@
 package dev.tablight.test;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
@@ -9,32 +8,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.registry.DefaultTypeRegistry;
+import dev.tablight.common.base.registry.DataAddonBootstrap;
 import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.annotation.group.GroupContainer;
+import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.test.dummies.RegistrableDummy;
 
 public class RegistrableHolderTest {
-	RegistrableHolder holder;
+	DataAddonBootstrap dataAddonBootstrap = new DataAddonBootstrap();
+	TypeHolder holder;
 	TypeRegistry typeRegistry;
 
 	@BeforeEach
 	void before() {
-		typeRegistry = new DefaultTypeRegistry();
-		holder = new ConcurrentRegistrableHolder();
-		holder.addTypeRegistry(typeRegistry);
-		typeRegistry.addRegistrableHolder(holder);
-		typeRegistry.register(RegistrableDummy.class);
+		dataAddonBootstrap.setRepository(new GroupContainer());
+		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
+		dataAddonBootstrap.bootstrapImplementations("dev.tablight.test.dummies");
+		typeRegistry = dataAddonBootstrap.getTypeRegistry();
+		holder = dataAddonBootstrap.getTypeHolder();
 	}
 
 	@AfterEach
 	void after() {
-		holder.clearHeld();
-		((ConcurrentRegistrableHolder) holder).shutdownDisruptor();
-		typeRegistry.clearRegistry();
-		typeRegistry = null;
-		holder = null;
+		dataAddonBootstrap.getRepository().clearAll();
 	}
 
 	@Test

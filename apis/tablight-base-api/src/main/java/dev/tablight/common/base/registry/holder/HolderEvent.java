@@ -5,22 +5,22 @@ import dev.tablight.common.base.registry.Registrable;
 import java.util.Collection;
 
 public final class HolderEvent {
-	private Collection<? extends Registrable> registrables;
-	private Class<? extends Registrable> registrableType;
+	private Collection<?> registrables;
+	private Class<?> registrableType;
 
-	public Collection<? extends Registrable> getRegistrables() {
+	public Collection<?> getRegistrables() {
 		return registrables;
 	}
 
-	public void setRegistrables(Collection<? extends Registrable> registrables) {
+	public void setRegistrables(Collection<?> registrables) {
 		this.registrables = registrables;
 	}
 
-	public Class<? extends Registrable> getRegistrableType() {
+	public Class<?> getRegistrableType() {
 		return registrableType;
 	}
 
-	public void setRegistrableType(Class<? extends Registrable> registrableType) {
+	public void setRegistrableType(Class<?> registrableType) {
 		this.registrableType = registrableType;
 	}
 }

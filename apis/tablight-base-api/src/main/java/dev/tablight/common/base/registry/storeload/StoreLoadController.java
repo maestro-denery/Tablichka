@@ -1,7 +1,7 @@
 package dev.tablight.common.base.registry.storeload;
 
 import dev.tablight.common.base.registry.Registrable;
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.TypeHolder;
 
 import java.util.Collection;
 
@@ -28,13 +28,13 @@ public abstract class StoreLoadController {
 	 * Stores "custom" data from every instance in specified holders by specified type.
 	 * @param registrableType type you want to store.
 	 */
-	public abstract void store(Class<? extends Registrable> registrableType);
+	public abstract void store(Class<?> registrableType);
 
 	/**
 	 * Loads "custom" data in every instance in specified holders by specified type. 
 	 * @param registrableType type you want to load.
 	 */
-	public abstract void load(Class<? extends Registrable> registrableType);
+	public abstract void load(Class<?> registrableType);
 
 	/**
 	 * Does lookup process and holds looked up instances into specified holder. 
@@ -42,14 +42,14 @@ public abstract class StoreLoadController {
 	 * @param <T> type of registrable in this lookup.
 	 * @param <N> native type.
 	 */
-	public abstract <T extends Registrable, N> void lookup(StoreLoadLookup<T, N> lookup);
+	public abstract <T, N> void lookup(StoreLoadLookup<T, N> lookup);
 
 	/**
 	 * Does lookup process by specified {@link Registrable}.
 	 * @param registrableType {@link Registrable} you want to do lookup.
 	 * @param <T> exact {@link Registrable} type.
 	 */
-	public abstract <T extends Registrable> void lookup(Class<T> registrableType);
+	public abstract <T> void lookup(Class<T> registrableType);
 
 	/**
 	 * Same as {@link #lookup(StoreLoadLookup)} but also loads all given registrables.
@@ -57,24 +57,24 @@ public abstract class StoreLoadController {
 	 * @param <T> type of registrable in this lookup.
 	 * @param <N> native type.
 	 */
-	public abstract <T extends Registrable, N> void lookupAndLoad(StoreLoadLookup<T, N> lookup);
+	public abstract <T, N> void lookupAndLoad(StoreLoadLookup<T, N> lookup);
 
 	/**
 	 * Same as {@link #lookup(Class)} )} but also loads all given registrables.
 	 * @param registrableType {@link Registrable} you want to do lookup.
 	 * @param <T> type of registrable in this lookup.
 	 */
-	public abstract <T extends Registrable> void lookupAndLoad(Class<T> registrableType);
+	public abstract <T> void lookupAndLoad(Class<T> registrableType);
 
 	/**
 	 * Adds holder to this controller.
 	 * @param registrableHolder holder you want to add.
 	 */
-	public abstract void addRegistrableHolder(RegistrableHolder registrableHolder);
+	public abstract void addRegistrableHolder(TypeHolder registrableHolder);
 
 	/**
 	 * Obtains holders added in this {@link StoreLoadController}
 	 * @return All added holders.
 	 */
-	public abstract Collection<RegistrableHolder> getRegistrableHolders();
+	public abstract Collection<TypeHolder> getRegistrableHolders();
 }

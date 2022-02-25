@@ -1,9 +1,16 @@
 package dev.tablight.test.dummies;
 
-import dev.tablight.common.base.registry.Registrable;
-import dev.tablight.common.base.registry.storeload.StoreLoadLookup;
+import dev.tablight.common.base.registry.annotation.DataAddon;
+import dev.tablight.common.base.registry.annotation.Load;
+import dev.tablight.common.base.registry.annotation.Store;
 
-public class RegistrableDummy implements Registrable {
+@DataAddon(
+		identifier = "dummy",
+		groupTag = "dummyGroup",
+		nativeClass = RegistrableDummyLookup.NativeDummy.class,
+		lookup = RegistrableDummyLookup.class
+)
+public class RegistrableDummy {
 	private String someString;
 	private String someNativeStringData;
 
@@ -19,25 +26,13 @@ public class RegistrableDummy implements Registrable {
 		this.someNativeStringData = someNativeStringData;
 	}
 
-	@Override
-	public String identifier() {
-		return "dummy";
-	}
-
-	@Override
-	public RegistrableDummy store() {
+	@Store
+	public void store() {
 		someString = "store";
-		return this;
 	}
 
-	@Override
-	public RegistrableDummy load() {
+	@Load
+	public void load() {
 		someString = "load";
-		return this;
-	}
-
-	@Override
-	public StoreLoadLookup<RegistrableDummy, RegistrableDummyLookup.NativeDummy> getlookup() {
-		return new RegistrableDummyLookup();
 	}
 }

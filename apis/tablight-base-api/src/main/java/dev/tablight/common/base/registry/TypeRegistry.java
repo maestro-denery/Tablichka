@@ -1,11 +1,8 @@
 package dev.tablight.common.base.registry;
 
-import com.mojang.datafixers.util.Pair;
-
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
-
 import java.util.Collection;
-import java.util.function.Supplier;
+
+import dev.tablight.common.base.registry.holder.TypeHolder;
 
 /**
  * Registry containing Unique Registrable types where you can register, instantiate "custom" types.
@@ -19,21 +16,21 @@ import java.util.function.Supplier;
  * }</pre>
  * <p>
  * Implement this class if you are making your API for registering "custom" types on top of Minecrafts' ones.
- * <h2>!!!IMPORTANT!!!</h2> Add holders for getting and handling your registered types using {@link #addRegistrableHolder(RegistrableHolder)} method.
+ * <h2>!!!IMPORTANT!!!</h2> Add holders for getting and handling your registered types using {@link #addRegistrableHolder(TypeHolder)} method.
  */
 public abstract class TypeRegistry {
 	/**
 	 * Registers your types for further handling, storing and loading.
 	 * @param registrableType non-abstract "custom" type implementing {@link Registrable} interface.
 	 */
-	public abstract void register(Class<? extends Registrable> registrableType);
+	public abstract void register(Class<?> registrableType);
 
 	/**
 	 * Checks if your {@link Registrable} implementation already registered.
 	 * @param registrableType non-abstract "custom" type implementing {@link Registrable} interface.
 	 * @return
 	 */
-	public abstract boolean isRegistered(Class<? extends Registrable> registrableType);
+	public abstract boolean isRegistered(Class<?> registrableType);
 
 	/**
 	 * Instantiates registered class and adding it into all added holders.
@@ -41,7 +38,7 @@ public abstract class TypeRegistry {
 	 * @param <T> your exact type.
 	 * @return Instance added into all holders added to this {@link TypeRegistry}.
 	 */
-	public abstract <T extends Registrable> T newInstance(Class<T> registrableType);
+	public abstract <T> T newInstance(Class<T> registrableType);
 
 	/**
 	 * Same as {@link #newInstance(Class)} but with unique identifier specified in {@link Registrable#identifier()}
@@ -49,21 +46,21 @@ public abstract class TypeRegistry {
 	 * @param <T> your exact type.
 	 * @return Instance added into all holders added to this {@link TypeRegistry}.
 	 */
-	public abstract <T extends Registrable> T newInstance(String identifier);
+	public abstract <T> T newInstance(String identifier);
 
 	/**
 	 * Obtains unique identifier by its class. 
 	 * @param registrableType registered non-abstract "custom" type implementing {@link Registrable} interface.
 	 * @return unique identifier.
 	 */
-	public abstract String getIdentifier(Class<? extends Registrable> registrableType);
+	public abstract String getIdentifier(Class<?> registrableType);
 
 	/**
 	 * Obtains {@link Registrable} class by its unique id.
 	 * @param identifier unique id.
 	 * @return {@link Registrable} class.
 	 */
-	public abstract Class<? extends Registrable> getRegistrableType(String identifier);
+	public abstract Class<?> getRegistrableType(String identifier);
 
 	/**
 	 * Obtains lazy versions of store and load operations in specified {@link Registrable} type.
@@ -71,19 +68,19 @@ public abstract class TypeRegistry {
 	 * @param <T> your exact type.
 	 * @return Pair of lazy store/load operations, first - store, second - load.
 	 */
-	public abstract <T extends Registrable> Pair<Supplier<T>, Supplier<T>> getLazyStoreLoad(Class<T> registrableType);
+	//public abstract <T> Pair<Supplier<T>, Supplier<T>> getLazyStoreLoad(Class<T> registrableType);
 
 	/**
-	 * Adds {@link RegistrableHolder} to this {@link TypeRegistry} for handling.
-	 * @param registrableHolder {@link RegistrableHolder} you prefer to add to this {@link TypeRegistry}
+	 * Adds {@link TypeHolder} to this {@link TypeRegistry} for handling.
+	 * @param registrableHolder {@link TypeHolder} you prefer to add to this {@link TypeRegistry}
 	 */
-	public abstract void addRegistrableHolder(RegistrableHolder registrableHolder);
+	public abstract void addRegistrableHolder(TypeHolder registrableHolder);
 
 	/**
 	 * Obtains RegistrableHolders added to this {@link TypeRegistry}.
 	 * @return All added RegistrableHolders.
 	 */
-	public abstract Collection<RegistrableHolder> getRegistrableHolders();
+	public abstract Collection<TypeHolder> getRegistrableHolders();
 	
 	/**
 	 * clear everything in this {@link TypeRegistry}

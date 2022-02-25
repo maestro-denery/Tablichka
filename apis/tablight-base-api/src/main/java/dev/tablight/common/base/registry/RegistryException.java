@@ -6,20 +6,24 @@ public final class RegistryException extends RuntimeException {
 	private static final String wentWrong = "Something went wrong while registering type: ";
 	private static final String plsCheck = ", please check if your class matches Registrable requirements.";
 
-	public RegistryException(Class<? extends Registrable> registrableType, String message, Throwable cause) {
+	public RegistryException(Class<?> registrableType, String message, Throwable cause) {
 		super(wentWrong + registrableType + plsCheck + " | " + message, cause);
 	}
 
-	public RegistryException(Class<? extends Registrable> registrableType, String message) {
+	public RegistryException(Class<?> registrableType, String message) {
 		super(wentWrong + registrableType + plsCheck + " | " + message);
 	}
 
-	public RegistryException(Class<? extends Registrable> registrableType, Throwable cause) {
+	public RegistryException(Class<?> registrableType, Throwable cause) {
 		super(wentWrong + registrableType + plsCheck, cause);
 	}
 
-	public RegistryException(Class<? extends Registrable> registrableType) {
+	public RegistryException(Class<?> registrableType) {
 		super(wentWrong + registrableType + plsCheck);
+	}
+
+	public RegistryException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 	public RegistryException(String message) {

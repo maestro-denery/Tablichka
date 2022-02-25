@@ -11,29 +11,29 @@ import dev.tablight.common.base.registry.TypeRegistry;
  * Class "holding" instances of {@link TypeRegistry},
  * it is needed when you need to handle your "custom" types, for example
  */
-public abstract class RegistrableHolder {
+public abstract class TypeHolder {
 
 	/**
-	 * "Holds" your {@link Registrable} instance until {@link #release(Registrable)}  or {@link #clearHeld()}.
+	 * "Holds" your {@link Registrable} instance until {@link #release(Class)}  or {@link #clearHeld()}.
 	 * After that you can get collection of this type instances using {@link #getHeld(Class)}.
 	 * @param instance Instance you want to hold.
 	 * @param <T> Type of Instance you want to hold.
 	 */
-	public abstract <T extends Registrable> void hold(T instance);
+	public abstract <T> void hold(T instance);
 
 	/**
 	 * Removes your {@link Registrable} from holding in this holder.
 	 * @param instance Instance you want to release.
 	 * @param <T> Type of instance you want to release.
 	 */
-	public abstract <T extends Registrable> void release(T instance);
+	public abstract <T> void release(T instance);
 
 	/**
 	 * Removes your {@link Registrable} type from holding in this holder.
 	 * @param registrableType type of Instance you want to release.
 	 * @param <T> Type of instance toy want to release.
 	 */
-	public abstract <T extends Registrable> void release(Class<T> registrableType);
+	public abstract <T> void release(Class<T> registrableType);
 
 	/**
 	 * Same as {@link #release(Class)} but with String identifier.
@@ -47,7 +47,7 @@ public abstract class RegistrableHolder {
 	 * @param <T> exact type.
 	 * @return true if holder contains this instance.
 	 */
-	public abstract <T extends Registrable> boolean containsInstance(T registrable);
+	public abstract <T> boolean containsInstance(T registrable);
 
 	/**
 	 * Obtains all elements of type you want held by this holder.
@@ -55,7 +55,7 @@ public abstract class RegistrableHolder {
 	 * @param <T> Exact type of registrable.
 	 * @return All instances held by this holder of your specific type.
 	 */
-	public abstract <T extends Registrable> Collection<T> getHeld(Class<T> registrableType);
+	public abstract <T> Collection<T> getHeld(Class<T> registrableType);
 
 	/**
 	 * Same as {@link #getHeld(Class)} but get held instances by unique identifier.
@@ -63,10 +63,10 @@ public abstract class RegistrableHolder {
 	 * @param <T> exact type of {@link Registrable}
 	 * @return All instances held by this holder of your specific type.
 	 */
-	public abstract <T extends Registrable> Collection<T> getHeld(String identifier);
+	public abstract <T> Collection<T> getHeld(String identifier);
 
 	/**
-	 * Adds handler of Events happening after {@link #hold(Registrable)} and {@link #release(Class)} methods.
+	 * Adds handler of Events happening after {@link #hold(Object)} and {@link #release(Class)} methods.
 	 * @param handler handler you want to add.
 	 */
 	public abstract void handle(EventHandler<? super HolderEvent> handler);
@@ -83,7 +83,7 @@ public abstract class RegistrableHolder {
 	public abstract void addTypeRegistry(TypeRegistry typeRegistry);
 
 	/**
-	 * Obtains TypeRegistries added in this {@link RegistrableHolder}
+	 * Obtains TypeRegistries added in this {@link TypeHolder}
 	 * @return All added TypeRegistries.
 	 */
 	public abstract Collection<TypeRegistry> getTypeRegistries();

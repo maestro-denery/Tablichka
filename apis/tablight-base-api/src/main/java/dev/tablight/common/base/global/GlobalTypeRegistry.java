@@ -1,6 +1,6 @@
 package dev.tablight.common.base.global;
 
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.common.base.registry.RegistryException;
 import dev.tablight.common.base.registry.DefaultTypeRegistry;
 
@@ -15,7 +15,7 @@ public final class GlobalTypeRegistry extends DefaultTypeRegistry {
 	}
 
 	@Override
-	public void addRegistrableHolder(RegistrableHolder registrableHolder) {
+	public void addRegistrableHolder(TypeHolder registrableHolder) {
 		throw new RegistryException("Global type registry has only one holder!");
 	}
 }

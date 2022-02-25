@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import dev.tablight.common.base.registry.DefaultTypeRegistry;
 import dev.tablight.common.base.registry.TypeRegistry;
 import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.common.base.registry.storeload.DefaultStoreLoadController;
 import dev.tablight.common.base.registry.storeload.StoreLoadController;
 import dev.tablight.test.dummies.RegistrableDummy;
@@ -17,7 +17,7 @@ import dev.tablight.test.dummies.RegistrableDummyLookup;
 
 public class StoreLoadControllerTest {
 	TypeRegistry typeRegistry;
-	RegistrableHolder holder;
+	TypeHolder holder;
 	StoreLoadController controller;
 
 	@BeforeEach

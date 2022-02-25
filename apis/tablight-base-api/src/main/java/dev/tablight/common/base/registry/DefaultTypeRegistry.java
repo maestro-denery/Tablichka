@@ -2,45 +2,37 @@ package dev.tablight.common.base.registry;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.mojang.datafixers.util.Pair;
 
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.annotation.DataAddon;
+import dev.tablight.common.base.registry.holder.TypeHolder;
+
+import static dev.tablight.common.base.registry.annotation.AnnotationUtil.checkAnnotation;
 
 public class DefaultTypeRegistry extends TypeRegistry {
-	protected final Collection<RegistrableHolder> holders = new ArrayList<>();
-	protected final BiMap<String, Class<? extends Registrable>> registryBiMap = HashBiMap.create();
-	protected final Map<Class<? extends Registrable>, Pair<Supplier<? extends Registrable>, Supplier<? extends Registrable>>> storeLoadSuppliers = new HashMap<>();
+	protected final Collection<TypeHolder> holders = new ArrayList<>();
+	protected final BiMap<String, Class<?>> registryBiMap = HashBiMap.create();
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Registrable> Pair<Supplier<T>, Supplier<T>> getLazyStoreLoad(Class<T> registrableType) {
-		return storeLoadSuppliers.get(registrableType).mapFirst(first -> (Supplier<T>) first).mapSecond(second -> (Supplier<T>) second);
-	}
-
-	@Override
-	public void addRegistrableHolder(RegistrableHolder registrableHolder) {
+	public void addRegistrableHolder(TypeHolder registrableHolder) {
 		holders.add(registrableHolder);
 	}
 
 	@Override
-	public void register(Class<? extends Registrable> registrableType) {
+	public void register(Class<?> registrableType) {
+		checkAnnotation(registrableType);
 		try {
-			Registrable registrable = registrableType.getDeclaredConstructor().newInstance();
-			registryBiMap.put(registrable.identifier(), registrableType);
-			storeLoadSuppliers.put(registrableType, Pair.of(registrable.lazyStore(), registrable.lazyLoad()));
+			registryBiMap.put(registrableType.getAnnotation(DataAddon.class).identifier(), registrableType);
 		} catch (Throwable e) {
 			throw new RegistryException(registrableType, e);
 		}
 	}
 
 	@Override
-	public boolean isRegistered(Class<? extends Registrable> registrableType) {
+	public boolean isRegistered(Class<?> registrableType) {
+		checkAnnotation(registrableType);
 		return registryBiMap.containsValue(registrableType);
 	}
 
@@ -50,20 +42,17 @@ public class DefaultTypeRegistry extends TypeRegistry {
 	}
 
 	@Override
-	public Collection<RegistrableHolder> getRegistrableHolders() {
+	public Collection<TypeHolder> getRegistrableHolders() {
 		return holders;
 	}
 
 	@Override
-	public <T extends Registrable> T newInstance(Class<T> registrableType) {
+	public <T> T newInstance(Class<T> registrableType) {
+		checkContains(registrableType);
 		try {
-			if (registryBiMap.containsValue(registrableType)) {
-				var registrableInstance = registrableType.getDeclaredConstructor().newInstance();
-				holders.forEach(holder -> holder.hold(registrableInstance));
-				return registrableInstance;
-			} else {
-				throw new RegistryException(registrableType, "Registry doesn't contain this type, please register.");
-			}
+			var registrableInstance = registrableType.getDeclaredConstructor().newInstance();
+			holders.forEach(holder -> holder.hold(registrableInstance));
+			return registrableInstance;
 		} catch (Throwable e) {
 			throw new RegistryException(registrableType, e);
 		}
@@ -71,22 +60,19 @@ public class DefaultTypeRegistry extends TypeRegistry {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Registrable> T newInstance(String identifier) {
+	public <T> T newInstance(String identifier) {
 		Class<T> registrableType = (Class<T>) registryBiMap.get(identifier);
 		return this.newInstance(registrableType);
 	}
 
 	@Override
-	public String getIdentifier(Class<? extends Registrable> registrableType) {
-		if (registryBiMap.containsValue(registrableType)) {
-			return registryBiMap.inverse().get(registrableType);
-		} else {
-			throw new RegistryException(registrableType);
-		}
+	public String getIdentifier(Class<?> registrableType) {
+		checkContains(registrableType);
+		return registryBiMap.inverse().get(registrableType);
 	}
 
 	@Override
-	public Class<? extends Registrable> getRegistrableType(String identifier) {
+	public Class<?> getRegistrableType(String identifier) {
 		if (registryBiMap.containsKey(identifier)) {
 			return registryBiMap.get(identifier);
 		} else {
@@ -94,7 +80,11 @@ public class DefaultTypeRegistry extends TypeRegistry {
 		}
 	}
 
-	public BiMap<String, Class<? extends Registrable>> getInternalBiMap() {
+	public BiMap<String, Class<?>> getInternalBiMap() {
 		return registryBiMap;
+	}
+	
+	private <T> void checkContains(Class<T> clazz) {
+		if (!registryBiMap.containsValue(clazz)) throw new RegistryException(clazz, "Registry doesn't contain this type, please register.");
 	}
 }

@@ -1,6 +1,6 @@
 package dev.tablight.common.base.registry;
 
-import dev.tablight.common.base.registry.holder.RegistrableHolder;
+import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.common.base.registry.storeload.StoreLoadController;
 import dev.tablight.common.base.registry.storeload.StoreLoadLookup;
 
@@ -12,12 +12,12 @@ import java.util.function.Supplier;
  * which you need to save after server shutting down and load after starting up, implement this interface.
  * <p>
  * @see TypeRegistry Registering "custom" types
- * @see RegistrableHolder Holding and handling instances of registered "custom" types
+ * @see TypeHolder Holding and handling instances of registered "custom" types
  * @see StoreLoadController Importing "native" data to registered "custom" types
  */
 public interface Registrable {
 	/**
-	 * Method returning unique String identifier used in {@link TypeRegistry} and {@link RegistrableHolder}
+	 * Method returning unique String identifier used in {@link TypeRegistry} and {@link TypeHolder}
 	 * @return unique identifier.
 	 */
 	String identifier();
@@ -43,7 +43,7 @@ public interface Registrable {
 	 * @return lookup which makes instances of implemented class.
 	 * @see StoreLoadController store load mechanism.
 	 */
-	StoreLoadLookup<? extends Registrable, ?> getlookup();
+	StoreLoadLookup<? extends Registrable, ?> getLookup();
 
 	default Supplier<Registrable> lazyStore() {
 		return this::store;

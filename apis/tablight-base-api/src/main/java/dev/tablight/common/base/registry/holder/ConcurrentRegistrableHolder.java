@@ -12,23 +12,23 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
-import dev.tablight.common.base.registry.Registrable;
 import dev.tablight.common.base.registry.RegistryException;
 import dev.tablight.common.base.registry.TypeRegistry;
 
-public class ConcurrentRegistrableHolder extends RegistrableHolder {
+public class ConcurrentRegistrableHolder extends TypeHolder {
 	protected boolean running = false;
 	protected Disruptor<HolderEvent> disruptor;
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
-	protected final Multimap<Class<? extends Registrable>, Registrable> instances =
+	protected final Multimap<Class<?>, Object> instances =
 			Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
 
 	@Override
-	public <T extends Registrable> void hold(T instance) {
-		checkRegistered(instance.getClass());
-		instances.put(instance.getClass(), instance);
+	public <T> void hold(T instance) {
+		final Class<?> clazz = instance.getClass();
+		checkRegistered(clazz);
+		instances.put(clazz, instance);
 		checkRunning();
-		publishEvent(instance.getClass());
+		publishEvent(clazz);
 	}
 
 	@Override
@@ -37,15 +37,16 @@ public class ConcurrentRegistrableHolder extends RegistrableHolder {
 	}
 
 	@Override
-	public <T extends Registrable> void release(T instance) {
-		checkRegistered(instance.getClass());
-		instances.remove(instance.getClass(), instance);
+	public <T> void release(T instance) {
+		final Class<?> clazz = instance.getClass();
+		checkRegistered(clazz);
+		instances.remove(clazz, instance);
 		checkRunning();
-		publishEvent(instance.getClass());
+		publishEvent(clazz);
 	}
 
 	@Override
-	public <T extends Registrable> void release(Class<T> registrableType) {
+	public <T> void release(Class<T> registrableType) {
 		checkRegistered(registrableType);
 		instances.removeAll(registrableType);
 		checkRunning();
@@ -69,13 +70,13 @@ public class ConcurrentRegistrableHolder extends RegistrableHolder {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Registrable> Collection<T> getHeld(Class<T> registrableType) {
+	public <T> Collection<T> getHeld(Class<T> registrableType) {
 		return (Collection<T>) instances.get(registrableType);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends Registrable> Collection<T> getHeld(String identifier) {
+	public <T> Collection<T> getHeld(String identifier) {
 		return (Collection<T>) instances.get(getClassByID(identifier));
 	}
 
@@ -93,7 +94,7 @@ public class ConcurrentRegistrableHolder extends RegistrableHolder {
 	}
 
 	@Override
-	public <T extends Registrable> boolean containsInstance(T registrable) {
+	public <T> boolean containsInstance(T registrable) {
 		return instances.containsValue(registrable);
 	}
 
@@ -107,23 +108,23 @@ public class ConcurrentRegistrableHolder extends RegistrableHolder {
 		disruptor.shutdown();
 	}
 
-	public Multimap<Class<? extends Registrable>, Registrable> getInternalMap() {
+	public Multimap<Class<?>, Object> getInternalMap() {
 		return instances;
 	}
 
-	private <T extends Registrable> void checkRegistered(Class<T> tClass) {
+	private <T> void checkRegistered(Class<T> tClass) {
 		if (!typeRegistries.stream().anyMatch(typeRegistry -> typeRegistry.isRegistered(tClass))) {
 			throw new RegistryException(tClass, "Can't hold registrable because it isn't registered");
 		};
 	}
 
 	@SuppressWarnings("all")
-	private <T extends Registrable> Class<T> getClassByID(String id) {
+	private <T> Class<T> getClassByID(String id) {
 		return (Class<T>) typeRegistries.stream()
 				.map(typeRegistry -> typeRegistry.getRegistrableType(id)).findFirst().orElseThrow(() -> new RegistryException("There is no Registrables defined with given Id"));
 	}
 
-	private <T extends Registrable> void publishEvent(Class<T> tClass) {
+	private <T> void publishEvent(Class<T> tClass) {
 		disruptor.publishEvent((event, sequence) -> {
 			event.setRegistrables(instances.get(tClass));
 			event.setRegistrableType(tClass);
