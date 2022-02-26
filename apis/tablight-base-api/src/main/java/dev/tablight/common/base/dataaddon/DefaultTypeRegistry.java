@@ -1,4 +1,4 @@
-package dev.tablight.common.base.registry;
+package dev.tablight.common.base.dataaddon;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,10 +6,10 @@ import java.util.Collection;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
 
-import static dev.tablight.common.base.registry.annotation.AnnotationUtil.checkAnnotation;
+import static dev.tablight.common.base.dataaddon.annotation.AnnotationUtil.checkAnnotation;
 
 public class DefaultTypeRegistry extends TypeRegistry {
 	protected final Collection<TypeHolder> holders = new ArrayList<>();
@@ -23,11 +23,7 @@ public class DefaultTypeRegistry extends TypeRegistry {
 	@Override
 	public void register(Class<?> registrableType) {
 		checkAnnotation(registrableType);
-		try {
-			registryBiMap.put(registrableType.getAnnotation(DataAddon.class).identifier(), registrableType);
-		} catch (Throwable e) {
-			throw new RegistryException(registrableType, e);
-		}
+		registryBiMap.put(registrableType.getAnnotation(DataAddon.class).identifier(), registrableType);
 	}
 
 	@Override
@@ -53,7 +49,7 @@ public class DefaultTypeRegistry extends TypeRegistry {
 			var registrableInstance = registrableType.getDeclaredConstructor().newInstance();
 			holders.forEach(holder -> holder.hold(registrableInstance));
 			return registrableInstance;
-		} catch (Throwable e) {
+		} catch (ReflectiveOperationException e) {
 			throw new RegistryException(registrableType, e);
 		}
 	}

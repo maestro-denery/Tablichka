@@ -1,11 +1,11 @@
-package dev.tablight.common.base.registry.holder;
+package dev.tablight.common.base.dataaddon.holder;
 
 import java.util.Collection;
 
 import com.lmax.disruptor.EventHandler;
 
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
 
 /**
  * Class "holding" instances of {@link TypeRegistry},
@@ -67,6 +67,10 @@ public abstract class TypeHolder {
 
 	/**
 	 * Adds handler of Events happening after {@link #hold(Object)} and {@link #release(Class)} methods.
+	 * 
+	 * @implNote 1. Handlers run in their own threads, make sure you're handling everything thread-safely.
+	 * 2. You need to add all your handlers before any action or {@link #forceStart()} method fired. 
+	 * It works this way because we use "disruptor" event system for fastest ever events.
 	 * @param handler handler you want to add.
 	 */
 	public abstract void handle(EventHandler<? super HolderEvent> handler);

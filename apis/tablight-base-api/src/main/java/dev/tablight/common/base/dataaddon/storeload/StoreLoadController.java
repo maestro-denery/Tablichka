@@ -1,7 +1,7 @@
-package dev.tablight.common.base.registry.storeload;
+package dev.tablight.common.base.dataaddon.storeload;
 
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
 
 import java.util.Collection;
 

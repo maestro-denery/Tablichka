@@ -1,16 +1,16 @@
 package dev.tablight.test.dummies;
 
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.annotation.Load;
-import dev.tablight.common.base.registry.annotation.Store;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.annotation.Load;
+import dev.tablight.common.base.dataaddon.annotation.Store;
 
 @DataAddon(
 		identifier = "dummy",
 		groupTag = "dummyGroup",
-		nativeClass = RegistrableDummyLookup.NativeDummy.class,
-		lookup = RegistrableDummyLookup.class
+		nativeClass = DataAddonDummyLookup.NativeDummy.class,
+		lookup = DataAddonDummyLookup.class
 )
-public class RegistrableDummy {
+public class DataAddonDummy {
 	private String someString;
 	private String someNativeStringData;
 

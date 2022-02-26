@@ -1,23 +1,23 @@
-package dev.tablight.common.base.registry;
+package dev.tablight.common.base.dataaddon;
 
 public final class RegistryException extends RuntimeException {
-	private static final String wentWrong = "Something went wrong while registering type: ";
-	private static final String plsCheck = ", please check if your class matches Registrable requirements.";
+	private static final String WENT_WRONG = "Something went wrong while registering type: ";
+	private static final String PLS_CHECK = ", please check if your class matches Registrable requirements.";
 
 	public RegistryException(Class<?> registrableType, String message, Throwable cause) {
-		super(wentWrong + registrableType + plsCheck + " | " + message, cause);
+		super(WENT_WRONG + registrableType + PLS_CHECK + " | " + message, cause);
 	}
 
 	public RegistryException(Class<?> registrableType, String message) {
-		super(wentWrong + registrableType + plsCheck + " | " + message);
+		super(WENT_WRONG + registrableType + PLS_CHECK + " | " + message);
 	}
 
 	public RegistryException(Class<?> registrableType, Throwable cause) {
-		super(wentWrong + registrableType + plsCheck, cause);
+		super(WENT_WRONG + registrableType + PLS_CHECK, cause);
 	}
 
 	public RegistryException(Class<?> registrableType) {
-		super(wentWrong + registrableType + plsCheck);
+		super(WENT_WRONG + registrableType + PLS_CHECK);
 	}
 
 	public RegistryException(String message, Throwable cause) {

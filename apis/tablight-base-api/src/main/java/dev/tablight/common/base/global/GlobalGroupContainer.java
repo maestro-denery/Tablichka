@@ -1,6 +1,6 @@
 package dev.tablight.common.base.global;
 
-import dev.tablight.common.base.registry.annotation.group.GroupContainer;
+import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
 
 /**
  * Global Group container for TabLight infrastructure.

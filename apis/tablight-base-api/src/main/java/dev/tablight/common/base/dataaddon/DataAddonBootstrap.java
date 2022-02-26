@@ -1,22 +1,22 @@
-package dev.tablight.common.base.registry;
+package dev.tablight.common.base.dataaddon;
 
 import java.io.IOException;
 import java.util.List;
 
 import com.google.common.reflect.ClassPath;
 
-import dev.tablight.common.base.registry.annotation.AnnotationUtil;
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.annotation.group.Controller;
-import dev.tablight.common.base.registry.annotation.group.GroupContainer;
-import dev.tablight.common.base.registry.annotation.group.Holder;
-import dev.tablight.common.base.registry.annotation.group.Registry;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.common.base.registry.storeload.StoreLoadController;
+import dev.tablight.common.base.dataaddon.annotation.AnnotationUtil;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.annotation.group.Controller;
+import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.common.base.dataaddon.annotation.group.Holder;
+import dev.tablight.common.base.dataaddon.annotation.group.Registry;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class DataAddonBootstrap {
-	public GroupContainer container;
+	private GroupContainer container;
 
 	public void setContainer(GroupContainer container) {
 		this.container = container;
@@ -41,15 +41,15 @@ public final class DataAddonBootstrap {
 			
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Registry.class))
-					.forEach(clazz -> container.registerTypeRegistry((Class<? extends TypeRegistry>) clazz));
+					.forEach(clazz -> container.registerTypeRegistry(clazz.asSubclass(TypeRegistry.class)));
 
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Holder.class))
-					.forEach(clazz -> container.registerHolder((Class<? extends TypeHolder>) clazz));
+					.forEach(clazz -> container.registerHolder(clazz.asSubclass(TypeHolder.class)));
 
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-					.forEach(clazz -> container.registerController((Class<? extends StoreLoadController>) clazz));
+					.forEach(clazz -> container.registerController(clazz.asSubclass(StoreLoadController.class)));
 			
 			classesInPackage.stream().forEach(clazz -> {
 				if (clazz.isAnnotationPresent(Registry.class)) 
@@ -60,7 +60,7 @@ public final class DataAddonBootstrap {
 					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Controller.class).value(), container);
 			});
 		} catch (IOException e) {
-			throw new RuntimeException("Something went wrong while bootstrapping Registries.");
+			throw new RegistryException("Something went wrong while bootstrapping Registries.");
 		}
 	}
 
@@ -69,7 +69,7 @@ public final class DataAddonBootstrap {
 	 * configured with {@link #bootstrapRegistries(String)} and contained in {@link #container}
 	 * @param packageName package containing DataAddons.
 	 */
-	public void bootstrapImplementations(String packageName) {
+	public void bootstrapDataAddons(String packageName) {
 		try {
 			List<? extends Class<?>> implClasses = ClassPath.from(ClassLoader.getSystemClassLoader())
 					.getAllClasses()
@@ -82,7 +82,7 @@ public final class DataAddonBootstrap {
 			implClasses.forEach(container::registerImplementation);
 			implClasses.forEach(clazz -> AnnotationUtil.connectImplByTag(clazz.getAnnotation(DataAddon.class).groupTag(), container));
 		} catch (IOException e) {
-			throw new RuntimeException("Something went wrong while bootstrapping Registries.");
+			throw new RegistryException("Something went wrong while bootstrapping Registries.");
 		}
 	}
 

@@ -5,18 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BasePlugin extends JavaPlugin {
-	public static final Logger logger = LoggerFactory.getLogger("Base-API");
+	public static final Logger LOGGER = LoggerFactory.getLogger("Base-API");
 
 	@Override
 	public void onEnable() {
-		//registrableHolder.hold();
-		logger.info("Enabling Base-API");
+		LOGGER.info("Enabling Base-API");
 	}
 
 	@Override
 	public void onDisable() {
-		//registrableHolder.getHeldRegistrables().forEach(Registrable::save);
-		
-		logger.info("Disabling Base-API");
+		LOGGER.info("Disabling Base-API");
 	}
 }

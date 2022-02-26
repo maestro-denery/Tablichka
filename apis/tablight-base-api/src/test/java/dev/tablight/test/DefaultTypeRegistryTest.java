@@ -6,21 +6,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.registry.DataAddonBootstrap;
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.annotation.group.GroupContainer;
-import dev.tablight.test.dummies.RegistrableDummy;
+import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
+import dev.tablight.common.base.dataaddon.DefaultTypeRegistry;
+import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.test.dummies.DataAddonDummy;
 import dev.tablight.test.registries.DummyTypeRegistry;
 
-public class TypeRegistryTest {
+class DefaultTypeRegistryTest {
 	DataAddonBootstrap dataAddonBootstrap = new DataAddonBootstrap();
-	TypeRegistry registry;
+	DefaultTypeRegistry registry;
 	
 	@BeforeEach
 	void before() {
 		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
-		dataAddonBootstrap.bootstrapImplementations("dev.tablight.test.dummies");
+		dataAddonBootstrap.bootstrapDataAddons("dev.tablight.test.dummies");
 		registry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
 	}
 
@@ -33,12 +33,12 @@ public class TypeRegistryTest {
 
 	@Test
 	void checkIsRegistered() {
-		assertTrue(registry.isRegistered(RegistrableDummy.class));
+		assertTrue(registry.isRegistered(DataAddonDummy.class));
 	}
 
 	@Test
 	void checkNewInstanceClass() {
-		assertNotNull(registry.newInstance(RegistrableDummy.class));
+		assertNotNull(registry.newInstance(DataAddonDummy.class));
 	}
 
 	@Test
@@ -48,11 +48,11 @@ public class TypeRegistryTest {
 	
 	@Test
 	void checkGetIdentifier() {
-		assertEquals("dummy", registry.getIdentifier(RegistrableDummy.class));
+		assertEquals("dummy", registry.getIdentifier(DataAddonDummy.class));
 	}
 	
 	@Test
 	void checkGetClass() {
-		assertEquals(RegistrableDummy.class, registry.getRegistrableType("dummy"));
+		assertEquals(DataAddonDummy.class, registry.getRegistrableType("dummy"));
 	}
 }

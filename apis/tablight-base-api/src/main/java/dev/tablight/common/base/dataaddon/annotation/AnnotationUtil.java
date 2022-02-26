@@ -1,23 +1,26 @@
-package dev.tablight.common.base.registry.annotation;
+package dev.tablight.common.base.dataaddon.annotation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-import dev.tablight.common.base.registry.RegistryException;
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.annotation.group.Controller;
-import dev.tablight.common.base.registry.annotation.group.GroupContainer;
-import dev.tablight.common.base.registry.annotation.group.Holder;
-import dev.tablight.common.base.registry.annotation.group.Registry;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.common.base.registry.storeload.StoreLoadController;
+import dev.tablight.common.base.dataaddon.RegistryException;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.annotation.group.Controller;
+import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.common.base.dataaddon.annotation.group.Holder;
+import dev.tablight.common.base.dataaddon.annotation.group.Registry;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
 
 /**
  * Internal Utilities for handling annotations, regular user shouldn't touch it.
  */
 public final class AnnotationUtil {
+	private AnnotationUtil() {}
+
 	public static void connectGroupsInRepoByTag(String tag, GroupContainer repository) {
+		final String classRequirements = "Can't create new instance, check class requirements";
 		List<? extends TypeRegistry> registries = repository.typeRegistries.values().stream()
 				.filter(clazz -> clazz.getAnnotation(Registry.class).value().equals(tag))
 				.map(clazz -> {
@@ -26,7 +29,7 @@ public final class AnnotationUtil {
 						repository.hold(registry);
 						return registry;
 					} catch (ReflectiveOperationException e) {
-						throw new RegistryException("Can't create new instance, check class requirements");
+						throw new RegistryException(classRequirements);
 					}
 				}).toList();
 		List<? extends TypeHolder> holders = repository.holders.values().stream()
@@ -37,7 +40,7 @@ public final class AnnotationUtil {
 						repository.hold(typeHolder);
 						return typeHolder;
 					} catch (ReflectiveOperationException e) {
-						throw new RegistryException("Can't create new instance, check class requirements");
+						throw new RegistryException(classRequirements);
 					}
 				}).toList();
 		List<? extends StoreLoadController> controllers = repository.controllers.values().stream()
@@ -48,7 +51,7 @@ public final class AnnotationUtil {
 						repository.hold(controller);
 						return controller;
 					} catch (ReflectiveOperationException e) {
-						throw new RegistryException("Can't create new instance, check class requirements");
+						throw new RegistryException(classRequirements);
 					}
 				}).toList();
 		registries.forEach(typeRegistry -> holders.forEach(typeRegistry::addRegistrableHolder));
@@ -67,23 +70,26 @@ public final class AnnotationUtil {
 
 	public static void invokeLoad(Object held) {
 		checkAnnotation(held.getClass());
-		Arrays.stream(held.getClass().getDeclaredMethods()).filter(method -> method.isAnnotationPresent(Load.class)).forEach(method -> {
-			try {
-				method.invoke(held);
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				throw new RegistryException("Check if your load method has no parameters.");
-			}
-		});
+		Arrays.stream(held.getClass().getDeclaredMethods())
+				.filter(method -> method.isAnnotationPresent(Load.class) && method.getReturnType().equals(void.class))
+				.forEach(method -> {
+					try {
+						method.invoke(held);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						throw new RegistryException("Check if your load method has no parameters.");
+					}
+				});
 	}
 
 	public static void invokeStore(Object held) {
 		checkAnnotation(held.getClass());
-		Arrays.stream(held.getClass().getDeclaredMethods()).filter(method -> method.isAnnotationPresent(Store.class)).forEach(method -> {
-			try {
-				method.invoke(held);
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				throw new RegistryException("Check if your load method has no parameters.");
-			}
-		});
+		Arrays.stream(held.getClass().getDeclaredMethods())
+				.filter(method -> method.isAnnotationPresent(Store.class) && method.getReturnType().equals(void.class)).forEach(method -> {
+					try {
+						method.invoke(held);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						throw new RegistryException("Check if your load method has no parameters.");
+					}
+				});
 	}
 }

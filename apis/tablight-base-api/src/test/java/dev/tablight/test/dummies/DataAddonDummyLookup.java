@@ -5,18 +5,18 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
-import dev.tablight.common.base.registry.storeload.StoreLoadLookup;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadLookup;
 
-public class RegistrableDummyLookup implements StoreLoadLookup<RegistrableDummy, RegistrableDummyLookup.NativeDummy> {
+public class DataAddonDummyLookup implements StoreLoadLookup<DataAddonDummy, DataAddonDummyLookup.NativeDummy> {
 
 	private final Collection<NativeDummy> nativeDummiesContainer = Lists.newArrayList(
 			new NativeDummy("native1")
 	); 
 	
 	@Override
-	public Supplier<Collection<RegistrableDummy>> lookup() {
+	public Supplier<Collection<DataAddonDummy>> lookup() {
 		return () -> nativeDummiesContainer.stream().map(nativeD -> {
-			var dummy = new RegistrableDummy();
+			var dummy = new DataAddonDummy();
 			dummy.setSomeNativeStringData(nativeD.getSomeNativeString());
 			return dummy;
 		}).toList();

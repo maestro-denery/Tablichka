@@ -4,29 +4,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-import dev.tablight.test.registries.DummyHolder;
-import dev.tablight.test.registries.DummyTypeRegistry;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.registry.DataAddonBootstrap;
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.annotation.group.GroupContainer;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.test.dummies.RegistrableDummy;
+import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.common.base.dataaddon.holder.ConcurrentTypeHolder;
+import dev.tablight.test.dummies.DataAddonDummy;
+import dev.tablight.test.registries.DummyHolder;
+import dev.tablight.test.registries.DummyTypeRegistry;
 
-public class RegistrableHolderTest {
+class ConcurrentTypeHolderTest {
 	DataAddonBootstrap dataAddonBootstrap = new DataAddonBootstrap();
-	TypeHolder holder;
+	ConcurrentTypeHolder holder;
 	TypeRegistry typeRegistry;
 
 	@BeforeEach
 	void before() {
 		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
-		dataAddonBootstrap.bootstrapImplementations("dev.tablight.test.dummies");
+		dataAddonBootstrap.bootstrapDataAddons("dev.tablight.test.dummies");
 		typeRegistry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
 		holder = dataAddonBootstrap.getTypeHolder(DummyHolder.class);
 	}
@@ -38,38 +37,38 @@ public class RegistrableHolderTest {
 
 	@Test
 	void checkHold() {
-		assertDoesNotThrow(() -> holder.hold(new RegistrableDummy()));
+		assertDoesNotThrow(() -> holder.hold(new DataAddonDummy()));
 	}
 
 	@Test
 	void checkHoldEquality() {
-		var dummy = new RegistrableDummy();
+		var dummy = new DataAddonDummy();
 		holder.hold(dummy);
-		assertEquals(dummy, holder.getHeld(RegistrableDummy.class).toArray()[0]);
+		assertEquals(dummy, holder.getHeld(DataAddonDummy.class).toArray()[0]);
 	}
 
 	@Test
 	void checkGetType() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		assertIterableEquals(List.of(dummy), holder.getHeld(RegistrableDummy.class));
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		assertIterableEquals(List.of(dummy), holder.getHeld(DataAddonDummy.class));
 	}
 
 	@Test
 	void checkGetID() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
 		assertIterableEquals(List.of(dummy), holder.getHeld("dummy"));
 	}
 
 	@Test
 	void checkContains() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
 		assertTrue(holder.containsInstance(dummy));
 	}
 
 	@Test
 	void checkRelease() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		var dummy1 = typeRegistry.newInstance(DataAddonDummy.class);
 		holder.release(dummy);
 		assertFalse(holder.containsInstance(dummy));
 		assertTrue(holder.containsInstance(dummy1));
@@ -77,17 +76,17 @@ public class RegistrableHolderTest {
 
 	@Test
 	void checkReleaseClass() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
-		holder.release(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		var dummy1 = typeRegistry.newInstance(DataAddonDummy.class);
+		holder.release(DataAddonDummy.class);
 		assertFalse(holder.containsInstance(dummy));
 		assertFalse(holder.containsInstance(dummy1));
 	}
 
 	@Test
 	void checkReleaseID() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		var dummy1 = typeRegistry.newInstance(DataAddonDummy.class);
 		holder.release("dummy");
 		assertFalse(holder.containsInstance(dummy));
 		assertFalse(holder.containsInstance(dummy1));
@@ -96,14 +95,14 @@ public class RegistrableHolderTest {
 	@Test
 	void checkEventHandlerType() {
 		holder.handle(((event, sequence, endOfBatch) -> {
-			assertEquals(RegistrableDummy.class, event.getRegistrableType());
+			assertEquals(DataAddonDummy.class, event.getRegistrableType());
 		}));
-		holder.hold(new RegistrableDummy());
+		holder.hold(new DataAddonDummy());
 	}
 
 	@Test
 	void checkEventHandlerCollection() {
-		var dummy = new RegistrableDummy();
+		var dummy = new DataAddonDummy();
 		holder.handle(((event, sequence, endOfBatch) -> {
 			assertIterableEquals(List.of(dummy), event.getRegistrables());
 		}));

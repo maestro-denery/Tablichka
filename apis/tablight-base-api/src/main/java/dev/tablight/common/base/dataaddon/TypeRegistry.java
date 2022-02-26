@@ -1,9 +1,9 @@
-package dev.tablight.common.base.registry;
+package dev.tablight.common.base.dataaddon;
 
 import java.util.Collection;
 
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
 
 /**
  * Registry containing Unique DataAddon types where you can register and instantiate "custom" types.

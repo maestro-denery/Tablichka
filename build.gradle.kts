@@ -38,6 +38,7 @@ tasks {
         properties {
             property("sonar.host.url", System.getenv("host.url"))
             property("sonar.login", System.getenv("login"))
+            property("sonar.password", System.getenv("password"))
             property("sonar.projectKey", System.getenv("projectKey"))
         }
     }

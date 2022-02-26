@@ -11,4 +11,6 @@ public interface BrainInteract {
 	}
 	
 	<U extends LivingEntity> Brain<U> getBrain(org.bukkit.entity.LivingEntity bukkitLivingEntity);
+	
+	
 }

@@ -1,4 +1,4 @@
-package dev.tablight.common.base.registry.annotation.group;
+package dev.tablight.common.base.dataaddon.annotation.group;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,16 +6,17 @@ import java.util.Map;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import dev.tablight.common.base.registry.RegistryException;
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.common.base.registry.storeload.StoreLoadController;
+import dev.tablight.common.base.dataaddon.RegistryException;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
 
 /**
- * Container containing group tags and classes with their instances, it is needed only for {@link dev.tablight.common.base.registry.DataAddonBootstrap}
+ * Container containing group tags and classes with their instances, it is needed only for {@link dev.tablight.common.base.dataaddon.DataAddonBootstrap}
  */
 public class GroupContainer {
+	private static final String DOESNT_HAVE_ANNOTATION = "Class doesn't have annotation";
 	public final Map<String, Class<?>> implementations = new HashMap<>();
 	public final Map<String, Class<? extends TypeRegistry>> typeRegistries = new HashMap<>();
 	public final Map<String, Class<? extends TypeHolder>> holders = new HashMap<>();
@@ -31,17 +32,20 @@ public class GroupContainer {
 	}
 
 	public void registerTypeRegistry(Class<? extends TypeRegistry> clazz) {
-		if (!clazz.isAnnotationPresent(Registry.class)) throw new RegistryException("Class doesn't have annotation");
+		if (!clazz.isAnnotationPresent(Registry.class)) {
+			
+			throw new RegistryException(DOESNT_HAVE_ANNOTATION);
+		}
 		typeRegistries.put(clazz.getAnnotation(Registry.class).value(), clazz);
 	}
 
 	public void registerHolder(Class<? extends TypeHolder> clazz) {
-		if (!clazz.isAnnotationPresent(Holder.class)) throw new RegistryException("Class doesn't have annotation");
+		if (!clazz.isAnnotationPresent(Holder.class)) throw new RegistryException(DOESNT_HAVE_ANNOTATION);
 		holders.put(clazz.getAnnotation(Holder.class).value(), clazz);
 	}
 
 	public void registerController(Class<? extends StoreLoadController> clazz) {
-		if (!clazz.isAnnotationPresent(Controller.class)) throw new RegistryException("Class doesn't have annotation");
+		if (!clazz.isAnnotationPresent(Controller.class)) throw new RegistryException(DOESNT_HAVE_ANNOTATION);
 		controllers.put(clazz.getAnnotation(Controller.class).value(), clazz);
 	}
 

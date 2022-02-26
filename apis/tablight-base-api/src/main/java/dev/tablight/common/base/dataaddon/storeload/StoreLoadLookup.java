@@ -1,4 +1,4 @@
-package dev.tablight.common.base.registry.storeload;
+package dev.tablight.common.base.dataaddon.storeload;
 
 import java.util.Collection;
 import java.util.function.Supplier;

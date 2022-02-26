@@ -1,9 +1,9 @@
-package dev.tablight.common.base.registry.annotation;
+package dev.tablight.common.base.dataaddon.annotation;
 
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.common.base.registry.storeload.StoreLoadController;
-import dev.tablight.common.base.registry.storeload.StoreLoadLookup;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadLookup;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 /**
  * Mark your class with this annotation if it represents object with additional data over some other object data
  * to connect and use it with {@link TypeRegistry}, {@link TypeHolder}, {@link StoreLoadController} and other infrastructure.
- * @see dev.tablight.common.base.registry.DataAddonBootstrap
+ * @see dev.tablight.common.base.dataaddon.DataAddonBootstrap
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

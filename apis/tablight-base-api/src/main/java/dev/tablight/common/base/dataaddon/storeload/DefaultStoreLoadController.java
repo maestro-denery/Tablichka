@@ -1,12 +1,12 @@
-package dev.tablight.common.base.registry.storeload;
+package dev.tablight.common.base.dataaddon.storeload;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import dev.tablight.common.base.registry.RegistryException;
-import dev.tablight.common.base.registry.annotation.AnnotationUtil;
-import dev.tablight.common.base.registry.annotation.DataAddon;
-import dev.tablight.common.base.registry.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.RegistryException;
+import dev.tablight.common.base.dataaddon.annotation.AnnotationUtil;
+import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
 
 public class DefaultStoreLoadController extends StoreLoadController {
 	protected final Collection<TypeHolder> holders = new ArrayList<>();

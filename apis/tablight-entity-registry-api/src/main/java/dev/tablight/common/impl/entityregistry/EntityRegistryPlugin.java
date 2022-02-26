@@ -2,7 +2,7 @@ package dev.tablight.common.impl.entityregistry;
 
 import dev.tablight.common.base.global.GlobalGroupContainer;
 
-import dev.tablight.common.base.registry.DataAddonBootstrap;
+import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;

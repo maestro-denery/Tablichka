@@ -1,4 +1,4 @@
-package dev.tablight.common.base.registry.holder;
+package dev.tablight.common.base.dataaddon.holder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,10 +12,10 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
-import dev.tablight.common.base.registry.RegistryException;
-import dev.tablight.common.base.registry.TypeRegistry;
+import dev.tablight.common.base.dataaddon.RegistryException;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
 
-public class ConcurrentRegistrableHolder extends TypeHolder {
+public class ConcurrentTypeHolder extends TypeHolder {
 	protected boolean running = false;
 	protected Disruptor<HolderEvent> disruptor;
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
@@ -113,9 +113,8 @@ public class ConcurrentRegistrableHolder extends TypeHolder {
 	}
 
 	private <T> void checkRegistered(Class<T> tClass) {
-		if (!typeRegistries.stream().anyMatch(typeRegistry -> typeRegistry.isRegistered(tClass))) {
+		if (typeRegistries.stream().noneMatch(typeRegistry -> typeRegistry.isRegistered(tClass)))
 			throw new RegistryException(tClass, "Can't hold registrable because it isn't registered");
-		};
 	}
 
 	@SuppressWarnings("all")

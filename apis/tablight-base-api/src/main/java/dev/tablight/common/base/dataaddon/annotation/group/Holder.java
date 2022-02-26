@@ -1,4 +1,4 @@
-package dev.tablight.common.base.registry.annotation.group;
+package dev.tablight.common.base.dataaddon.annotation.group;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mark your class extending {@link dev.tablight.common.base.registry.holder.TypeHolder} to use it with other infrastructure.
- * @see dev.tablight.common.base.registry.DataAddonBootstrap
+ * Mark your class extending {@link dev.tablight.common.base.dataaddon.holder.TypeHolder} to use it with other infrastructure.
+ * @see dev.tablight.common.base.dataaddon.DataAddonBootstrap
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

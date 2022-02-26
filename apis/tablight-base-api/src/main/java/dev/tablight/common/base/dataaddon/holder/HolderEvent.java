@@ -1,16 +1,16 @@
-package dev.tablight.common.base.registry.holder;
+package dev.tablight.common.base.dataaddon.holder;
 
 import java.util.Collection;
 
 public final class HolderEvent {
-	private Collection<?> registrables;
+	private Collection<Object> registrables;
 	private Class<?> registrableType;
 
-	public Collection<?> getRegistrables() {
+	public Collection<Object> getRegistrables() {
 		return registrables;
 	}
 
-	public void setRegistrables(Collection<?> registrables) {
+	public void setRegistrables(Collection<Object> registrables) {
 		this.registrables = registrables;
 	}
 

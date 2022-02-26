@@ -6,16 +6,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.registry.DefaultTypeRegistry;
-import dev.tablight.common.base.registry.TypeRegistry;
-import dev.tablight.common.base.registry.holder.ConcurrentRegistrableHolder;
-import dev.tablight.common.base.registry.holder.TypeHolder;
-import dev.tablight.common.base.registry.storeload.DefaultStoreLoadController;
-import dev.tablight.common.base.registry.storeload.StoreLoadController;
-import dev.tablight.test.dummies.RegistrableDummy;
-import dev.tablight.test.dummies.RegistrableDummyLookup;
+import dev.tablight.common.base.dataaddon.DefaultTypeRegistry;
+import dev.tablight.common.base.dataaddon.TypeRegistry;
+import dev.tablight.common.base.dataaddon.holder.ConcurrentTypeHolder;
+import dev.tablight.common.base.dataaddon.holder.TypeHolder;
+import dev.tablight.common.base.dataaddon.storeload.DefaultStoreLoadController;
+import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
+import dev.tablight.test.dummies.DataAddonDummy;
+import dev.tablight.test.dummies.DataAddonDummyLookup;
 
-public class StoreLoadControllerTest {
+class StoreLoadControllerTest {
 	TypeRegistry typeRegistry;
 	TypeHolder holder;
 	StoreLoadController controller;
@@ -23,12 +23,12 @@ public class StoreLoadControllerTest {
 	@BeforeEach
 	void before() {
 		typeRegistry = new DefaultTypeRegistry();
-		holder = new ConcurrentRegistrableHolder();
+		holder = new ConcurrentTypeHolder();
 		holder.addTypeRegistry(typeRegistry);
 		typeRegistry.addRegistrableHolder(holder);
 		controller = new DefaultStoreLoadController();
 		controller.addRegistrableHolder(holder);
-		typeRegistry.register(RegistrableDummy.class);
+		typeRegistry.register(DataAddonDummy.class);
 	}
 
 	@AfterEach
@@ -42,52 +42,52 @@ public class StoreLoadControllerTest {
 
 	@Test
 	void checkStore() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
-		controller.store(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		var dummy1 = typeRegistry.newInstance(DataAddonDummy.class);
+		controller.store(DataAddonDummy.class);
 		assertEquals("store", dummy.getSomeString());
 		assertEquals("store", dummy1.getSomeString());
 	}
 
 	@Test
 	void checkLoad() {
-		var dummy = typeRegistry.newInstance(RegistrableDummy.class);
-		var dummy1 = typeRegistry.newInstance(RegistrableDummy.class);
-		controller.load(RegistrableDummy.class);
+		var dummy = typeRegistry.newInstance(DataAddonDummy.class);
+		var dummy1 = typeRegistry.newInstance(DataAddonDummy.class);
+		controller.load(DataAddonDummy.class);
 		assertEquals("load", dummy.getSomeString());
 		assertEquals("load", dummy1.getSomeString());
 	}
 
 	@Test
 	void checkLookup() {
-		controller.lookup(new RegistrableDummyLookup());
-		controller.load(RegistrableDummy.class);
-		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		controller.lookup(new DataAddonDummyLookup());
+		controller.load(DataAddonDummy.class);
+		DataAddonDummy dummy = holder.getHeld(DataAddonDummy.class).stream().findFirst().get();
 		assertEquals("native1", dummy.getSomeNativeStringData());
 		assertEquals("load", dummy.getSomeString());
 	}
 
 	@Test
 	void checkLookupAndLoad() {
-		controller.lookupAndLoad(new RegistrableDummyLookup());
-		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		controller.lookupAndLoad(new DataAddonDummyLookup());
+		DataAddonDummy dummy = holder.getHeld(DataAddonDummy.class).stream().findFirst().get();
 		assertEquals("native1", dummy.getSomeNativeStringData());
 		assertEquals("load", dummy.getSomeString());
 	}
 
 	@Test
 	void checkLookupClass() {
-		controller.lookup(RegistrableDummy.class);
-		controller.load(RegistrableDummy.class);
-		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		controller.lookup(DataAddonDummy.class);
+		controller.load(DataAddonDummy.class);
+		DataAddonDummy dummy = holder.getHeld(DataAddonDummy.class).stream().findFirst().get();
 		assertEquals("native1", dummy.getSomeNativeStringData());
 		assertEquals("load", dummy.getSomeString());
 	}
 
 	@Test
 	void checkLookupAndLoadClass() {
-		controller.lookupAndLoad(RegistrableDummy.class);
-		RegistrableDummy dummy = holder.getHeld(RegistrableDummy.class).stream().findFirst().get();
+		controller.lookupAndLoad(DataAddonDummy.class);
+		DataAddonDummy dummy = holder.getHeld(DataAddonDummy.class).stream().findFirst().get();
 		assertEquals("native1", dummy.getSomeNativeStringData());
 		assertEquals("load", dummy.getSomeString());
 	}
