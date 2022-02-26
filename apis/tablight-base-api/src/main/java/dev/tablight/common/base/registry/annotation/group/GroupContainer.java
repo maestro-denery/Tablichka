@@ -12,6 +12,9 @@ import dev.tablight.common.base.registry.annotation.DataAddon;
 import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.common.base.registry.storeload.StoreLoadController;
 
+/**
+ * Container containing group tags and classes with their instances, it is needed only for {@link dev.tablight.common.base.registry.DataAddonBootstrap}
+ */
 public class GroupContainer {
 	public final Map<String, Class<?>> implementations = new HashMap<>();
 	public final Map<String, Class<? extends TypeRegistry>> typeRegistries = new HashMap<>();

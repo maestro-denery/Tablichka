@@ -1,12 +1,12 @@
 package dev.tablight.common.base.registry.storeload;
 
-import dev.tablight.common.base.registry.Registrable;
+import dev.tablight.common.base.registry.annotation.DataAddon;
 import dev.tablight.common.base.registry.holder.TypeHolder;
 
 import java.util.Collection;
 
 /**
- * Controller of "store load" mechanism of Registrables.
+ * Controller of "store load" mechanism of {@link DataAddon} instances.
  * <p>
  * Definitions: in our "custom" Registrable type we have two types of data:
  * "custom" and "native".
@@ -45,14 +45,14 @@ public abstract class StoreLoadController {
 	public abstract <T, N> void lookup(StoreLoadLookup<T, N> lookup);
 
 	/**
-	 * Does lookup process by specified {@link Registrable}.
-	 * @param registrableType {@link Registrable} you want to do lookup.
-	 * @param <T> exact {@link Registrable} type.
+	 * Does lookup process by specified {@link DataAddon#lookup()}.
+	 * @param registrableType {@link DataAddon} you want to do lookup.
+	 * @param <T> exact {@link DataAddon} type.
 	 */
 	public abstract <T> void lookup(Class<T> registrableType);
 
 	/**
-	 * Same as {@link #lookup(StoreLoadLookup)} but also loads all given registrables.
+	 * Same as {@link #lookup(StoreLoadLookup)} but also loads all given DataAddons.
 	 * @param lookup lookup process to occur.
 	 * @param <T> type of registrable in this lookup.
 	 * @param <N> native type.
@@ -60,8 +60,8 @@ public abstract class StoreLoadController {
 	public abstract <T, N> void lookupAndLoad(StoreLoadLookup<T, N> lookup);
 
 	/**
-	 * Same as {@link #lookup(Class)} )} but also loads all given registrables.
-	 * @param registrableType {@link Registrable} you want to do lookup.
+	 * Same as {@link #lookup(Class)} but also loads all given DataAddons.
+	 * @param registrableType {@link DataAddon} you want to do lookup.
 	 * @param <T> type of registrable in this lookup.
 	 */
 	public abstract <T> void lookupAndLoad(Class<T> registrableType);

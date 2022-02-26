@@ -4,17 +4,17 @@ import java.util.Collection;
 
 import com.lmax.disruptor.EventHandler;
 
-import dev.tablight.common.base.registry.Registrable;
 import dev.tablight.common.base.registry.TypeRegistry;
+import dev.tablight.common.base.registry.annotation.DataAddon;
 
 /**
  * Class "holding" instances of {@link TypeRegistry},
- * it is needed when you need to handle your "custom" types, for example
+ * it is needed when you need to handle your "custom" types marked with {@link DataAddon}.
  */
 public abstract class TypeHolder {
 
 	/**
-	 * "Holds" your {@link Registrable} instance until {@link #release(Class)}  or {@link #clearHeld()}.
+	 * "Holds" your {@link DataAddon} instance until {@link #release(Class)} or {@link #clearHeld()}.
 	 * After that you can get collection of this type instances using {@link #getHeld(Class)}.
 	 * @param instance Instance you want to hold.
 	 * @param <T> Type of Instance you want to hold.
@@ -22,16 +22,16 @@ public abstract class TypeHolder {
 	public abstract <T> void hold(T instance);
 
 	/**
-	 * Removes your {@link Registrable} from holding in this holder.
+	 * Removes your {@link DataAddon} from holding in this holder.
 	 * @param instance Instance you want to release.
 	 * @param <T> Type of instance you want to release.
 	 */
 	public abstract <T> void release(T instance);
 
 	/**
-	 * Removes your {@link Registrable} type from holding in this holder.
+	 * Removes your {@link DataAddon} type from holding in this holder.
 	 * @param registrableType type of Instance you want to release.
-	 * @param <T> Type of instance toy want to release.
+	 * @param <T> Type of instance you want to release.
 	 */
 	public abstract <T> void release(Class<T> registrableType);
 
@@ -43,24 +43,24 @@ public abstract class TypeHolder {
 
 	/**
 	 * Checks if this holder contains the following instance.
-	 * @param registrable {@link Registrable} instance you want to check.
-	 * @param <T> exact type.
+	 * @param registrable {@link DataAddon} instance you want to check.
+	 * @param <T> Exact type of {@link DataAddon}
 	 * @return true if holder contains this instance.
 	 */
 	public abstract <T> boolean containsInstance(T registrable);
 
 	/**
 	 * Obtains all elements of type you want held by this holder.
-	 * @param registrableType {@link Registrable} Class of Instances you want to get.
-	 * @param <T> Exact type of registrable.
+	 * @param registrableType {@link DataAddon} Class of Instances you want to get.
+	 * @param <T> Exact type of {@link DataAddon}.
 	 * @return All instances held by this holder of your specific type.
 	 */
 	public abstract <T> Collection<T> getHeld(Class<T> registrableType);
 
 	/**
 	 * Same as {@link #getHeld(Class)} but get held instances by unique identifier.
-	 * @param identifier unique identifier specified in {@link Registrable#identifier()}
-	 * @param <T> exact type of {@link Registrable}
+	 * @param identifier unique identifier specified in {@link DataAddon#identifier()}
+	 * @param <T> Exact type of {@link DataAddon}
 	 * @return All instances held by this holder of your specific type.
 	 */
 	public abstract <T> Collection<T> getHeld(String identifier);

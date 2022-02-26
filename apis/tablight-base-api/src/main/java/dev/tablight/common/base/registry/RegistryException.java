@@ -1,7 +1,5 @@
 package dev.tablight.common.base.registry;
 
-import dev.tablight.common.base.registry.Registrable;
-
 public final class RegistryException extends RuntimeException {
 	private static final String wentWrong = "Something went wrong while registering type: ";
 	private static final String plsCheck = ", please check if your class matches Registrable requirements.";

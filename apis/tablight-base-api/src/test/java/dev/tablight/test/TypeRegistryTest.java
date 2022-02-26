@@ -18,16 +18,16 @@ public class TypeRegistryTest {
 	
 	@BeforeEach
 	void before() {
-		dataAddonBootstrap.setRepository(new GroupContainer());
+		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
 		dataAddonBootstrap.bootstrapImplementations("dev.tablight.test.dummies");
-		registry = dataAddonBootstrap.getRepository().getInstance(DummyTypeRegistry.class);
+		registry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
 	}
 
 	@AfterEach
 	void after() {
 		registry.clearRegistry();
-		dataAddonBootstrap.getRepository().clearAll();
+		dataAddonBootstrap.getContainer().clearAll();
 		registry = null;
 	}
 

@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import dev.tablight.test.registries.DummyHolder;
+import dev.tablight.test.registries.DummyTypeRegistry;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,16 +24,16 @@ public class RegistrableHolderTest {
 
 	@BeforeEach
 	void before() {
-		dataAddonBootstrap.setRepository(new GroupContainer());
+		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
 		dataAddonBootstrap.bootstrapImplementations("dev.tablight.test.dummies");
-		typeRegistry = dataAddonBootstrap.getTypeRegistry();
-		holder = dataAddonBootstrap.getTypeHolder();
+		typeRegistry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
+		holder = dataAddonBootstrap.getTypeHolder(DummyHolder.class);
 	}
 
 	@AfterEach
 	void after() {
-		dataAddonBootstrap.getRepository().clearAll();
+		dataAddonBootstrap.getContainer().clearAll();
 	}
 
 	@Test

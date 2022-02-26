@@ -1,7 +1,5 @@
 package dev.tablight.common.base.registry.holder;
 
-import dev.tablight.common.base.registry.Registrable;
-
 import java.util.Collection;
 
 public final class HolderEvent {

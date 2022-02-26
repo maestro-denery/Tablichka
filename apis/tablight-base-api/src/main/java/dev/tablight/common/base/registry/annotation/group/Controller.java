@@ -5,8 +5,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Mark your class extending {@link dev.tablight.common.base.registry.storeload.StoreLoadController} to use it other infrastructure. 
+ * @see dev.tablight.common.base.registry.DataAddonBootstrap
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Controller {
+	/**
+	 * @return Unique group tag, needs to mark relation between all other infrastructure.
+	 */
 	String value();
 }

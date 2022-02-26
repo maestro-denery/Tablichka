@@ -13,6 +13,9 @@ import dev.tablight.common.base.registry.annotation.group.Registry;
 import dev.tablight.common.base.registry.holder.TypeHolder;
 import dev.tablight.common.base.registry.storeload.StoreLoadController;
 
+/**
+ * Internal Utilities for handling annotations, regular user shouldn't touch it.
+ */
 public final class AnnotationUtil {
 	public static void connectGroupsInRepoByTag(String tag, GroupContainer repository) {
 		List<? extends TypeRegistry> registries = repository.typeRegistries.values().stream()

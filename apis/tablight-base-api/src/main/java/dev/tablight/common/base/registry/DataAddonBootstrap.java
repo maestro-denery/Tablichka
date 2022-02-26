@@ -16,16 +16,20 @@ import dev.tablight.common.base.registry.storeload.StoreLoadController;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class DataAddonBootstrap {
-	public GroupContainer repository;
+	public GroupContainer container;
 
-	public void setRepository(GroupContainer repository) {
-		this.repository = repository;
+	public void setContainer(GroupContainer container) {
+		this.container = container;
 	}
 
-	public GroupContainer getRepository() {
-		return repository;
+	public GroupContainer getContainer() {
+		return container;
 	}
 
+	/**
+	 * Configures {@link TypeRegistry}, {@link TypeHolder}, {@link StoreLoadController} and other infrastructure in the package.
+	 * @param packageName package containing registries.
+	 */
 	public void bootstrapRegistries(String packageName) {
 		try {
 			List<? extends Class<?>> classesInPackage = ClassPath.from(ClassLoader.getSystemClassLoader())
@@ -37,29 +41,34 @@ public final class DataAddonBootstrap {
 			
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Registry.class))
-					.forEach(clazz -> repository.registerTypeRegistry((Class<? extends TypeRegistry>) clazz));
+					.forEach(clazz -> container.registerTypeRegistry((Class<? extends TypeRegistry>) clazz));
 
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Holder.class))
-					.forEach(clazz -> repository.registerHolder((Class<? extends TypeHolder>) clazz));
+					.forEach(clazz -> container.registerHolder((Class<? extends TypeHolder>) clazz));
 
 			classesInPackage.stream()
 					.filter(clazz -> clazz.isAnnotationPresent(Controller.class))
-					.forEach(clazz -> repository.registerController((Class<? extends StoreLoadController>) clazz));
+					.forEach(clazz -> container.registerController((Class<? extends StoreLoadController>) clazz));
 			
 			classesInPackage.stream().forEach(clazz -> {
 				if (clazz.isAnnotationPresent(Registry.class)) 
-					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Registry.class).value(), repository);
+					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Registry.class).value(), container);
 				else if (clazz.isAnnotationPresent(Holder.class))
-					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Holder.class).value(), repository);
+					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Holder.class).value(), container);
 				else if (clazz.isAnnotationPresent(Controller.class))
-					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Controller.class).value(), repository);
+					AnnotationUtil.connectGroupsInRepoByTag(clazz.getDeclaredAnnotation(Controller.class).value(), container);
 			});
 		} catch (IOException e) {
 			throw new RuntimeException("Something went wrong while bootstrapping Registries.");
 		}
 	}
 
+	/**
+	 * Configures {@link DataAddon} implementation and connects it with already existing infrastructure
+	 * configured with {@link #bootstrapRegistries(String)} and contained in {@link #container}
+	 * @param packageName package containing DataAddons.
+	 */
 	public void bootstrapImplementations(String packageName) {
 		try {
 			List<? extends Class<?>> implClasses = ClassPath.from(ClassLoader.getSystemClassLoader())
@@ -70,37 +79,31 @@ public final class DataAddonBootstrap {
 					.filter(clazz -> clazz.isAnnotationPresent(DataAddon.class))
 					.toList();
 			
-			implClasses.forEach(repository::registerImplementation);
-			implClasses.forEach(clazz -> AnnotationUtil.connectImplByTag(clazz.getAnnotation(DataAddon.class).groupTag(), repository));
+			implClasses.forEach(container::registerImplementation);
+			implClasses.forEach(clazz -> AnnotationUtil.connectImplByTag(clazz.getAnnotation(DataAddon.class).groupTag(), container));
 		} catch (IOException e) {
 			throw new RuntimeException("Something went wrong while bootstrapping Registries.");
 		}
 	}
 
-	public TypeRegistry getTypeRegistry() {
-		if (repository.typeRegistries.values().size() == 1) {
-			return repository.data.values().stream().filter(obj -> obj instanceof TypeRegistry).map(obj -> ((TypeRegistry) obj)).findFirst()
-					.orElseThrow(() -> new RuntimeException("Something really went wrong"));
-		} else {
-			throw new RegistryException("You have multiple holders registered!");
-		}
-	}
-	
-	public TypeHolder getTypeHolder() {
-		if (repository.holders.values().size() == 1) {
-			return repository.data.values().stream().filter(obj -> obj instanceof TypeHolder).map(obj -> ((TypeHolder) obj)).findFirst()
-					.orElseThrow(() -> new RuntimeException("Something really went wrong"));
-		} else {
-			throw new RegistryException("You have multiple holders registered!");
-		}
+	/**
+	 * @return registry instance contained in {@link #container} by its class.
+	 */
+	public <T extends TypeRegistry> T getTypeRegistry(Class<T> clazz) {
+		return (T) container.data.get(clazz);
 	}
 
-	public StoreLoadController getStoreLoadController() {
-		if (repository.controllers.values().size() == 1) {
-			return repository.data.values().stream().filter(obj -> obj instanceof StoreLoadController).map(obj -> ((StoreLoadController) obj)).findFirst()
-					.orElseThrow(() -> new RuntimeException("Something really went wrong"));
-		} else {
-			throw new RegistryException("You have multiple holders registered!");
-		}
+	/**
+	 * @return registry instance contained in {@link #container} by its class.
+	 */
+	public <T extends TypeHolder> T getTypeHolder(Class<T> clazz) {
+		return (T) container.data.get(clazz);
+	}
+
+	/**
+	 * @return registry instance contained in {@link #container} by its class.
+	 */
+	public <T extends StoreLoadController> T getStoreLoadController(Class<T> clazz) {
+		return (T) container.data.get(clazz);
 	}
 }
