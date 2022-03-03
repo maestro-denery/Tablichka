@@ -2,6 +2,7 @@ package dev.tablight.common.base.dataaddon;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.reflect.ClassPath;
 
@@ -70,6 +71,16 @@ public final class DataAddonBootstrap {
 	 * @param packageName package containing DataAddons.
 	 */
 	public void bootstrapDataAddons(String packageName) {
+		bootstrapDataAddons(packageName, clazz -> {});
+	}
+
+	/**
+	 * Configures {@link DataAddon} implementation and connects it with already existing infrastructure with specified processor
+	 * configured with {@link #bootstrapRegistries(String)} and contained in {@link #container}
+	 * @param packageName package containing DataAddons.
+	 * @param processor processor running at configuration of each class.
+	 */
+	public void bootstrapDataAddons(String packageName, Consumer<? super Class<?>> processor) {
 		try {
 			List<? extends Class<?>> implClasses = ClassPath.from(ClassLoader.getSystemClassLoader())
 					.getAllClasses()
@@ -78,9 +89,12 @@ public final class DataAddonBootstrap {
 					.map(ClassPath.ClassInfo::load)
 					.filter(clazz -> clazz.isAnnotationPresent(DataAddon.class))
 					.toList();
-			
+
 			implClasses.forEach(container::registerImplementation);
-			implClasses.forEach(clazz -> AnnotationUtil.connectImplByTag(clazz.getAnnotation(DataAddon.class).groupTag(), container));
+			implClasses.forEach(clazz -> {
+				processor.accept(clazz);
+				AnnotationUtil.connectImplByTag(clazz.getAnnotation(DataAddon.class).groupTag(), container);
+			});
 		} catch (IOException e) {
 			throw new RegistryException("Something went wrong while bootstrapping Registries.");
 		}
@@ -89,21 +103,12 @@ public final class DataAddonBootstrap {
 	/**
 	 * @return registry instance contained in {@link #container} by its class.
 	 */
-	public <T extends TypeRegistry> T getTypeRegistry(Class<T> clazz) {
+	public <T> T getRegistry(Class<T> clazz) {
 		return (T) container.data.get(clazz);
 	}
 
-	/**
-	 * @return registry instance contained in {@link #container} by its class.
-	 */
-	public <T extends TypeHolder> T getTypeHolder(Class<T> clazz) {
-		return (T) container.data.get(clazz);
-	}
-
-	/**
-	 * @return registry instance contained in {@link #container} by its class.
-	 */
-	public <T extends StoreLoadController> T getStoreLoadController(Class<T> clazz) {
-		return (T) container.data.get(clazz);
+	public <T> String getIdentifier(Class<T> clazz) {
+		if (!container.implementations.values().contains(clazz)) throw new RegistryException("This DataAddon doesn't registered in this bootstrap!");
+		return clazz.getAnnotation(DataAddon.class).identifier();
 	}
 }

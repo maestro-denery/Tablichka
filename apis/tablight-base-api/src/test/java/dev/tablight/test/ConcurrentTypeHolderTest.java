@@ -26,8 +26,8 @@ class ConcurrentTypeHolderTest {
 		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
 		dataAddonBootstrap.bootstrapDataAddons("dev.tablight.test.dummies");
-		typeRegistry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
-		holder = dataAddonBootstrap.getTypeHolder(DummyHolder.class);
+		typeRegistry = dataAddonBootstrap.getRegistry(DummyTypeRegistry.class);
+		holder = dataAddonBootstrap.getRegistry(DummyHolder.class);
 	}
 
 	@AfterEach

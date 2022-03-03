@@ -24,8 +24,8 @@ class BootstrapTest {
 		bootstrap.setContainer(container);
 		bootstrap.bootstrapRegistries("dev.tablight.test.registries");
 		bootstrap.bootstrapDataAddons("dev.tablight.test.dummies");
-		bootstrap.getStoreLoadController(DummyController.class).lookupAndLoad(DataAddonDummy.class);
-		bootstrap.getTypeHolder(DummyHolder.class).getHeld(DataAddonDummy.class).forEach(regDummy -> {});
+		bootstrap.getRegistry(DummyController.class).lookupAndLoad(DataAddonDummy.class);
+		bootstrap.getRegistry(DummyHolder.class).getHeld(DataAddonDummy.class).forEach(regDummy -> {});
 	}
 
 	@AfterEach
@@ -36,16 +36,16 @@ class BootstrapTest {
 
 	@Test
 	void checkTypeRegistryInstance() {
-		assertNotNull(bootstrap.getTypeRegistry(DummyTypeRegistry.class));
+		assertNotNull(bootstrap.getRegistry(DummyTypeRegistry.class));
 	}
 
 	@Test
 	void checkTypeHolderInstance() {
-		assertNotNull(bootstrap.getTypeHolder(DummyHolder.class));
+		assertNotNull(bootstrap.getRegistry(DummyHolder.class));
 	}
 
 	@Test
 	void checkStoreLoadControllerInstance() {
-		assertNotNull(bootstrap.getStoreLoadController(DummyController.class));
+		assertNotNull(bootstrap.getRegistry(DummyController.class));
 	}
 }

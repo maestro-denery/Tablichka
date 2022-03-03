@@ -21,7 +21,7 @@ class DefaultTypeRegistryTest {
 		dataAddonBootstrap.setContainer(new GroupContainer());
 		dataAddonBootstrap.bootstrapRegistries("dev.tablight.test.registries");
 		dataAddonBootstrap.bootstrapDataAddons("dev.tablight.test.dummies");
-		registry = dataAddonBootstrap.getTypeRegistry(DummyTypeRegistry.class);
+		registry = dataAddonBootstrap.getRegistry(DummyTypeRegistry.class);
 	}
 
 	@AfterEach

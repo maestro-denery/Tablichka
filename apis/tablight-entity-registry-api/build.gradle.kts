@@ -1,6 +1,7 @@
 dependencies {
     compileOnly(project(":tablight-base-api"))
     compileOnly(project(":misc-lib"))
+    compileOnly(project(":tablight-llapi"))
 }
 
 bukkit {

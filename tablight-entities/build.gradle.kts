@@ -3,6 +3,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 dependencies {
     compileOnly(project(":misc-lib"))
     compileOnly(project(":tablight-entity-registry-api"))
+    compileOnly(project(":tablight-base-api"))
 }
 
 bukkit {
@@ -12,7 +13,7 @@ bukkit {
     apiVersion = "1.17"
     description = "Plugin adding Entities for TabLight"
     authors = listOf("Denery")
-    depend = listOf("misc-lib", "tablight-entity-registry-api")
+    depend = listOf("misc-lib", "tablight-entity-registry-api", "tablight-base-api")
     commands {
         register("tl-entities") {
             description = "Spawn entity if its ID is registered in EntityRegistryLib"
