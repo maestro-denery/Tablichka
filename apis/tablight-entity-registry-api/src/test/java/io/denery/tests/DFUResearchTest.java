@@ -42,4 +42,9 @@ class DFUResearchTest {
 			this.i = i;
 		}
 	}
+
+	@Test
+	void regexCheck() {
+		System.out.println("1.18.1".replace('.', '_').replaceAll("_.$", "_R"));
+	}
 }

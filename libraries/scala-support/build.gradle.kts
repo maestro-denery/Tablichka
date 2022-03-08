@@ -10,6 +10,6 @@ bukkit {
     version = "a1.0"
     description = "Plugin adding support for scala plugins via shading scala standard library."
     main = "org.foton.scalasupport.ScalaLauncher"
-    apiVersion = "1.17"
+    apiVersion = "1.18"
     authors = listOf("Denery")
 }

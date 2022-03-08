@@ -120,12 +120,12 @@ out-plugins/
 !run/eula.txt
 !run/plugins/
 run/plugins/*
-!run/plugins/item-nbt-api-plugin-2.8.0.jar
+!run/plugins/saved/item-nbt-api-plugin-2.8.0.jar
 !run/plugins/saved/ItemsAdder.jar
 !run/plugins/saved/LoneLibs.jar
 !run/plugins/saved/Model-Engine-r2.2.0.jar
 !run/plugins/ProtocolLib.jar
-!run/plugins/ScreenEffects.jar
+!run/plugins/saved/ScreenEffects.jar
 
 !run/plugins/ModelEngine/
 run/plugins/ModelEngine/*

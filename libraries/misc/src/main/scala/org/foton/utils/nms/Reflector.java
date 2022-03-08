@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
-@Deprecated(forRemoval = true) 
+@Deprecated(forRemoval = true)
 // There are better ways to do NMS reflection accesses,
 // and we are not planning to do support for older minecraft versions.
 public class Reflector {

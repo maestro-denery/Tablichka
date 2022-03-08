@@ -1,5 +1,6 @@
 package org.foton.utils.nms;
 
+@Deprecated(forRemoval = true)
 public class Reflector_1_17 extends Reflector {
     public Reflector_1_17() throws ClassNotFoundException {
         this.CraftItemStack = Class.forName("org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack");

@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+@Deprecated(forRemoval = true)
 public class MinecraftVersion {
     public static final VersionEnum VERSION;
 

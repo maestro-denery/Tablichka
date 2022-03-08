@@ -10,7 +10,7 @@ dependencies {
 bukkit {
     name = "waystones"
     main = "com.danikvitek.waystones.WayStonesPlugin"
-    apiVersion = "1.17"
+    apiVersion = "1.18"
     depend = listOf("ItemsAdder", "ProtocolLib", "scala-support-lib", "misc-lib")
     authors = listOf("Danik_Vitek")
     description = """This plugin lets players to create waystones. 

@@ -5,18 +5,16 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 import dev.tablight.common.api.entityregistry.EntityAccessors;
+import dev.tablight.common.api.llapi.SpawnerAccessors;
 import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
 import dev.tablight.common.base.dataaddon.annotation.DataAddon;
-import dev.tablight.common.base.global.GlobalGroupContainer;
+import dev.tablight.common.base.dataaddon.GlobalGroupContainer;
 import dev.tablight.entities.commands.EntitiesCommand;
-
-import dev.tablight.entities.spawner.SomeCustomSpawner;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
@@ -39,17 +37,14 @@ public final class EntitiesPlugin extends JavaPlugin {
 	public void onEnable() {
 		logger.info("Enabling Tablight Entities plugin...");
 
-		final EntityAccessors entityAccessors = EntityAccessors.getInstance();
+		final SpawnerAccessors spawnerAccessors = SpawnerAccessors.getInstance();
+		
 		bootstrap.setContainer(GlobalGroupContainer.getInstance());
 		bootstrap.bootstrapRegistries("dev.tablight.entities.registries");
 		bootstrap.bootstrapDataAddons("dev.tablight.entities.impls", clazz -> {
-			Class<? extends Entity> nativeClass = (Class<? extends Entity>) clazz.getAnnotation(DataAddon.class).nativeClass();
-			accessors.put(nativeClass, entityAccessors.defineID(
-					nativeClass,
-					EntityDataSerializers.COMPOUND_TAG
-			));
+			
 		});
-		entityAccessors.addCustomSpawner(Bukkit.getWorld("world"), new SomeCustomSpawner());
+		//spawnerAccessors.addCustomSpawner(Bukkit.getWorld("world"), new LochnessMonsterSpawner());
 
 		this.getCommand("tl-entities").setExecutor(new EntitiesCommand());
 	}
