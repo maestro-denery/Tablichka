@@ -1,20 +1,17 @@
 package dev.tablight.entities.registries;
 
 import com.google.common.collect.BiMap;
-
-import dev.tablight.common.api.entityregistry.EntityAccessors;
-import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
-import dev.tablight.common.base.dataaddon.annotation.DataAddon;
-import dev.tablight.common.base.dataaddon.typeregistry.DefaultTypeRegistry;
-import dev.tablight.common.base.dataaddon.annotation.group.Registry;
-
-import dev.tablight.entities.EntitiesPlugin;
+import org.bukkit.entity.Entity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 
-import org.bukkit.entity.Entity;
+import dev.tablight.common.api.entityregistry.EntityAccessors;
+import dev.tablight.dataaddon.DataAddonBootstrap;
+import dev.tablight.dataaddon.annotation.group.Registry;
+import dev.tablight.dataaddon.typeregistry.DefaultTypeRegistry;
+import dev.tablight.entities.EntitiesPlugin;
 
 @Registry("entities-group")
 public class EntityTypeRegistry extends DefaultTypeRegistry {

@@ -6,8 +6,8 @@ import org.bukkit.Bukkit;
 
 import net.minecraft.world.entity.Entity;
 
-import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
-import dev.tablight.common.base.dataaddon.storeload.StoreLoadLookup;
+import dev.tablight.dataaddon.DataAddonBootstrap;
+import dev.tablight.dataaddon.storeload.StoreLoadLookup;
 import dev.tablight.entities.EntitiesPlugin;
 
 public abstract class LivingEntityLookup<T, N> implements StoreLoadLookup<T, N> {

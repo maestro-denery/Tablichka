@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
 
-import dev.tablight.common.base.dataaddon.storeload.StoreLoadLookup;
+import dev.tablight.dataaddon.storeload.StoreLoadLookup;
 
 public class DataAddonDummyLookup implements StoreLoadLookup<DataAddonDummy, DataAddonDummyLookup.NativeDummy> {
 

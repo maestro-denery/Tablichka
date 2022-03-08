@@ -1,6 +1,6 @@
 package dev.tablight.entities.impls.monster;
 
-import dev.tablight.common.base.dataaddon.annotation.DataAddon;
+import dev.tablight.dataaddon.annotation.DataAddon;
 
 import dev.tablight.entities.lookups.monster.LochnessMonsterLookup;
 

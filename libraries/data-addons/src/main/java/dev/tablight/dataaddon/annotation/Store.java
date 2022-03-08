@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.tablight.common.base.dataaddon.annotation;
+package dev.tablight.dataaddon.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

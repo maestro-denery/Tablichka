@@ -6,9 +6,9 @@ import com.google.common.collect.HashBiMap;
 
 import dev.tablight.common.api.entityregistry.EntityAccessors;
 import dev.tablight.common.api.llapi.SpawnerAccessors;
-import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
-import dev.tablight.common.base.dataaddon.annotation.DataAddon;
-import dev.tablight.common.base.dataaddon.GlobalGroupContainer;
+import dev.tablight.dataaddon.DataAddonBootstrap;
+import dev.tablight.dataaddon.annotation.DataAddon;
+import dev.tablight.dataaddon.GlobalGroupContainer;
 import dev.tablight.entities.commands.EntitiesCommand;
 
 import net.minecraft.nbt.CompoundTag;

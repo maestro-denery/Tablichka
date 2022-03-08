@@ -11,11 +11,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import dev.tablight.common.base.dataaddon.DataAddonBootstrap;
-import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
-import dev.tablight.common.base.dataaddon.holder.TypeHolder;
-import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
-import dev.tablight.common.base.dataaddon.typeregistry.TypeRegistry;
+import dev.tablight.dataaddon.DataAddonBootstrap;
+import dev.tablight.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.dataaddon.holder.TypeHolder;
+import dev.tablight.dataaddon.storeload.StoreLoadController;
+import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 import dev.tablight.test.dummies.DataAddonDummy;
 import dev.tablight.test.dummies.DataAddonDummyLookup;
 import dev.tablight.test.registries.DummyHolder;

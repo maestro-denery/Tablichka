@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.tablight.common.base.dataaddon.holder;
+package dev.tablight.dataaddon.holder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,11 +18,12 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.lmax.disruptor.util.DaemonThreadFactory;
 
-import dev.tablight.common.base.dataaddon.RegistryException;
-import dev.tablight.common.base.dataaddon.typeregistry.TypeRegistry;
+import dev.tablight.dataaddon.RegistryException;
+import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 
 public class ConcurrentTypeHolder extends TypeHolder {
 	protected boolean running = false;
+
 	protected Disruptor<HolderEvent> disruptor;
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
 	protected final Multimap<Class<?>, Object> instances =

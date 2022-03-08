@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.tablight.common.base.dataaddon;
+package dev.tablight.dataaddon;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,15 +12,15 @@ import java.util.function.Consumer;
 
 import com.google.common.reflect.ClassPath;
 
-import dev.tablight.common.base.dataaddon.annotation.AnnotationUtil;
-import dev.tablight.common.base.dataaddon.annotation.DataAddon;
-import dev.tablight.common.base.dataaddon.annotation.group.Controller;
-import dev.tablight.common.base.dataaddon.annotation.group.GroupContainer;
-import dev.tablight.common.base.dataaddon.annotation.group.Holder;
-import dev.tablight.common.base.dataaddon.annotation.group.Registry;
-import dev.tablight.common.base.dataaddon.holder.TypeHolder;
-import dev.tablight.common.base.dataaddon.storeload.StoreLoadController;
-import dev.tablight.common.base.dataaddon.typeregistry.TypeRegistry;
+import dev.tablight.dataaddon.annotation.AnnotationUtil;
+import dev.tablight.dataaddon.annotation.DataAddon;
+import dev.tablight.dataaddon.annotation.group.Controller;
+import dev.tablight.dataaddon.annotation.group.GroupContainer;
+import dev.tablight.dataaddon.annotation.group.Holder;
+import dev.tablight.dataaddon.annotation.group.Registry;
+import dev.tablight.dataaddon.holder.TypeHolder;
+import dev.tablight.dataaddon.storeload.StoreLoadController;
+import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 
 public final class DataAddonBootstrap {
 	private GroupContainer container;
