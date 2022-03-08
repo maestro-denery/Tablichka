@@ -8,7 +8,8 @@ package dev.tablight.dataaddon.holder;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -17,28 +18,23 @@ import com.lmax.disruptor.EventHandler;
 import dev.tablight.dataaddon.RegistryException;
 import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 
-public class ConcurrentTypeHolder extends TypeHolder {
+public class DefaultTypeHolder extends TypeHolder {
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
 	protected final Multimap<Class<?>, Object> instances =
-			Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
-
+			Multimaps.newMultimap(new HashMap<>(), HashSet::new);
+	
 	@Override
 	public <T> void hold(T instance) {
-		final Class<?> clazz = instance.getClass();
-		checkRegistered(clazz);
-		instances.put(clazz, instance);
-	}
-
-	@Override
-	public void addTypeRegistry(TypeRegistry typeRegistry) {
-		typeRegistries.add(typeRegistry);
+		Class<?> instanceClass = instance.getClass();
+		checkRegistered(instanceClass);
+		instances.put(instanceClass, instance);
 	}
 
 	@Override
 	public <T> void release(T instance) {
-		final Class<?> clazz = instance.getClass();
-		checkRegistered(clazz);
-		instances.remove(clazz, instance);
+		Class<?> instanceClass = instance.getClass();
+		checkRegistered(instanceClass);
+		instances.remove(instanceClass, instance);
 	}
 
 	@Override
@@ -48,18 +44,13 @@ public class ConcurrentTypeHolder extends TypeHolder {
 	}
 
 	@Override
-	public Collection<TypeRegistry> getTypeRegistries() {
-		return typeRegistries;
-	}
-
-	@Override
 	public void release(String identifier) {
 		release(getClassByID(identifier));
 	}
 
 	@Override
-	public void clearHeld() {
-		instances.clear();
+	public <T> boolean containsInstance(T registrable) {
+		return instances.containsValue(registrable);
 	}
 
 	@Override
@@ -85,12 +76,22 @@ public class ConcurrentTypeHolder extends TypeHolder {
 	}
 
 	@Override
-	public <T> boolean containsInstance(T registrable) {
-		return instances.containsValue(registrable);
+	public void addTypeRegistry(TypeRegistry typeRegistry) {
+		typeRegistries.add(typeRegistry);
+	}
+
+	@Override
+	public Collection<TypeRegistry> getTypeRegistries() {
+		return typeRegistries;
+	}
+
+	@Override
+	public void clearHeld() {
+		instances.clear();
 	}
 
 	// Implementation details methods.
-	
+
 	public Multimap<Class<?>, Object> getInternalMap() {
 		return instances;
 	}

@@ -15,15 +15,15 @@ import org.junit.jupiter.api.Test;
 
 import dev.tablight.dataaddon.DataAddonBootstrap;
 import dev.tablight.dataaddon.annotation.group.GroupContainer;
-import dev.tablight.dataaddon.holder.ConcurrentTypeHolder;
+import dev.tablight.dataaddon.holder.eventsourcing.ConcurrentEventTypeHolder;
 import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 import dev.tablight.test.dummies.DataAddonDummy;
 import dev.tablight.test.registries.DummyHolder;
 import dev.tablight.test.registries.DummyTypeRegistry;
 
-class ConcurrentTypeHolderTest {
+class TypeHolderTest {
 	DataAddonBootstrap dataAddonBootstrap = new DataAddonBootstrap();
-	ConcurrentTypeHolder holder;
+	ConcurrentEventTypeHolder holder;
 	TypeRegistry typeRegistry;
 
 	@BeforeEach

@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.tablight.dataaddon.holder;
+package dev.tablight.dataaddon.holder.eventsourcing;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,12 +12,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 
 import dev.tablight.dataaddon.RegistryException;
+import dev.tablight.dataaddon.holder.HolderEvent;
+import dev.tablight.dataaddon.holder.TypeHolder;
 import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 
-public class ConcurrentTypeHolder extends TypeHolder {
+public class ConcurrentEventTypeHolder extends TypeHolder {
+	protected boolean running = false;
+	protected Disruptor<HolderEvent> disruptor;
 	protected final Collection<TypeRegistry> typeRegistries = new ArrayList<>();
 	protected final Multimap<Class<?>, Object> instances =
 			Multimaps.newMultimap(new ConcurrentHashMap<>(), ConcurrentHashMap::newKeySet);
@@ -27,6 +35,8 @@ public class ConcurrentTypeHolder extends TypeHolder {
 		final Class<?> clazz = instance.getClass();
 		checkRegistered(clazz);
 		instances.put(clazz, instance);
+		checkRunning();
+		publishEvent(clazz);
 	}
 
 	@Override
@@ -39,12 +49,16 @@ public class ConcurrentTypeHolder extends TypeHolder {
 		final Class<?> clazz = instance.getClass();
 		checkRegistered(clazz);
 		instances.remove(clazz, instance);
+		checkRunning();
+		publishEvent(clazz);
 	}
 
 	@Override
 	public <T> void release(Class<T> registrableType) {
 		checkRegistered(registrableType);
 		instances.removeAll(registrableType);
+		checkRunning();
+		publishEvent(registrableType);
 	}
 
 	@Override
@@ -76,12 +90,15 @@ public class ConcurrentTypeHolder extends TypeHolder {
 
 	@Override
 	public void handle(EventHandler<? super HolderEvent> handler) {
-		throw new UnsupportedOperationException("This type holder is not event-sourcing, look at dev.tablight.dataaddons.holder.eventsourcing package for them.");
+		checkDisruptorNull();
+		disruptor.handleEventsWith(handler);
 	}
 
 	@Override
 	public void forceStart() {
-		throw new UnsupportedOperationException("This type holder is not event-sourcing, look at dev.tablight.dataaddons.holder.eventsourcing package for them.");
+		running = true;
+		checkDisruptorNull();
+		disruptor.start();
 	}
 
 	@Override
@@ -89,12 +106,20 @@ public class ConcurrentTypeHolder extends TypeHolder {
 		return instances.containsValue(registrable);
 	}
 
-	// Implementation details methods.
+	// Implementation details methods, they're not specified in RegistrableHolder.
 	
+	public boolean isRunning() {
+		return running;
+	}
+	
+	public void shutdownDisruptor() {
+		disruptor.shutdown();
+	}
+
 	public Multimap<Class<?>, Object> getInternalMap() {
 		return instances;
 	}
-
+	
 	// Private checking methods.
 
 	private <T> void checkRegistered(Class<T> tClass) {
@@ -106,5 +131,26 @@ public class ConcurrentTypeHolder extends TypeHolder {
 	private <T> Class<T> getClassByID(String id) {
 		return (Class<T>) typeRegistries.stream()
 				.map(typeRegistry -> typeRegistry.getRegistrableType(id)).findFirst().orElseThrow(() -> new RegistryException("There is no Registrables defined with given Id"));
+	}
+
+	private <T> void publishEvent(Class<T> tClass) {
+		disruptor.publishEvent((event, sequence) -> {
+			event.setRegistrables(instances.get(tClass));
+			event.setRegistrableType(tClass);
+		});
+	}
+
+	private void checkRunning() {
+		if (!running) forceStart();
+	}
+
+	private void checkDisruptorNull() {
+		if (disruptor == null) disruptor = new Disruptor<>(
+				HolderEvent::new,
+				1024,
+				DaemonThreadFactory.INSTANCE,
+				ProducerType.MULTI,
+				new BusySpinWaitStrategy()
+		);
 	}
 }

@@ -6,7 +6,7 @@
 package dev.tablight.test.registries;
 
 import dev.tablight.dataaddon.annotation.group.Holder;
-import dev.tablight.dataaddon.holder.ConcurrentTypeHolder;
+import dev.tablight.dataaddon.holder.eventsourcing.ConcurrentEventTypeHolder;
 
 @Holder("dummyGroup")
-public class DummyHolder extends ConcurrentTypeHolder {}
+public class DummyHolder extends ConcurrentEventTypeHolder {}
