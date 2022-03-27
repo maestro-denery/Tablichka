@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import dev.tablight.dataaddon.annotation.DataAddon;
 import dev.tablight.dataaddon.holder.TypeHolder;
+import dev.tablight.dataaddon.mark.Mark;
 
 /**
  * Controller of "store load" mechanism of {@link DataAddon} instances.
@@ -71,6 +72,15 @@ public abstract class StoreLoadController {
 	 * @param <T> type of registrable in this lookup.
 	 */
 	public abstract <T> void lookupAndLoad(Class<T> registrableType);
+
+	/**
+	 * Obtain Marks by data addon types associated with them.
+	 * @param registrableType {@link DataAddon} you want to obtain its marks.
+	 * @param <T> type of registrable in this lookup.
+	 * @param <N> native type.
+	 * @return mark associated with this Data Addon type.
+	 */
+	public abstract <T, N> Mark<T, N> getMark(Class<T> registrableType);
 
 	/**
 	 * Adds holder to this controller.

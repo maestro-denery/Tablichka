@@ -6,9 +6,9 @@
 
 package dev.tablight.dataaddon.storeload;
 
-import java.util.Collection;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import dev.tablight.dataaddon.mark.Mark;
 
 /**
  * Class looking for native data and returns instantiated DataAddon classes added to a holder.
@@ -16,10 +16,15 @@ import java.util.stream.Stream;
  * @param <N> Native type of DataAddon.
  */
 public interface StoreLoadLookup<T, N> {
+
+	Mark<T, N> mark();
+
 	/**
 	 * @return lazy lookup obtaining instances of DataAddon instances
 	 */
-	Supplier<Collection<T>> lookup();
+	default Stream<T> lookup() {
+		return getNatives().map(n -> mark().convert(n)).filter(t -> mark().matches().test(t));
+	}
 
 	/**
 	 * @return Natives lazy stream matching DataAddon requirements.

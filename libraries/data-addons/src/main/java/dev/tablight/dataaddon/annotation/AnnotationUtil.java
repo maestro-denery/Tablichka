@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import dev.tablight.dataaddon.RegistryException;
-import dev.tablight.dataaddon.annotation.group.Controller;
 import dev.tablight.dataaddon.annotation.group.GroupContainer;
-import dev.tablight.dataaddon.annotation.group.Holder;
 import dev.tablight.dataaddon.annotation.group.Registry;
 import dev.tablight.dataaddon.holder.TypeHolder;
 import dev.tablight.dataaddon.storeload.StoreLoadController;
@@ -25,10 +23,9 @@ import dev.tablight.dataaddon.typeregistry.TypeRegistry;
 public final class AnnotationUtil {
 	private AnnotationUtil() {}
 
-	public static void connectGroupsInRepoByTag(String tag, GroupContainer repository) {
+	public static void connectGroupsInContainer(GroupContainer repository) {
 		final String classRequirements = "Can't create new instance, check class requirements";
 		List<? extends TypeRegistry> registries = repository.typeRegistries.values().stream()
-				.filter(clazz -> clazz.getAnnotation(Registry.class).value().equals(tag))
 				.map(clazz -> {
 					try {
 						TypeRegistry registry = clazz.getDeclaredConstructor().newInstance();
@@ -39,7 +36,6 @@ public final class AnnotationUtil {
 					}
 				}).toList();
 		List<? extends TypeHolder> holders = repository.holders.values().stream()
-				.filter(clazz -> clazz.getAnnotation(Holder.class).value().equals(tag))
 				.map(clazz -> {
 					try {
 						TypeHolder typeHolder = clazz.getDeclaredConstructor().newInstance();
@@ -50,7 +46,6 @@ public final class AnnotationUtil {
 					}
 				}).toList();
 		List<? extends StoreLoadController> controllers = repository.controllers.values().stream()
-				.filter(clazz -> clazz.getAnnotation(Controller.class).value().equals(tag))
 				.map(clazz -> {
 					try {
 						StoreLoadController controller = clazz.getDeclaredConstructor().newInstance();
@@ -65,9 +60,9 @@ public final class AnnotationUtil {
 		controllers.forEach(controller -> holders.forEach(controller::addRegistrableHolder));
 	}
 
-	public static void connectImplByTag(String tag, GroupContainer repository) {
+	public static void connectDataAddons(GroupContainer repository) {
 		repository.data.values().stream().filter(obj -> obj.getClass().isAnnotationPresent(Registry.class) && obj instanceof TypeRegistry)
-				.forEach(obj -> ((TypeRegistry) obj).register(repository.implementations.get(tag)));
+				.forEach(obj -> repository.dataAddons.values().forEach(dataAddon -> ((TypeRegistry) obj).register(dataAddon)));
 	}
 
 	public static void checkAnnotation(Class<?> clazz) {
@@ -97,5 +92,9 @@ public final class AnnotationUtil {
 						throw new RegistryException("Check if your load method has no parameters.");
 					}
 				});
+	}
+
+	public static void invokeNativeData(Object held) {
+
 	}
 }

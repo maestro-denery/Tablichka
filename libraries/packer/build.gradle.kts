@@ -1,8 +1,6 @@
-bukkit {
-    name = "packer"
-    version = "a1.0"
-    description = "Library created for parsing, generating and sending resourcepacks."
-    main = "dev.tablight.packer.base.internal.PackerPlugin"
-    apiVersion = "1.18"
-    authors = listOf("Denery")
+dependencies {
+    implementation("commons-io:commons-io:2.11.0")
+    compileOnly("org.apache.commons:commons-lang3:3.12.0")
+    implementation("com.google.code.gson:gson:2.8.9")
+    compileOnly("com.google.guava:guava:31.0.1-jre")
 }

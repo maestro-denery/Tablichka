@@ -6,26 +6,26 @@
 package dev.tablight.test.dummies;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
 
+import dev.tablight.dataaddon.mark.Mark;
 import dev.tablight.dataaddon.storeload.StoreLoadLookup;
 
 public class DataAddonDummyLookup implements StoreLoadLookup<DataAddonDummy, DataAddonDummyLookup.NativeDummy> {
 
 	private final Collection<NativeDummy> nativeDummiesContainer = Lists.newArrayList(
 			new NativeDummy("native1")
-	); 
-	
+	);
+
 	@Override
-	public Supplier<Collection<DataAddonDummy>> lookup() {
-		return () -> nativeDummiesContainer.stream().map(nativeD -> {
+	public Mark<DataAddonDummy, DataAddonDummyLookup.NativeDummy> mark() {
+		return Mark.create(nativeD -> {
 			var dummy = new DataAddonDummy();
 			dummy.setSomeNativeStringData(nativeD.getSomeNativeString());
 			return dummy;
-		}).toList();
+		}, dummy -> true);
 	}
 
 	@Override

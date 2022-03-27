@@ -2,7 +2,6 @@ package dev.tablight.common.impl.llapi;
 
 import com.google.common.collect.ImmutableList;
 
-import dev.tablight.common.api.llapi.MojangMappingsHelper;
 import dev.tablight.common.api.llapi.SpawnerAccessors;
 
 import dev.tablight.common.api.llapi.VersionedClasses;
@@ -21,7 +20,6 @@ public class SpawnerAccessorsImpl implements SpawnerAccessors {
 	public static final SpawnerAccessorsImpl INSTANCE = new SpawnerAccessorsImpl();
 
 	private static final VersionedClasses VERSIONED_CLASSES = VersionedClasses.getInstance();
-	private static final MojangMappingsHelper mapUtil = MojangMappingsHelper.getInstance();
 
 	private static final VarHandle CUSTOM_SPAWNERS_LIST_VH;
 	private static final VarHandle CRAFT_WORLD_SERVER_LEVEL;
@@ -33,8 +31,7 @@ public class SpawnerAccessorsImpl implements SpawnerAccessors {
 			CUSTOM_SPAWNERS_LIST_VH = MethodHandles.privateLookupIn(ServerLevel.class, MethodHandles.lookup())
 					.findVarHandle(
 							ServerLevel.class,
-							mapUtil.getSpigotField("net/minecraft/server/level/ServerLevel", "customSpawners", "Ljava/lang/List")
-									.getName(MojangMappingsHelper.SPIGOT_NAMESPACE).replace('/', '.'),
+							"Z",
 							List.class
 					);
 		} catch (NoSuchFieldException | IllegalAccessException e) {

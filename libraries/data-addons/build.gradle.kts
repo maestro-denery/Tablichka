@@ -1,7 +1,5 @@
-bukkit {
-    name = "data-addons"
-    main = "io.xxr.dataaddon.DataAddonPlugin"
-    description = "Library adding DataAddons."
-    apiVersion = "1.18"
-    authors = listOf("Denery")
+dependencies {
+    compileOnly("com.google.guava:guava:31.0.1-jre")
+    compileOnly("com.lmax:disruptor:3.4.4")
+    testImplementation("com.lmax:disruptor:3.4.4")
 }

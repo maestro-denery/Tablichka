@@ -8,14 +8,21 @@ package dev.tablight.dataaddon.storeload;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Stream;
+
+import com.google.common.collect.BiMap;
+
+import com.google.common.collect.HashBiMap;
 
 import dev.tablight.dataaddon.RegistryException;
 import dev.tablight.dataaddon.annotation.AnnotationUtil;
 import dev.tablight.dataaddon.annotation.DataAddon;
 import dev.tablight.dataaddon.holder.TypeHolder;
+import dev.tablight.dataaddon.mark.Mark;
 
 public class DefaultStoreLoadController extends StoreLoadController {
 	protected final Collection<TypeHolder> holders = new ArrayList<>();
+	protected final BiMap<Class<?>, Mark<?, ?>> marks = HashBiMap.create();
 
 	@Override
 	public void store(Class<?> registrableType) {
@@ -38,6 +45,12 @@ public class DefaultStoreLoadController extends StoreLoadController {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
+	public <T, N> Mark<T, N> getMark(Class<T> registrableType) {
+		return (Mark<T, N>) marks.get(registrableType);
+	}
+
+	@Override
 	public <T> void lookup(Class<T> registrableType) {
 		AnnotationUtil.checkAnnotation(registrableType);
 		try {
@@ -49,7 +62,7 @@ public class DefaultStoreLoadController extends StoreLoadController {
 
 	@Override
 	public <T, N> void lookupAndLoad(StoreLoadLookup<T, N> lookup) {
-		lookup.lookup().get().forEach(instantiated -> {
+		lookup.lookup().forEach(instantiated -> {
 			holders.forEach(holder -> holder.hold(instantiated));
 			AnnotationUtil.invokeLoad(instantiated);
 		});
@@ -57,7 +70,8 @@ public class DefaultStoreLoadController extends StoreLoadController {
 
 	@Override
 	public <T, N> void lookup(StoreLoadLookup<T, N> lookup) {
-		lookup.lookup().get().forEach(registrable -> holders.forEach(holder -> holder.hold(registrable)));
+		Stream<T> lookedStream = lookup.lookup();
+		lookedStream.forEach(registrable -> holders.forEach(holder -> holder.hold(registrable)));
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly(project(":misc-lib"))
+    compileOnly(project(":paper-plugin:misc-lib"))
 }
 
 bukkit {

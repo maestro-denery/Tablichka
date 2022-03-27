@@ -1,9 +1,9 @@
 apply(plugin = "scala")
 
 dependencies {
-    compileOnly(project(":misc-lib"))
-    compileOnly("com.github.LoneDev6:api-itemsadder:2.4.21")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly(project(":paper-plugin:misc-lib"))
+    compileOnly("com.github.LoneDev6:api-itemsadder:3.0.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
     implementation("net.wesjd:anvilgui:1.5.3-SNAPSHOT")
 }
 

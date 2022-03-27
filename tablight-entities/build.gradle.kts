@@ -1,10 +1,10 @@
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 dependencies {
-    compileOnly(project(":misc-lib"))
-    compileOnly(project(":tablight-entity-registry-api"))
-    compileOnly(project(":data-addons"))
-    compileOnly(project(":tablight-llapi"))
+    compileOnly(project(":paper-plugin:misc-lib"))
+    compileOnly(project(":paper-plugin:tablight-entity-registry-api"))
+    compileOnly(project(":paper-plugin:tablight-llapi"))
+    compileOnly(project(":library:data-addons"))
 }
 
 bukkit {
@@ -14,7 +14,7 @@ bukkit {
     apiVersion = "1.18"
     description = "Plugin adding Entities for TabLight"
     authors = listOf("Denery")
-    depend = listOf("misc-lib", "tablight-entity-registry-api", "data-addons")
+    depend = listOf("misc-lib", "tablight-entity-registry-api", "tablight-dependency-manager")
     commands {
         register("tl-entities") {
             description = "Spawn entity if its ID is registered in EntityRegistryLib"

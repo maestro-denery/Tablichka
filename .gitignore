@@ -118,20 +118,16 @@ out-plugins/
 # Common server run directory
 **/run/*
 !run/eula.txt
-!run/plugins/
-run/plugins/*
-!run/plugins/saved/item-nbt-api-plugin-2.8.0.jar
-!run/plugins/saved/ItemsAdder.jar
-!run/plugins/saved/LoneLibs.jar
-!run/plugins/saved/Model-Engine-r2.2.0.jar
-!run/plugins/ProtocolLib.jar
-!run/plugins/saved/ScreenEffects.jar
 
-!run/plugins/ModelEngine/
-run/plugins/ModelEngine/*
-!run/plugins/ModelEngine/blueprints/
+libraries/data-addons/sqlite-io/DataAddon/data-addons.db
+
+# Tablight Paper.
+tablight-paper/tablight-api/*
+
+tablight-paper/tablight-server/*
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
 !.sources/*
+

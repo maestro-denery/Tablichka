@@ -1,7 +1,7 @@
 dependencies {
-    compileOnly(project(":data-addons"))
-    compileOnly(project(":misc-lib"))
-    compileOnly(project(":tablight-llapi"))
+    compileOnly(project(":paper-plugin:misc-lib"))
+    compileOnly(project(":paper-plugin:tablight-llapi"))
+    compileOnly(project(":library:data-addons"))
 }
 
 bukkit {
@@ -9,6 +9,6 @@ bukkit {
     main = "dev.tablight.common.impl.entityregistry.EntityRegistryPlugin"
     description = "An API for registering and manipulating entites."
     apiVersion = "1.18"
-    depend = listOf("misc-lib", "data-addons", "tablight-llapi")
+    depend = listOf("misc-lib", "tablight-dependency-manager", "tablight-llapi")
     authors = listOf("Denery")
 }

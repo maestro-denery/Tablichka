@@ -11,6 +11,8 @@ import dev.tablight.dataaddon.annotation.DataAddon;
 import dev.tablight.dataaddon.GlobalGroupContainer;
 import dev.tablight.entities.commands.EntitiesCommand;
 
+import dev.tablight.tablightpaper.TablightPaper;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -41,9 +43,7 @@ public final class EntitiesPlugin extends JavaPlugin {
 		
 		bootstrap.setContainer(GlobalGroupContainer.getInstance());
 		bootstrap.bootstrapRegistries("dev.tablight.entities.registries");
-		bootstrap.bootstrapDataAddons("dev.tablight.entities.impls", clazz -> {
-			
-		});
+		bootstrap.bootstrapDataAddons("dev.tablight.entities.impls");
 		//spawnerAccessors.addCustomSpawner(Bukkit.getWorld("world"), new LochnessMonsterSpawner());
 
 		this.getCommand("tl-entities").setExecutor(new EntitiesCommand());

@@ -25,7 +25,7 @@ import dev.tablight.dataaddon.typeregistry.TypeRegistry;
  */
 public class GroupContainer {
 	private static final String DOESNT_HAVE_ANNOTATION = "Class doesn't have annotation";
-	public final Map<String, Class<?>> implementations = new HashMap<>();
+	public final Map<String, Class<?>> dataAddons = new HashMap<>();
 	public final Map<String, Class<? extends TypeRegistry>> typeRegistries = new HashMap<>();
 	public final Map<String, Class<? extends TypeHolder>> holders = new HashMap<>();
 	public final Map<String, Class<? extends StoreLoadController>> controllers = new HashMap<>();
@@ -58,11 +58,11 @@ public class GroupContainer {
 	}
 
 	public void registerImplementation(Class<?> clazz) {
-		implementations.put(clazz.getAnnotation(DataAddon.class).groupTag(), clazz);
+		dataAddons.put(clazz.getAnnotation(DataAddon.class).groupTag(), clazz);
 	}
 	
 	public void clearAll() {
-		implementations.clear();
+		dataAddons.clear();
 		typeRegistries.clear();
 		holders.clear();
 		controllers.clear();
