@@ -24,6 +24,11 @@ include(":paper-plugin:misc-lib")
 
 include(":paper-plugin:dependency-manager")
 
+// Fabric mods, generally client-side.
+include(":fabric-mod")
+
+include(":fabric-mod:tablight-debug-client")
+
 // Libraries, generally cross-platform.
 include(":library")
 

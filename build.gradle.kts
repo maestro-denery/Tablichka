@@ -11,6 +11,9 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1" apply false
     id("xyz.jpenilla.run-paper") version "1.0.6"
 
+    // Fabric
+    id("fabric-loom") version "0.11-SNAPSHOT" apply false
+
     // Other management
     id("org.sonarqube") version "3.3"
     id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -133,6 +136,12 @@ project(":paper-plugin").subprojects {
     }
 }
 
+project(":fabric-mod").subprojects {
+    apply(plugin = "fabric-loom")
+    //TODO Implement common settings for fabric projects.
+}
+
 project(":tablight-paper") {
     apply(plugin = "io.papermc.paperweight.patcher")
 }
+

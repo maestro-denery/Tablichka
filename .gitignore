@@ -119,6 +119,8 @@ out-plugins/
 **/run/*
 !run/eula.txt
 
+fabricRun/
+
 libraries/data-addons/sqlite-io/DataAddon/data-addons.db
 
 # Tablight Paper.
