@@ -1,3 +1,5 @@
+import dev.tablight.monorepo.TablightMonorepoPlugin
+
 plugins {
     // General
     id("idea")
@@ -7,7 +9,6 @@ plugins {
 
     // Paper
     id("io.papermc.paperweight.userdev") version "1.3.5" apply false
-    id("io.papermc.paperweight.patcher") version "1.3.5" apply false
     id("net.minecrell.plugin-yml.bukkit") version "0.5.1" apply false
     id("xyz.jpenilla.run-paper") version "1.0.6"
 
@@ -21,16 +22,13 @@ plugins {
     //TODO: Implement checkstyle plugin to automate checking APIs structure.
 }
 
+//apply<TablightMonorepoPlugin>()
+
 group = "dev.tablight.common"
 version = "dev-1"
 description = "Main TabLight gameplay plugins, APIs and libraries for them."
 
 tasks {
-    register("setupTablightDevelopment") {
-        dependsOn(project(":tablight-paper").tasks.getByName("applyPatches"))
-        dependsOn(project(":tablight-paper").tasks.getByName("publishDevBundlePublicationToMavenLocal"))
-    }
-
     register("buildAll") {
         project(":paper-plugin").subprojects
             .map { sub -> sub.tasks.getByName<io.papermc.paperweight.tasks.RemapJar>("reobfJar") }
@@ -48,7 +46,8 @@ tasks {
         }.forEach { sub ->
             pluginJars.from(sub.tasks.getByName<io.papermc.paperweight.tasks.RemapJar>("reobfJar").outputJar)
         }
-        serverJar(project(":tablight-paper").tasks.getByName<io.papermc.paperweight.tasks.CreatePaperclipJar>("createReobfPaperclipJar").outputZip)
+        //TODO tablight paper usage.
+        //serverJar(project(":tablight-paper").tasks.getByName<io.papermc.paperweight.tasks.CreatePaperclipJar>("createReobfPaperclipJar").outputZip)
         minecraftVersion("1.18.2")
     }
 
@@ -62,7 +61,7 @@ tasks {
     }
 }
 
-allprojects {
+subprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
     apply(plugin = "com.github.ben-manes.versions")
@@ -139,9 +138,5 @@ project(":paper-plugin").subprojects {
 project(":fabric-mod").subprojects {
     apply(plugin = "fabric-loom")
     //TODO Implement common settings for fabric projects.
-}
-
-project(":tablight-paper") {
-    apply(plugin = "io.papermc.paperweight.patcher")
 }
 

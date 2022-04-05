@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.tablight.dataaddon.mark;
+/**
+ *	An experimental API for formatting components with Tagless Final in java.
+ */
+@ApiStatus.Experimental
+package dev.tablight.misc.component;
 
-public abstract class Marker {
-	public abstract void mark();
-}
+import org.jetbrains.annotations.ApiStatus;

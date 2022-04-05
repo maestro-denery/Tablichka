@@ -20,14 +20,14 @@ public interface StoreLoadLookup<T, N> {
 	Mark<T, N> mark();
 
 	/**
+	 * @return Natives lazy stream matching DataAddon requirements.
+	 */
+	Stream<N> getNatives();
+
+	/**
 	 * @return lazy lookup obtaining instances of DataAddon instances
 	 */
 	default Stream<T> lookup() {
 		return getNatives().map(n -> mark().convert(n)).filter(t -> mark().matches().test(t));
 	}
-
-	/**
-	 * @return Natives lazy stream matching DataAddon requirements.
-	 */
-	Stream<N> getNatives();
 }

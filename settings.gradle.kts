@@ -11,6 +11,8 @@ rootProject.name = "TabLight"
 // Paper plugins
 include(":paper-plugin")
 
+include(":paper-plugin:visual")
+
 include(":paper-plugin:entities")
 include(":paper-plugin:discs")
 include(":paper-plugin:waystones")
@@ -18,6 +20,8 @@ include(":paper-plugin:waystones")
 include(":paper-plugin:tablight-entity-registry-api")
 include(":paper-plugin:tablight-disc-registry-api")
 include(":paper-plugin:tablight-llapi")
+
+include(":paper-plugin:packer-server")
 
 include(":paper-plugin:scala-support-lib")
 include(":paper-plugin:misc-lib")
@@ -39,12 +43,7 @@ include(":library:data-addons:sqlite-io")
 
 include(":library:admixtures")
 
-// Our Paper fork for some specific things.
-include(":tablight-paper")
-include(":tablight-paper:tablight-server")
-include(":tablight-paper:tablight-api")
-
-
+project(":paper-plugin:visual").projectDir = file("tablight-visual")
 project(":paper-plugin:entities").projectDir = file("tablight-entities")
 project(":paper-plugin:discs").projectDir = file("tablight-discs")
 project(":paper-plugin:waystones").projectDir = file("tablight-waystones")
@@ -56,6 +55,7 @@ project(":paper-plugin:tablight-llapi").projectDir = file("apis/tablight-llapi")
 
 project(":paper-plugin:scala-support-lib").projectDir = file("libraries/scala-support")
 project(":paper-plugin:misc-lib").projectDir = file("libraries/misc")
+project(":paper-plugin:packer-server").projectDir = file("packer-server")
 
 project(":library:packer").projectDir = file("libraries/packer")
 

@@ -25,7 +25,9 @@ public class DataAddonDummyLookup implements StoreLoadLookup<DataAddonDummy, Dat
 			var dummy = new DataAddonDummy();
 			dummy.setSomeNativeStringData(nativeD.getSomeNativeString());
 			return dummy;
-		}, dummy -> true);
+		}, dummy -> true, n -> {
+			
+		});
 	}
 
 	@Override

@@ -10,18 +10,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * Class representing mark on some native data.
+ * @param <T> type
+ * @param <N> Native data.
+ */
 public interface Mark<T, N> {
+
+	void mark(N n);
 
 	Predicate<T> matches();
 
 	T convert(N n);
 
-	default Consumer<T> mark() {
-		return type -> matches().test(type);
-	}
-
-	static <T, N> Mark<T, N> create(Function<? super N, ? extends T> convert, Predicate<T> matches) {
+	static <T, N> Mark<T, N> create(Function<? super N, ? extends T> convert, Predicate<T> matches, Consumer<? super N> mark) {
 		return new Mark<>() {
+			@Override
+			public void mark(N n) {
+				mark.accept(n);
+			}
+
 			@Override
 			public Predicate<T> matches() {
 				return matches;

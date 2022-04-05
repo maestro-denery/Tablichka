@@ -20,7 +20,8 @@ public class LochnessMonsterLookup extends LivingEntityLookup<LochnessMonster, S
 					lochnessMonster.setOrigin(squid);
 					return lochnessMonster;
 				},
-				lochnessMonster -> isCustom(lochnessMonster.getOrigin(), lochnessMonster.getClass())
+				lochnessMonster -> isCustom(lochnessMonster.getOrigin(), lochnessMonster.getClass()),
+				n -> {}
 		);
 	}
 
